@@ -36,7 +36,7 @@ const sejourId = (G ? 'g' + G + '_' : '') + (arrivee && depart ? Q.get('a') + '_
 const listKey = 'rp-liste-' + sejourId;
 /* Jeton du séjour (créé par l'hôte) : active la liste partagée et l'album. */
 const S = /^[A-Za-z0-9_-]{16,64}$/.test(Q.get('s') || '') ? Q.get('s') : null;
-let partagee = null, horsLigne = false, album = null, envoi = 0, albumErr = '', suppr = null;
+let partagee = null, horsLigne = false, album = null, envoi = 0, albumErr = '', suppr = null, souv = null, souvEnCours = false, souvErr = '';
 
 let lang = RP.langues[Q.get('l')] ? Q.get('l') : (RP.langues[store.get('rp-lang')] ? store.get('rp-lang') : null);
 let tab = 0, cat = 'tout', video = RP.videos[Q.get('v')] ? Q.get('v') : null;
@@ -277,9 +277,83 @@ function vAlbum(){
       <input type="file" id="photoIn" accept="image/*" multiple hidden ${envoi?'disabled':''}></label>
     ${albumErr?`<p class="miss">${E(albumErr)}</p>`:''}
     ${ph===null?'':ph.length?`<div class="gal">${ph.map(p=>`<figure><a href="${E(p.url||'#')}" target="_blank" rel="noopener"><img src="${E(p.url||'')}" alt="" loading="lazy"></a>
-      <button class="del" data-del="${p.id}">${E(L(suppr===p.id?'delSure':'delPhoto'))}</button></figure>`).join('')}</div>`:`<p class="muted">${E(L('albumEmpty'))}</p>`}
+      <button class="del" data-del="${p.id}">${E(L(suppr===p.id?'delSure':'delPhoto'))}</button>
+      <input class="cap" data-cap="${p.id}" maxlength="140" value="${E(p.legende||'')}" placeholder="${E(L('capPh'))}" aria-label="${E(L('capPh'))}"></figure>`).join('')}</div>`:`<p class="muted">${E(L('albumEmpty'))}</p>`}
+    ${ph&&ph.length?`<section class="card souv"><div class="eyebrow">★ ${E(L('souvenir'))}</div><p class="muted" style="margin:0">${E(L('souvenirTxt'))}</p>
+      ${souv?`<img src="${souv.url}" alt="${E(L('souvenirTitle'))}"><a class="btn" href="${souv.url}" download="souvenir-le-rempart.jpg">${E(L('save'))}</a>${navigator.canShare&&navigator.canShare({files:[souv.file]})?`<button class="btn ghost" data-act="souvShare">${E(L('shareImg'))}</button>`:''}`
+        :`<button class="btn" data-act="souv" ${souvEnCours?'disabled':''}>${E(souvEnCours?L('making'):L('souvenir'))}</button>`}
+      ${souvErr?`<p class="miss">${E(souvErr)}</p>`:''}
+      ${fin?`<p class="muted" style="margin:0">${E(L('souvenirBefore').replace('{d}', fmt(fin,{day:'numeric',month:'long'})))}</p>`:''}</section>`:''}
     ${fin?`<p class="muted">${E(L('albumSave').replace('{d}', fmt(fin,{day:'numeric',month:'long'})))}</p>`:''}`;
 }
+/* ---------- Souvenir : image 1080×1350 créée sur le téléphone, signée Le Rempart ---------- */
+function chargerImg(url){
+  return new Promise((ok, ko) => { const i = new Image(); i.crossOrigin = 'anonymous'; i.onload = () => ok(i); i.onerror = ko; i.src = url; });
+}
+function couvrir(x, img, dx, dy, w, h){
+  const k = Math.max(w / img.naturalWidth, h / img.naturalHeight), sw = w / k, sh = h / k;
+  x.drawImage(img, (img.naturalWidth - sw) / 2, (img.naturalHeight - sh) / 2, sw, sh, dx, dy, w, h);
+}
+function arrondi(x, X, Y, w, h, r){ x.beginPath(); x.moveTo(X+r,Y); x.arcTo(X+w,Y,X+w,Y+h,r); x.arcTo(X+w,Y+h,X,Y+h,r); x.arcTo(X,Y+h,X,Y,r); x.arcTo(X,Y,X+w,Y,r); x.closePath(); }
+function lignes(x, txt, maxW, maxL){
+  const mots = txt.split(/\s+/), out = []; let l = '';
+  for (const m of mots) { const t = l ? l + ' ' + m : m; if (x.measureText(t).width > maxW && l) { out.push(l); l = m; } else l = t; }
+  if (l) out.push(l);
+  if (out.length > maxL) { out.length = maxL; out[maxL-1] = out[maxL-1].replace(/\s*\S*$/, '') + '…'; }
+  return out;
+}
+async function creerSouvenir(){
+  souvEnCours = true; souvErr = ''; render(true);
+  try {
+    await Promise.all([document.fonts.load('48px "Young Serif"'), document.fonts.load('600 30px Figtree')]).catch(()=>{});
+    const toutes = album.photos.filter(p => p.url);
+    const choix = toutes.filter(p => p.legende).concat(toutes.filter(p => !p.legende)).slice(0, 6)
+      .sort((a, b) => toutes.indexOf(a) - toutes.indexOf(b));
+    const imgs = await Promise.all(choix.map(p => chargerImg(p.url)));
+    const W = 1080, H = 1350, c = document.createElement('canvas'); c.width = W; c.height = H;
+    const x = c.getContext('2d');
+    x.fillStyle = '#f4f1ea'; x.fillRect(0, 0, W, H);
+    x.fillStyle = '#a8782a'; x.font = '700 24px Figtree, sans-serif'; x.textAlign = 'center';
+    x.fillText(('Le Rempart · Ciney' + (G ? ' · Gîte ' + G : '')).toUpperCase().split('').join(String.fromCharCode(8202)), W/2, 78);
+    x.fillStyle = '#1c2420'; x.font = '58px "Young Serif", Georgia, serif'; x.fillText(L('souvenirTitle'), W/2, 150);
+    if (arrivee && depart) { x.fillStyle = '#5d6a62'; x.font = '500 28px Figtree, sans-serif';
+      x.fillText(fmt(arrivee,{day:'numeric',month:'long'}) + ' – ' + fmt(depart,{day:'numeric',month:'long',year:'numeric'}), W/2, 196); }
+    // Grille : 2 colonnes ; si le nombre de photos est impair, la première prend toute la largeur.
+    const n = imgs.length, rows = n <= 2 ? n : Math.ceil(n / 2);
+    const top0 = 236, bas = 1230, gap = 18, mx = 60, colW = (W - 2*mx - gap) / 2, ch = (bas - top0 - gap*(rows-1)) / rows;
+    const cases = [];
+    if (n <= 2) for (let i = 0; i < n; i++) cases.push([mx, top0 + i*(ch+gap), W - 2*mx]);
+    else { let r = 0, i = 0;
+      if (n % 2) { cases.push([mx, top0, W - 2*mx]); r = 1; i = 1; }
+      for (; i < n; i++, r += (i - (n % 2)) % 2 === 0 ? 1 : 0) cases.push([mx + ((i - (n % 2)) % 2) * (colW + gap), top0 + r*(ch+gap), colW]);
+    }
+    for (let i = 0; i < n; i++) {
+      const [X, Y, cw] = cases[i], cols = cw > colW + 1 ? 1 : 2;
+      x.save(); arrondi(x, X, Y, cw, ch, 22); x.clip(); couvrir(x, imgs[i], X, Y, cw, ch);
+      const leg = choix[i].legende;
+      if (leg) {
+        x.font = 'italic 500 ' + (cols === 1 ? 34 : 26) + 'px Figtree, sans-serif';
+        const ls = lignes(x, '« ' + leg + ' »', cw - 48, 3), lh = cols === 1 ? 44 : 34, bh = ls.length * lh + 34;
+        const g = x.createLinearGradient(0, Y + ch - bh - 40, 0, Y + ch); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.72)');
+        x.fillStyle = g; x.fillRect(X, Y + ch - bh - 40, cw, bh + 40);
+        x.fillStyle = '#fff'; x.textAlign = 'left';
+        ls.forEach((t, k) => x.fillText(t, X + 24, Y + ch - bh + 24 + (k + 1) * lh - 10));
+        x.textAlign = 'center';
+      }
+      x.restore();
+    }
+    // Signature
+    x.fillStyle = '#5f7a5c'; arrondi(x, W/2 - 300, 1262, 40, 40, 10); x.fill();
+    x.fillStyle = '#fff'; x.beginPath(); const hx = W/2 - 300, hy = 1262;
+    [[9,32],[9,17],[20,9],[31,17],[31,32],[24,32],[24,23],[16,23],[16,32]].forEach(([a,b],k) => k ? x.lineTo(hx+a,hy+b) : x.moveTo(hx+a,hy+b)); x.fill();
+    x.fillStyle = '#1c2420'; x.textAlign = 'left'; x.font = '600 28px Figtree, sans-serif'; x.fillText(L('souvenirSign'), W/2 - 244, 1292);
+    const blob = await new Promise((ok, ko) => c.toBlob(b => b ? ok(b) : ko(new Error('toBlob')), 'image/jpeg', 0.9));
+    if (souv) URL.revokeObjectURL(souv.url);
+    souv = { url: URL.createObjectURL(blob), file: new File([blob], 'souvenir-le-rempart.jpg', {type:'image/jpeg'}) };
+  } catch (e) { souvErr = L('souvenirErr'); }
+  souvEnCours = false; render(true);
+}
+
 async function chargerAlbum(){
   try { album = await RP.api('album', S); horsLigne = false; } catch (e) { horsLigne = true; }
   if (tab === 5) render(true);
@@ -301,7 +375,7 @@ function reduire(f){
 async function envoyer(fichiers){
   albumErr = ''; envoi = fichiers.length; render(true);
   for (const f of fichiers) {
-    try { const fd = new FormData(); fd.append('photo', await reduire(f)); album = await RP.api('album', S, fd); }
+    try { const fd = new FormData(); fd.append('photo', await reduire(f)); album = await RP.api('album', S, fd); if (souv) { URL.revokeObjectURL(souv.url); souv = null; } }
     catch (e) { albumErr = L('photoErr') + (e.message && !/fetch/i.test(e.message) ? ' (' + e.message + ')' : ''); }
     envoi--; render(true);
   }
@@ -333,7 +407,7 @@ document.addEventListener('click', e => {
   if (b.dataset.del){
     const id = +b.dataset.del;
     if (suppr !== id){ suppr = id; render(true); return; }
-    suppr = null; RP.api('album_suppr', S, {id}).then(chargerAlbum, () => { horsLigne = true; render(true); }); return;
+    suppr = null; if (souv) { URL.revokeObjectURL(souv.url); souv = null; } RP.api('album_suppr', S, {id}).then(chargerAlbum, () => { horsLigne = true; render(true); }); return;
   }
   if (b.dataset.lang){ lang = b.dataset.lang; store.set('rp-lang', lang); tab = video ? 3 : 0; render(); return; }
   if (b.dataset.tab){ tab = +b.dataset.tab; render(); if (tab === 4) chargerListe(); if (tab === 5) chargerAlbum(); return; }
@@ -343,11 +417,19 @@ document.addEventListener('click', e => {
   if (b.dataset.act === 'arr'){ const box = document.getElementById('arrBox'); box.hidden = !box.hidden; b.setAttribute('aria-expanded', String(!box.hidden)); majArrivee(); return; }
   if (b.dataset.act === 'ics'){ ics(); return; }
   if (b.dataset.act === 'invite'){ partagerLien(); return; }
+  if (b.dataset.act === 'souv'){ creerSouvenir(); return; }
+  if (b.dataset.act === 'souvShare'){ navigator.share({files:[souv.file], title:L('souvenirTitle')}).catch(()=>{}); return; }
   if (b.dataset.act === 'clear'){ if (enPartage()) opListe({op:'vider'}); else { saveListe(listeLocale().filter(i=>!i.d)); render(true); } return; }
 });
 document.addEventListener('input', e => { if (e.target.id === 'arrT') majArrivee(); });
 document.addEventListener('change', e => {
   if (e.target.id === 'photoIn' && e.target.files.length){ envoyer(Array.from(e.target.files)); return; }
+  if (e.target.dataset && e.target.dataset.cap){
+    const id = +e.target.dataset.cap, v = e.target.value.trim().slice(0, 140), p = album && album.photos.find(q => q.id === id);
+    if (p) p.legende = v;
+    if (souv) { URL.revokeObjectURL(souv.url); souv = null; render(true); }
+    RP.api('album_legende', S, {id, legende: v}).catch(() => { horsLigne = true; render(true); }); return;
+  }
   if (e.target.dataset && e.target.dataset.i !== undefined){
     const l = liste(), it = l[+e.target.dataset.i];
     if (enPartage()) { it.d = e.target.checked; opListe({op:'coche', id:it.id, fait:it.d}); return; }

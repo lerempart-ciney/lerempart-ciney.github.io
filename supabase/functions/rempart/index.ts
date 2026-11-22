@@ -148,13 +148,19 @@ Deno.serve(async (req) => {
         if (up.error) return erreur(up.error.message, 500);
         await db.from("v_photos").insert({ sejour: sejour.token, chemin });
       }
-      const { data: ph } = await db.from("v_photos").select("id, chemin, cree_le").eq("sejour", sejour.token).order("cree_le");
+      const { data: ph } = await db.from("v_photos").select("id, chemin, cree_le, legende").eq("sejour", sejour.token).order("cree_le");
       const chemins = (ph ?? []).map((p) => p.chemin);
       const signes = chemins.length ? (await db.storage.from("album").createSignedUrls(chemins, 7200)).data ?? [] : [];
       return json({
-        photos: (ph ?? []).map((p, i) => ({ id: p.id, url: signes[i]?.signedUrl, date: p.cree_le })),
+        photos: (ph ?? []).map((p, i) => ({ id: p.id, url: signes[i]?.signedUrl, date: p.cree_le, legende: p.legende ?? "" })),
         depart: sejour.depart,
       });
+    }
+
+    if (a === "album_legende" && req.method === "POST") {
+      const legende = String(corps?.legende ?? "").trim().slice(0, 140) || null;
+      await db.from("v_photos").update({ legende }).eq("sejour", sejour.token).eq("id", corps?.id);
+      return json({ ok: true });
     }
 
     if (a === "album_suppr" && req.method === "POST") {
