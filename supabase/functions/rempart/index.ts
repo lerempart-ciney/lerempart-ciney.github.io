@@ -91,7 +91,7 @@ async function purge() {
   let photos = 0;
   for (const s of finis ?? []) {
     const { data: ph } = await db.from("v_photos").select("chemin").eq("sejour", s.token);
-    const chemins = (ph ?? []).map((p) => p.chemin);
+    const chemins = (ph ?? []).map((p) => p.chemin).filter((c) => !c.startsWith("https://"));
     if (chemins.length) { await db.storage.from("album").remove(chemins); photos += chemins.length; }
     await db.from("v_sejours").delete().eq("token", s.token); // supprime aussi la liste et les photos (cascade)
   }
@@ -136,7 +136,7 @@ Deno.serve(async (req) => {
       if (a === "sejours") {
         const { data } = await db.from("v_sejours")
           .select("token, gite_id, nom, langue, langue_le, arrivee, depart, heure_arrivee, arrivee_annoncee, acces_retire, code_portail, code_porte")
-          .gte("depart", plusJours(aujourdhui(), -1)).order("arrivee");
+          .gte("depart", plusJours(aujourdhui(), -1)).eq("demo", false).order("arrivee");
         return json({ sejours: data ?? [] });
       }
 
@@ -177,7 +177,9 @@ Deno.serve(async (req) => {
         heure: sejour.heure_arrivee, debloque, peutAnnoncer: peutAnnoncer(sejour), retire: !!sejour.acces_retire,
       };
       if (debloque) {
-        r.wifi = { reseau: await config("wifi_reseau"), motDePasse: await config("wifi_mdp") };
+        // Séjour de démonstration (présentation) : jamais le vrai Wi-Fi.
+        r.wifi = sejour.demo ? { reseau: "Exemple-WiFi", motDePasse: "exemple" }
+          : { reseau: await config("wifi_reseau"), motDePasse: await config("wifi_mdp") };
         r.codes = { portail: sejour.code_portail, porte: sejour.code_porte };
       }
       return json(r);
@@ -241,10 +243,13 @@ Deno.serve(async (req) => {
         await db.from("v_photos").insert({ sejour: sejour.token, chemin });
       }
       const { data: ph } = await db.from("v_photos").select("id, chemin, cree_le, legende").eq("sejour", sejour.token).order("cree_le");
-      const chemins = (ph ?? []).map((p) => p.chemin);
+      // Une photo de démonstration peut pointer vers une image publique du site (https://…).
+      const web = (c: string) => c.startsWith("https://");
+      const chemins = (ph ?? []).map((p) => p.chemin).filter((c) => !web(c));
       const signes = chemins.length ? (await db.storage.from("album").createSignedUrls(chemins, 7200)).data ?? [] : [];
+      const lien = (c: string) => web(c) ? c : signes[chemins.indexOf(c)]?.signedUrl;
       return json({
-        photos: (ph ?? []).map((p, i) => ({ id: p.id, url: signes[i]?.signedUrl, date: p.cree_le, legende: p.legende ?? "" })),
+        photos: (ph ?? []).map((p) => ({ id: p.id, url: lien(p.chemin), date: p.cree_le, legende: p.legende ?? "" })),
         depart: sejour.depart,
       });
     }
@@ -257,7 +262,7 @@ Deno.serve(async (req) => {
 
     if (a === "album_suppr" && req.method === "POST") {
       const { data: p } = await db.from("v_photos").select("chemin").eq("sejour", sejour.token).eq("id", corps?.id).maybeSingle();
-      if (p) { await db.storage.from("album").remove([p.chemin]); await db.from("v_photos").delete().eq("id", corps.id); }
+      if (p) { if (!p.chemin.startsWith("https://")) await db.storage.from("album").remove([p.chemin]); await db.from("v_photos").delete().eq("id", corps.id); }
       return json({ ok: true });
     }
 

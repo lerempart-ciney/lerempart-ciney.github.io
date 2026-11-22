@@ -56,3 +56,7 @@ Code QR : bibliothèque de Kazuhiko Arase (licence MIT), `assets/qrcode.js`.
 ## Écran TV (Smart TV Samsung)
 
 Ouvrir l'application **Internet** de la TV, aller à l'adresse `…/le-rempart/tv.html`, puis l'ajouter aux favoris. Cliquer une fois avec la télécommande pour passer en plein écran. Désactiver la mise en veille automatique de la TV dans ses réglages. La page se met à jour seule (heure, idées du jour, langue).
+
+## Séjour de démonstration (présentation)
+
+Colonne `demo` dans `v_sejours`. Un séjour démo renvoie toujours un Wi-Fi d'exemple (jamais le vrai), n'apparaît pas dans « Mes séjours » et peut avoir des photos qui pointent vers une image publique du site (`https://…`). Lien démo : gîte 1, codes 1234 / 5678, valable jusqu'au 01/02/2027.
