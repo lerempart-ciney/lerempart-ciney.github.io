@@ -77,6 +77,17 @@ RP.adresses = [
  {cat:'chef',  nom:'Simon Denis',     tel:'0473 40 54 20'}
 ];
 
+/* ---------- 3b. Supermarchés (relevé du 22/11/2026, annuaire bottin.be ; Aldi : adresse sur hours.be) ----------
+   h = horaires du dimanche (0) au samedi (6) ; null = fermé ; h absent = horaires inconnus. */
+RP.supermarchesVerifiesLe = '2026-11-22';
+RP.supermarches = [
+ {nom:'Carrefour Market Ciney Centre', adr:'Rue du Commerce 44, Ciney', h:['08:00-18:30','08:00-20:00','08:00-20:00','08:00-20:00','08:00-20:00','08:00-20:00','08:00-20:00'], doute:true},
+ {nom:'Intermarché',                  adr:'Rue du Commerce 79, Ciney', h:['09:00-18:00','08:30-19:00','08:30-19:00','08:30-19:00','08:30-19:00','08:30-20:00','08:30-19:00']},
+ {nom:'Delhaize',                     adr:'Chemin de Crahiat 18A, Ciney', h:['08:30-12:30','08:30-19:00','08:30-19:00','08:30-19:00','08:30-19:00','08:30-20:00','08:30-19:00']},
+ {nom:'Colruyt',                      adr:'Saint-Gilles 17, Ciney', h:[null,'08:30-20:00','08:30-20:00','08:30-20:00','08:30-20:00','08:30-21:00','08:30-20:00']},
+ {nom:'Aldi',                         adr:'Avenue Schlogel 119, Ciney'}
+];
+
 /* ---------- 4. Textes de l'interface (5 langues) ---------- */
 RP.langues = { fr:'fr-BE', en:'en-GB', nl:'nl-BE', de:'de-DE', es:'es-ES' };
 RP.nomsLangues = { fr:'Français', en:'English', nl:'Nederlands', de:'Deutsch', es:'Español' };
@@ -150,6 +161,16 @@ RP.t = {
  tvWifiScan:{fr:'Scannez pour vous connecter',en:'Scan to connect',nl:'Scan om te verbinden',de:'Scannen zum Verbinden',es:'Escanead para conectaros'},
  tvApp:{fr:'Votre guide du séjour',en:'Your stay guide',nl:'Jullie verblijfsgids',de:'Ihr Aufenthaltsführer',es:'Vuestra guía de la estancia'},
  tvAppScan:{fr:'Scannez avec votre téléphone',en:'Scan with your phone',nl:'Scan met jullie telefoon',de:'Mit dem Handy scannen',es:'Escanead con el móvil'},
+ shops:{fr:'Supermarchés proches',en:'Nearby supermarkets',nl:'Supermarkten in de buurt',de:'Supermärkte in der Nähe',es:'Supermercados cercanos'},
+ shut:{fr:'fermé',en:'closed',nl:'gesloten',de:'geschlossen',es:'cerrado'},
+ openNow:{fr:'Ouvert maintenant',en:'Open now',nl:'Nu open',de:'Jetzt geöffnet',es:'Abierto ahora'},
+ closedNow:{fr:'Fermé maintenant',en:'Closed now',nl:'Nu gesloten',de:'Jetzt geschlossen',es:'Cerrado ahora'},
+ todayH:{fr:'Aujourd’hui',en:'Today',nl:'Vandaag',de:'Heute',es:'Hoy'},
+ hUnknown:{fr:'Horaires à vérifier',en:'Opening hours to be checked',nl:'Openingsuren nog te controleren',de:'Öffnungszeiten bitte prüfen',es:'Horario por confirmar'},
+ shopsSrc:{fr:'Horaires relevés le {d} dans un annuaire en ligne. Ils peuvent changer, surtout les jours fériés.',en:'Opening hours taken from an online directory on {d}. They may change, especially on public holidays.',nl:'Openingsuren overgenomen uit een online gids op {d}. Ze kunnen wijzigen, vooral op feestdagen.',de:'Öffnungszeiten am {d} aus einem Online-Verzeichnis übernommen. Sie können sich ändern, besonders an Feiertagen.',es:'Horarios tomados de un directorio en línea el {d}. Pueden cambiar, sobre todo en días festivos.'},
+ remind:{fr:'Ajouter un rappel à mon agenda',en:'Add a reminder to my calendar',nl:'Herinnering in mijn agenda zetten',de:'Erinnerung in meinen Kalender eintragen',es:'Añadir un recordatorio a mi calendario'},
+ remindNote:{fr:'Rappel 2 heures avant l’heure estimée, pour prévenir Frédéric.',en:'Reminder 2 hours before your estimated time, to let Frédéric know.',nl:'Herinnering 2 uur voor het verwachte uur, om Frédéric te verwittigen.',de:'Erinnerung 2 Stunden vor der voraussichtlichen Uhrzeit, um Frédéric Bescheid zu geben.',es:'Recordatorio 2 horas antes de la hora estimada, para avisar a Frédéric.'},
+ remindTitle:{fr:'Prévenir Frédéric de notre arrivée (Le Rempart)',en:'Let Frédéric know we are arriving (Le Rempart)',nl:'Frédéric laten weten dat we aankomen (Le Rempart)',de:'Frédéric unsere Ankunft mitteilen (Le Rempart)',es:'Avisar a Frédéric de nuestra llegada (Le Rempart)'},
  bye:{fr:'Bon séjour au Rempart !',en:'Enjoy your stay at Le Rempart!',nl:'Fijn verblijf in Le Rempart!',de:'Einen schönen Aufenthalt im Le Rempart!',es:'¡Que disfrutéis de Le Rempart!'},
  cats:{
   pain:{fr:'Boulangeries & douceurs',en:'Bakeries & treats',nl:'Bakkers & lekkers',de:'Bäckereien & Süßes',es:'Panaderías y dulces'},
@@ -211,6 +232,12 @@ RP.idees = (date, lang) => [[RP.t.kEat[lang], RP.choisir(['resto', 'gastro'], da
 RP.pepiteDuJour = date => {
   const c = RP.adresses.filter(p => p.mot && (RP.ouvert(p, date) || p.regle === 'annee'));
   return c.length ? c[(RP.jourAn(date) + 3) % c.length] : null;
+};
+RP.horaireJour = (m, date) => m.h ? m.h[date.getDay()] : undefined;
+RP.ouvertMaintenant = (m, date) => {
+  const h = RP.horaireJour(m, date); if (!h) return h === null ? false : undefined;
+  const [a, b] = h.split('-'), t = date.getHours() * 60 + date.getMinutes(), mn = x => +x.slice(0,2) * 60 + +x.slice(3);
+  return t >= mn(a) && t < mn(b);
 };
 RP.ideePluie = date => {
   const c = RP.adresses.filter(p => p.pluie && RP.ouvert(p, date));

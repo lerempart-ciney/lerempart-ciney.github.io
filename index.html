@@ -103,6 +103,7 @@ function vAccueil(){
         <div class="bubble" id="arrMsg"></div>
         <a class="btn" id="arrGo" href="#" target="_blank" rel="noopener">${E(L('arrSend'))}</a>
         <p class="muted">${E(L('arrNote'))}</p>
+        ${arrivee?`<button class="btn ghost" data-act="ics">${E(L('remind'))}</button><p class="muted">${E(L('remindNote'))}</p>`:''}
       </div>
     </section>
     <section class="card">
@@ -184,6 +185,31 @@ function vAide(){
     <a class="btn ghost" href="${wa('')}" target="_blank" rel="noopener">${E(L('helpAsk'))}</a>`;
 }
 
+function magasins(){
+  const d = now();
+  return RP.supermarches.map(m => {
+    const o = RP.ouvertMaintenant(m, d), h = RP.horaireJour(m, d);
+    const tag = o === undefined ? `<span class="tag t-warn">${E(L('hUnknown'))}</span>` : `<span class="tag t-${o?'ok':'no'}">${E(L(o?'openNow':'closedNow'))}</span>`;
+    const hj = h === undefined ? '' : `<span class="muted">${E(L('todayH'))}${lang==='fr'?' : ':': '}${h ? E(h.replace('-', ' – ')) : E(L('shut'))}</span>`;
+    return `<div class="place" style="grid-template-columns:1fr"><div style="min-width:0"><h3>${E(m.nom)}</h3><div class="sub">${E(m.adr)}</div>
+      <div class="meta">${tag}${hj}<a href="${RP.carte(m)}" target="_blank" rel="noopener">${E(L('route'))}</a></div></div></div>`;
+  }).join('');
+}
+function ics(){
+  const t = (document.getElementById('arrT') || {}).value || '16:00';
+  const [hh, mm] = t.split(':').map(Number);
+  const debut = new Date(arrivee); debut.setHours(hh - 2, mm, 0, 0);
+  const fin = new Date(debut.getTime() + 15 * 60000);
+  const f = d => d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0') + 'T' + String(d.getHours()).padStart(2,'0') + String(d.getMinutes()).padStart(2,'0') + '00';
+  const esc = x => x.replace(/[,;\\]/g, m => '\\' + m);
+  const txt = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Le Rempart//Guide//FR','BEGIN:VEVENT',
+    'UID:rempart-' + f(debut) + '@le-rempart','DTSTAMP:' + f(new Date()),'DTSTART:' + f(debut),'DTEND:' + f(fin),
+    'SUMMARY:' + esc(L('remindTitle')),'DESCRIPTION:' + esc('WhatsApp ' + C.whatsapp + ' · ' + wa(L('arrMsg').replace('{t}', t))),
+    'LOCATION:' + esc(C.adresse),'BEGIN:VALARM','TRIGGER:PT0M','ACTION:DISPLAY','DESCRIPTION:' + esc(L('remindTitle')),'END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([txt], {type:'text/calendar'})); a.download = 'le-rempart-rappel.ics';
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
 function liste(){ try { return JSON.parse(store.get(listKey)) || []; } catch(e){ return []; } }
 function saveListe(l){ store.set(listKey, JSON.stringify(l)); }
 function vCourses(){
@@ -197,6 +223,8 @@ function vCourses(){
       ${done?`<button class="btn ghost small" data-act="clear">${E(L('clearDone'))}</button>`:''}
     </section>
     ${l.some(i=>!i.d)?`<a class="btn" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">${E(L('share'))}</a>`:''}
+    <section class="card"><div class="eyebrow">${E(L('shops'))}</div>${magasins()}
+      <p class="muted">${E(L('shopsSrc').replace('{d}', fmt(parseDay(RP.supermarchesVerifiesLe),{day:'numeric',month:'long',year:'numeric'})))}</p></section>
     <p class="muted">${E(L('bread'))}</p>`;
 }
 
@@ -229,6 +257,7 @@ document.addEventListener('click', e => {
   if (b.dataset.video){ video = b.dataset.video; render(); return; }
   if (b.dataset.act === 'lang'){ lang = null; render(); return; }
   if (b.dataset.act === 'arr'){ const box = document.getElementById('arrBox'); box.hidden = !box.hidden; b.setAttribute('aria-expanded', String(!box.hidden)); majArrivee(); return; }
+  if (b.dataset.act === 'ics'){ ics(); return; }
   if (b.dataset.act === 'clear'){ saveListe(liste().filter(i=>!i.d)); render(true); return; }
 });
 document.addEventListener('input', e => { if (e.target.id === 'arrT') majArrivee(); });

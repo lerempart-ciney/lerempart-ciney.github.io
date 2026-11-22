@@ -9,6 +9,7 @@ Site mobile pour les voyageurs du gîte Le Rempart (Avenue de Namur 6, 5590 Cine
 | Guide du séjour | Les voyageurs (téléphone) | `index.html?l=fr&a=AAAA-MM-JJ&d=AAAA-MM-JJ` |
 | Écran TV | Les TV du gîte (plein écran) | `tv.html` (5 langues à tour de rôle) ou `tv.html?l=fr` |
 | Messages du séjour | Frédéric, Sacha, Anne, Manu | `hote.html` |
+| QR à imprimer | À coller près des appareils | `qr.html` |
 
 - `l` = langue, `a` = date d'arrivée, `d` = date de départ. Le lien s'arrête le lendemain du départ et la liste de courses est effacée.
 - QR près d'un appareil : `index.html?v=sauna` (valeurs : `tv`, `lave`, `sauna`, `four`, `micro`, `taque`, `flipper`).
