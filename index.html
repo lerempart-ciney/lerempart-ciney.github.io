@@ -182,7 +182,7 @@ function vAdresses(){
 }
 
 function vAide(){
-  const ks = Object.keys(RP.videos);
+  const ks = Object.keys(RP.videos).filter(k => RP.dansGite(k, G));
   const src = video && (RP.videos[video][lang] || RP.videos[video].fr);
   return `${top()}
     <div><h1 style="font-size:1.6rem">${E(L('help'))}</h1><p class="muted">${E(L('helpTxt'))}</p></div>

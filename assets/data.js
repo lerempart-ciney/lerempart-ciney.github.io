@@ -24,7 +24,11 @@ RP.config = {
 /* ---------- 2. Vidéos d'aide (une par appareil et par langue) ----------
    Exemple quand une vidéo existe :  sauna: { fr: 'videos/sauna-fr.mp4', en: 'videos/sauna-en.mp4' }
    Lien du QR à coller près de l'appareil :  index.html?v=sauna  */
-RP.videos = { tv: {}, lave: {}, sauna: {}, four: {}, micro: {}, taque: {}, flipper: {} };
+RP.videos = { tv: {}, lave: {}, sauna: {}, four: {}, micro: {}, taque: {}, flipper: {}, kicker: {} };
+/* Grosses activités présentes seulement dans un gîte (les autres appareils sont dans les 3 gîtes).
+   Le Wi-Fi est le même pour les 3 gîtes. */
+RP.seulementGite = { sauna: '1', flipper: '1', kicker: '1' };
+RP.dansGite = (k, g) => !g || !RP.seulementGite[k] || RP.seulementGite[k] === g;
 
 /* ---------- 3. Adresses du livret d'accueil ----------
    ferme = jours de fermeture (0 = dimanche, 1 = lundi … 6 = samedi).
@@ -210,7 +214,7 @@ RP.t = {
   escape:{fr:'Escape game',en:'Escape room',nl:'Escape room',de:'Escape Room',es:'Escape room'},
   laser:{fr:'Bowling, laser game, billard',en:'Bowling, laser tag, pool',nl:'Bowling, lasergame, biljart',de:'Bowling, Lasertag, Billard',es:'Bolos, láser tag, billar'}
  },
- eq:{tv:{fr:'Télévision',en:'Television',nl:'Televisie',de:'Fernseher',es:'Televisión'},
+ eq:{tv:{fr:'Télévision',en:'Television',nl:'Televisie',de:'Fernseher',es:'Televisión'},kicker:{fr:'Kicker',en:'Table football',nl:'Tafelvoetbal',de:'Tischkicker',es:'Futbolín'},
   lave:{fr:'Machine à laver',en:'Washing machine',nl:'Wasmachine',de:'Waschmaschine',es:'Lavadora'},
   sauna:{fr:'Sauna',en:'Sauna',nl:'Sauna',de:'Sauna',es:'Sauna'},
   four:{fr:'Four',en:'Oven',nl:'Oven',de:'Backofen',es:'Horno'},

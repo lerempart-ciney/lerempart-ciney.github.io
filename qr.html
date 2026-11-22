@@ -43,13 +43,13 @@ body{margin:0;font-family:"Figtree",system-ui,sans-serif;color:var(--ink);backgr
 const E = RP.esc, base = new URL('index.html', location.href).href, ordre = Object.keys(RP.langues);
 const aide = {fr:'Besoin d’aide ?',en:'Need help?',nl:'Hulp nodig?',de:'Brauchen Sie Hilfe?',es:'¿Necesitáis ayuda?'};
 const scan = 'Scannez · Scan · Scan · Scannen · Escanead';
-const carte = (titre, lignes, url) => `<section class="card"><div><div class="eyebrow">Le Rempart</div><h2>${E(titre)}</h2>
+const carte = (titre, lignes, url, g) => `<section class="card"><div><div class="eyebrow">Le Rempart${g?' · Gîte '+g:''}</div><h2>${E(titre)}</h2>
   <ul class="langs">${lignes.map(([k,t])=>`<li><b>${k.toUpperCase()}</b>${E(t)}</li>`).join('')}</ul>
   <div class="scan">${E(scan)}</div></div><div class="qr">${RP.qrSvg(url)}</div></section>`;
 let h = carte(RP.t.tvApp.fr, ordre.filter(k=>k!=='fr').map(k=>[k, RP.t.tvApp[k]]), base);
 if (RP.config.wifi.reseau) h += `<section class="card"><div><div class="eyebrow">Le Rempart</div><h2>Wi-Fi</h2><ul class="langs"><li><b>SSID</b>${E(RP.config.wifi.reseau)}</li><li><b>PW</b>${E(RP.config.wifi.motDePasse)}</li></ul><div class="scan">${E(ordre.map(k=>RP.t.tvWifiScan[k]).join(' · '))}</div></div><div class="qr">${RP.wifiQr()}</div></section>`;
 Object.keys(RP.videos).forEach(k => {
-  h += carte(RP.t.eq[k].fr, ordre.filter(l=>l!=='fr').map(l=>[l, RP.t.eq[k][l] + ' · ' + aide[l]]), base + '?v=' + k);
+  h += carte(RP.t.eq[k].fr, ordre.filter(l=>l!=='fr').map(l=>[l, RP.t.eq[k][l] + ' · ' + aide[l]]), base + '?v=' + k + (RP.seulementGite[k] ? '&g=' + RP.seulementGite[k] : ''), RP.seulementGite[k]);
 });
 document.getElementById('sheet').innerHTML = h;
 })();

@@ -12,7 +12,7 @@ Site mobile pour les voyageurs du Rempart (Avenue de Namur 6, 5590 Ciney), qui c
 | QR à imprimer | À coller près des appareils | `qr.html` |
 
 - `l` = langue, `g` = gîte (1, 2 ou 3), `a` = date d'arrivée, `d` = date de départ, `s` = jeton du lien partagé. Le lien s'arrête le lendemain du départ et la liste de courses est effacée.
-- QR près d'un appareil : `index.html?v=sauna` (valeurs : `tv`, `lave`, `sauna`, `four`, `micro`, `taque`, `flipper`).
+- QR près d'un appareil : `index.html?v=sauna` (valeurs : `tv`, `lave`, `sauna`, `four`, `micro`, `taque`, `flipper`, `kicker`). Sauna, flipper et kicker sont seulement dans le gîte 1 (`RP.seulementGite` dans `assets/data.js`). Le Wi-Fi est le même pour les 3 gîtes.
 
 ## Modifier une info
 
