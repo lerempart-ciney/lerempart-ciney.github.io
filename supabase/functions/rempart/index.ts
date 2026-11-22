@@ -20,7 +20,7 @@ const erreur = (m: string, s = 400) => json({ erreur: m }, s);
 
 // Coordonnées de Ciney (centre), arrondies : la météo est celle de la commune.
 const LAT = 50.29, LON = 5.1;
-const UA = "le-rempart-guide/1.0 https://road2steeve.github.io/le-rempart/";
+const UA = "le-rempart-guide/1.0 https://lerempart-ciney.github.io/";
 const MAX_ARTICLES = 200, MAX_PHOTOS = 300;
 
 const aujourdhui = () =>
