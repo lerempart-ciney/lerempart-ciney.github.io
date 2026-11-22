@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Le Rempart · Écran TV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Écran TV : univers sombre volontaire, lisible à 3 mètres. Tout est en unités de largeur d'écran (vw). */
+:root{--gold:#e2bd72;--soft:#bfccbf;--card:rgba(255,255,255,.07);color-scheme:dark;
+  --f-display:"Young Serif",Georgia,serif;--f-body:"Figtree",system-ui,sans-serif}
+html,body{margin:0;height:100%;background:#121a16;overflow:hidden;cursor:none}
+body{font-family:var(--f-body);color:#eef2ec}
+.tvs{position:fixed;inset:0;display:grid;grid-template-columns:1.35fr 1fr;grid-template-rows:auto minmax(0,1fr) auto;gap:2vw 2.6vw;padding:3vw 3.6vw;
+  background:radial-gradient(120% 90% at 85% 10%,#3b4d3b 0%,#1d2a22 45%,#121a16 100%);transition:opacity .6s}
+.fade{opacity:0}
+h1,h2{font-family:var(--f-display);font-weight:400;margin:0}
+.eyebrow{font-size:1.15vw;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--gold)}
+.top{grid-column:1/-1;display:flex;justify-content:space-between;align-items:flex-start}
+.top h1{font-size:4.2vw;line-height:1.05}
+.clock{text-align:right}
+.clock .t{font-family:var(--f-display);font-size:5.6vw;line-height:1;font-variant-numeric:tabular-nums}
+.clock .d{font-size:1.6vw;color:var(--soft)}
+.clock .d::first-letter{text-transform:uppercase}
+.ideas{display:flex;flex-direction:column;gap:1vw;min-height:0}
+.ideas h2{font-size:2vw;color:var(--gold)}
+.idea{display:grid;grid-template-columns:6vw 1fr;gap:1.4vw;align-items:center;background:var(--card);border-radius:1.2vw;padding:1vw 1.4vw}
+.idea .m{font-size:2.3vw;font-weight:700;text-align:center;line-height:1}
+.idea .m small{display:block;font-size:1vw;color:var(--soft);font-weight:600;margin-top:.3vw}
+.idea .k{font-size:1.1vw;color:var(--gold);letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+.idea b{font-size:1.9vw;display:block;line-height:1.2}
+.idea span{font-size:1.3vw;color:var(--soft)}
+.rain{background:rgba(226,189,114,.12)}
+.side{display:flex;flex-direction:column;gap:1.4vw;min-height:0}
+.box{background:var(--card);border-radius:1.2vw;padding:1.3vw 1.6vw;display:flex;flex-direction:column;gap:.6vw}
+.wx{display:flex;align-items:center;gap:1.6vw}
+.wx .deg{font-family:var(--f-display);font-size:4.8vw;line-height:1}
+.wx span{font-size:1.5vw;color:#dfe7dc}
+.small{font-size:1vw;color:var(--soft)}
+.qrrow{display:grid;grid-template-columns:1fr 9vw;gap:1.4vw;align-items:center}
+.qrrow .l{font-size:1.5vw;line-height:1.5}
+.qr{background:#fff;border-radius:.8vw;padding:.5vw;aspect-ratio:1}
+.qr svg{display:block;width:100%;height:100%}
+.foot{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;font-size:1.4vw;color:var(--soft);border-top:1px solid rgba(255,255,255,.12);padding-top:1.2vw}
+.foot b{color:#fff}
+.dots{display:flex;gap:.6vw}
+.dots i{width:.7vw;height:.7vw;border-radius:50%;background:rgba(255,255,255,.25)}
+.dots i.on{background:var(--gold)}
+@media (prefers-reduced-motion:reduce){.tvs{transition:none}}
+</style>
+</head>
+<body>
+<div class="tvs" id="tv"></div>
+<script src="assets/qrcode.js"></script>
+<script src="assets/data.js"></script>
+<script>
+/* Paramètres : tv.html?l=fr (une langue) ou tv.html (les 5 langues à tour de rôle, 45 s chacune). */
+(function(){
+const Q = new URLSearchParams(location.search);
+const fixe = RP.langues[Q.get('l')] ? Q.get('l') : null;
+const ordre = Object.keys(RP.langues);
+let lang = fixe || 'fr', meteo = null, jour = new Date().toDateString();
+const E = RP.esc, L = k => RP.t[k][lang];
+const appUrl = new URL('index.html', location.href).href;
+const fmt = (d,o) => new Intl.DateTimeFormat(RP.langues[lang], o).format(d);
+
+function render(){
+  const d = new Date(), r = RP.ideePluie(d), w = RP.config.wifi, wq = RP.wifiQr();
+  const pain = RP.adresses.filter(p => p.cat === 'pain' && p.ferme && p.ferme.length < 7 && RP.ouvert(p, d)).sort((x, y) => x.min - y.min)[0];
+  const typ = meteo ? RP.meteoType(meteo.code) : null;
+  document.documentElement.lang = lang;
+  document.getElementById('tv').innerHTML = `
+    <div class="top"><div><div class="eyebrow">Le Rempart · Ciney</div><h1>${E(L('welcome'))}</h1></div>
+      <div class="clock"><div class="t">${E(fmt(d,{hour:'2-digit',minute:'2-digit'}))}</div><div class="d">${E(fmt(d,{weekday:'long',day:'numeric',month:'long'}))}</div></div></div>
+    <div class="ideas"><h2>${E(L('three'))}</h2>
+      ${RP.idees(d,lang).map(([k,p])=>p?`<div class="idea"><div class="m">${p.min}<small>${E(L('min'))}</small></div><div><div class="k">${E(k)}</div><b>${E(p.nom)}</b><span>${E(RP.sousTitre(p,lang)||p.adr)}</span></div></div>`:'').join('')}
+      ${r?`<div class="idea rain"><div class="m">☔</div><div><div class="k">${E(L('rain'))}</div><b>${E(r.nom)}</b><span>${r.min} ${E(L('min'))} · ${E(RP.sousTitre(r,lang))}</span></div></div>`:''}
+    </div>
+    <div class="side">
+      ${meteo?`<div class="box"><div class="eyebrow">${E(L('weather'))}</div><div class="wx"><div class="deg">${meteo.temp}°</div><span>${E(RP.meteoTxt[typ][lang])}<br>${meteo.min}° / ${meteo.max}° · ☂ ${meteo.pluie}%</span></div><div class="small">Open-Meteo · ${E(fmt(meteo.heure,{hour:'2-digit',minute:'2-digit'}))}</div></div>`:''}
+      ${w.reseau?`<div class="box"><div class="eyebrow">${E(L('tvWifi'))}</div><div class="qrrow"><div class="l">${E(L('network'))} : <b>${E(w.reseau)}</b><br>${E(L('pass'))} : <b>${E(w.motDePasse)}</b><br><span class="small">${E(L('tvWifiScan'))}</span></div>${wq?`<div class="qr">${wq}</div>`:''}</div></div>`:''}
+      ${pain?`<div class="box"><div class="eyebrow">${E(RP.t.cats.pain[lang])} · ${E(L('open'))}</div><div class="l" style="font-size:1.9vw;font-weight:700">${E(pain.nom)}</div><div class="small" style="font-size:1.3vw">${pain.min} ${E(L('min'))} · ${E(pain.adr)}</div></div>`:''}
+      <div class="box"><div class="eyebrow">${E(L('tvApp'))}</div><div class="qrrow"><div class="l">${E(L('nav')[1])} · ${E(L('nav')[2])} · ${E(L('nav')[3])}<br><span class="small">${E(L('tvAppScan'))}</span></div><div class="qr">${RP.qrSvg(appUrl)}</div></div></div>
+    </div>
+    <div class="foot"><span>${E(L('bye'))}</span>${fixe?'':`<span class="dots">${ordre.map(k=>`<i class="${k===lang?'on':''}"></i>`).join('')}</span>`}<span>WhatsApp <b>${E(RP.config.whatsapp)}</b> · ${E(RP.config.email)}</span></div>`;
+}
+
+function tick(){
+  if (new Date().toDateString() !== jour) { location.reload(); return; } // nouvelle journée : idées et météo à jour
+  render();
+}
+function langueSuivante(){
+  const el = document.getElementById('tv'); el.classList.add('fade');
+  setTimeout(()=>{ lang = ordre[(ordre.indexOf(lang)+1)%ordre.length]; render(); el.classList.remove('fade'); }, 600);
+}
+async function majMeteo(){ const m = await RP.meteo(); if (m){ meteo = m; render(); } }
+
+render();
+majMeteo();
+setInterval(tick, 20000);
+setInterval(majMeteo, 60*60*1000);
+if (!fixe) setInterval(langueSuivante, 45000);
+/* Garder l'écran allumé si le navigateur le permet. */
+async function eveil(){ try { if ('wakeLock' in navigator) await navigator.wakeLock.request('screen'); } catch(e){} }
+eveil(); document.addEventListener('visibilitychange', ()=>{ if (document.visibilityState === 'visible') eveil(); });
+/* Plein écran au premier clic de télécommande. */
+document.addEventListener('click', ()=>{ try { document.documentElement.requestFullscreen(); } catch(e){} }, {once:true});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#5f7a5c">
+<title>Le Rempart · Guide du séjour</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%235f7a5c'/%3E%3Cpath d='M7 25V13l9-6 9 6v12h-6v-7h-6v7z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="app">
+  <main class="view" id="view" aria-live="polite"></main>
+  <nav class="tabs" id="tabs" hidden><div class="tabs-in" role="tablist" id="tabsIn"></div></nav>
+</div>
+<script src="assets/qrcode.js"></script>
+<script src="assets/data.js"></script>
+<script>
+(function(){
+const C = RP.config, Q = new URLSearchParams(location.search);
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} },
+  del(k){ try { localStorage.removeItem(k); } catch(e){} }
+};
+const parseDay = s => { if(!/^\d{4}-\d{2}-\d{2}$/.test(s||'')) return null; const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); };
+const arrivee = parseDay(Q.get('a')), depart = parseDay(Q.get('d'));
+const sejourId = arrivee && depart ? Q.get('a') + '_' + Q.get('d') : 'general';
+const listKey = 'rp-liste-' + sejourId;
+
+let lang = RP.langues[Q.get('l')] ? Q.get('l') : (RP.langues[store.get('rp-lang')] ? store.get('rp-lang') : null);
+let tab = 0, cat = 'tout', video = RP.videos[Q.get('v')] ? Q.get('v') : null;
+if (video) tab = 3;
+let meteo = null;
+const L = k => RP.t[k][lang];
+const E = RP.esc;
+const now = () => new Date();
+
+/* Fin de séjour : le lien s'arrête le lendemain du départ, et la liste est effacée. */
+function termine(){
+  if (!depart) return false;
+  const fin = new Date(depart); fin.setDate(fin.getDate()+1); fin.setHours(23,59,59);
+  return now() > fin;
+}
+
+const ICONS = {
+ home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+ sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+ cloud:'<path d="M7 18h10a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.2 9.6 4.2 4.2 0 0 0 7 18z"/>',
+ rain:'<path d="M7 15h10a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.2 6.6 4.2 4.2 0 0 0 7 15z"/><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3"/>',
+ pin:'<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+ play:'<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 9.5v5l4.5-2.5z"/>',
+ cart:'<path d="M3 4h2l2.4 11h10.4L20 8H6.2"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="16.5" cy="19.5" r="1.3"/>'
+};
+const ico = (k, extra='') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${ICONS[k]}</svg>`;
+const fmt = (d,o) => new Intl.DateTimeFormat(RP.langues[lang], o).format(d);
+const wa = text => 'https://wa.me/' + RP.waNumber() + (text ? '?text=' + encodeURIComponent(text) : '');
+const top = () => `<div class="top"><div class="eyebrow">Le Rempart · Ciney</div><button class="langbtn" data-act="lang" aria-label="${E(L('choose'))}">${lang.toUpperCase()}</button></div>`;
+
+/* ---------- Écrans ---------- */
+function vLangue(){
+  return `<div class="center">
+    <div><div class="eyebrow">Le Rempart · Ciney</div><h1 style="font-size:2rem;margin-top:6px">Bienvenue · Welcome · Welkom · Willkommen · Bienvenidos</h1></div>
+    <div class="langs">${Object.keys(RP.langues).map(k=>`<button data-lang="${k}" lang="${k}"><span>${RP.nomsLangues[k]}</span><small>${k.toUpperCase()}</small></button>`).join('')}</div>
+  </div>`;
+}
+
+function vFin(){
+  return `<div class="center">
+    <div class="eyebrow">Le Rempart · Ciney</div>
+    <h1 style="font-size:1.8rem">${E(L('ended'))}</h1>
+    <p>${E(L('endedTxt'))}</p>
+    <a class="btn" href="${wa('')}" target="_blank" rel="noopener">${E(L('writeWa'))}</a>
+    <div class="row"><span>WhatsApp</span><span class="nw">${E(C.whatsapp)}</span></div>
+    <div class="row"><span>E-mail</span><span>${E(C.email)}</span></div>
+  </div>`;
+}
+
+function vAccueil(){
+  const w = C.wifi, qr = RP.wifiQr();
+  return `${top()}
+    <section class="card hello">
+      <video src="assets/accueil.mp4" poster="assets/accueil.jpg" controls playsinline preload="none" aria-label="Frédéric"></video>
+      <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><h1>${E(L('welcome'))}</h1><p>${E(L('intro'))}</p></div>
+    </section>
+    <section class="card">
+      <div class="eyebrow">${E(L('stay'))}</div>
+      ${arrivee&&depart?`<h2 style="font-size:1.25rem">${E(fmt(arrivee,{weekday:'short',day:'numeric',month:'long'}))} → ${E(fmt(depart,{weekday:'short',day:'numeric',month:'long'}))}</h2>`:''}
+      <div class="row"><span>Wi-Fi · ${E(L('network'))}</span><span>${w.reseau?E(w.reseau):'…'}</span></div>
+      <div class="row"><span>Wi-Fi · ${E(L('pass'))}</span><span>${w.motDePasse?E(w.motDePasse):'…'}</span></div>
+      ${qr?`<div class="wifi-qr">${qr}</div>`:''}
+      <p class="muted">${E(L('codes'))}</p>
+    </section>
+    <section class="card">
+      <button class="btn" data-act="arr" aria-expanded="false" aria-controls="arrBox">${E(L('arrBtn'))}</button>
+      <p class="muted">${E(L('arrHint'))}</p>
+      <div id="arrBox" hidden style="display:flex;flex-direction:column;gap:10px">
+        <div class="field"><label for="arrT">${E(L('arrTime'))}</label><input type="time" id="arrT" value="16:00"></div>
+        <div class="bubble" id="arrMsg"></div>
+        <a class="btn" id="arrGo" href="#" target="_blank" rel="noopener">${E(L('arrSend'))}</a>
+        <p class="muted">${E(L('arrNote'))}</p>
+      </div>
+    </section>
+    <section class="card">
+      <div class="eyebrow">Contact · Frédéric</div>
+      <p style="margin:0">${E(L('contactTxt'))}</p>
+      <div class="row"><span>WhatsApp</span><span class="nw">${E(C.whatsapp)}</span></div>
+      <div class="row"><span>E-mail</span><span>${E(C.email)}</span></div>
+      <a class="btn ghost" href="${wa('')}" target="_blank" rel="noopener">${E(L('writeWa'))}</a>
+    </section>
+    <section class="card">
+      <div class="eyebrow">${E(L('sos'))}</div>
+      <div class="row"><span>${E(L('sos1'))}</span><span class="nw">112</span></div>
+      <div class="row"><span>${E(L('sos2'))}</span><span class="nw">1733</span></div>
+      <div class="row"><span>${E(L('sos3'))}</span><a href="https://www.pharmacie.be" target="_blank" rel="noopener">pharmacie.be</a></div>
+      <div class="row"><span>${E(L('tyre'))} Ludo Pneu</span><span class="nw">0478 50 31 33</span></div>
+      <p class="muted">Allée des Artisans 7, Ciney · ${E(L('closedOn'))}${E(RP.dayName(lang,0))}</p>
+    </section>
+    <p class="muted" style="text-align:center">${E(C.adresse)}</p>`;
+}
+
+function meteoCard(){
+  if (!meteo) return '';
+  const type = RP.meteoType(meteo.code);
+  const icon = type==='clair'?'sun':type==='pluie'||type==='orage'?'rain':'cloud';
+  return `<section class="card"><div class="eyebrow">${E(L('weather'))} · Ciney</div>
+    <div class="wx">${ico(icon,'width="44" height="44" style="color:var(--brass)"')}<div class="deg">${meteo.temp}°</div>
+    <div><b>${E(RP.meteoTxt[type][lang])}</b><p class="muted">${meteo.min}° / ${meteo.max}° · ☂ ${meteo.pluie}%</p></div></div>
+    <p class="muted">Open-Meteo · ${E(fmt(meteo.heure,{hour:'2-digit',minute:'2-digit'}))}</p></section>`;
+}
+
+function vAujourdhui(){
+  const d = now(), r = RP.ideePluie(d);
+  return `${top()}
+    <div><div class="eyebrow">${E(fmt(d,{weekday:'long',day:'numeric',month:'long'}))}</div><h1 style="font-size:1.6rem">${E(L('today'))}</h1></div>
+    ${meteoCard()}
+    <section class="card"><div class="eyebrow">${E(L('three'))}</div>
+      ${RP.idees(d,lang).map(([k,p])=>p?`<div class="idea"><div><div class="k">${E(k)}</div><b>${E(p.nom)}</b><span class="muted">${p.min} ${E(L('min'))} · ${E(RP.sousTitre(p,lang)||p.adr)}</span></div><a href="${RP.carte(p)}" target="_blank" rel="noopener" style="font-weight:600;font-size:.88rem">${E(L('route'))}</a></div>`:'').join('')}
+    </section>
+    ${r?`<section class="card"><div class="eyebrow">☔ ${E(L('rain'))}</div><div class="idea"><div><b>${E(r.nom)}</b><span class="muted">${r.min} ${E(L('min'))} · ${E(RP.sousTitre(r,lang))} · ${E(r.adr)}</span></div><a href="${RP.carte(r)}" target="_blank" rel="noopener" style="font-weight:600;font-size:.88rem">${E(L('route'))}</a></div></section>`:''}
+    <p class="muted">${E(L('src'))}${C.livretVerifieLe?' '+E(L('checked'))+' '+E(fmt(parseDay(C.livretVerifieLe),{day:'numeric',month:'long',year:'numeric'}))+'.':''}</p>`;
+}
+
+function lieu(p){
+  const chef = p.cat==='chef', st = RP.statut(p, now(), lang), sub = RP.sousTitre(p,lang);
+  const mot = p.mot && (p.mot[lang] || p.mot.fr);
+  return `<div class="place">
+    <div class="mins">${chef?'':p.min+'<small>'+E(L('min'))+'</small>'}</div>
+    <div style="min-width:0"><h3>${E(p.nom)}</h3>
+      <div class="sub">${E(chef?L('chefNote'):[sub,p.adr].filter(Boolean).join(' · '))}</div>
+      <div class="meta">${st.s!=='none'&&!chef?`<span class="tag t-${st.s}">${E(st.txt)}</span>`:''}
+        ${Array.isArray(p.ferme)&&p.ferme.length?`<span class="muted">${E(RP.fermeTxt(p,lang))}</span>`:''}
+        ${p.tel?`<span>${E(p.tel)}</span>`:''}
+        ${chef?'':`<a href="${RP.carte(p)}" target="_blank" rel="noopener">${E(L('route'))}</a>`}
+      </div>
+      ${mot?`<p class="pep"><b>${E(L('pepite'))}</b> · ${E(mot)}</p>`:''}
+    </div></div>`;
+}
+
+function vAdresses(){
+  const cats = ['tout','pain','snack','resto','gastro','visite','sortie','chef'];
+  const groupes = cat==='tout' ? cats.slice(1) : [cat];
+  return `${top()}
+    <div><h1 style="font-size:1.6rem">${E(L('nav')[2])}</h1><p class="muted">${E(L('carLong'))}</p></div>
+    <div class="chips" role="group">${cats.map(c=>`<button data-cat="${c}" aria-pressed="${c===cat}">${E(c==='tout'?L('all'):RP.t.cats[c][lang])}</button>`).join('')}</div>
+    ${groupes.map(g=>{const ps=RP.adresses.filter(p=>p.cat===g);return ps.length?`<section class="card"><div class="eyebrow">${E(RP.t.cats[g][lang])}</div>${ps.map(lieu).join('')}</section>`:''}).join('')}
+    <a class="btn ghost" href="assets/livret.pdf" target="_blank" rel="noopener">${E(L('pdf'))}</a>`;
+}
+
+function vAide(){
+  const ks = Object.keys(RP.videos);
+  const src = video && (RP.videos[video][lang] || RP.videos[video].fr);
+  return `${top()}
+    <div><h1 style="font-size:1.6rem">${E(L('help'))}</h1><p class="muted">${E(L('helpTxt'))}</p></div>
+    ${video?`<section class="card player"><div class="eyebrow">${E(RP.t.eq[video][lang])}</div>${src?`<video src="${E(src)}" controls playsinline preload="metadata"></video>`:`<p class="muted">${E(L('soon'))}</p>`}</section>`:''}
+    <div class="eq">${ks.map(k=>{const has=RP.videos[k][lang]||RP.videos[k].fr;return has
+      ?`<button class="card" data-video="${k}" aria-current="${k===video}">${ico('play')}<b>${E(RP.t.eq[k][lang])}</b></button>`
+      :`<div class="card" aria-current="${k===video}">${ico('play')}<b>${E(RP.t.eq[k][lang])}</b><span class="muted">${E(L('soon'))}</span></div>`}).join('')}</div>
+    <a class="btn ghost" href="${wa('')}" target="_blank" rel="noopener">${E(L('helpAsk'))}</a>`;
+}
+
+function liste(){ try { return JSON.parse(store.get(listKey)) || []; } catch(e){ return []; } }
+function saveListe(l){ store.set(listKey, JSON.stringify(l)); }
+function vCourses(){
+  const l = liste(), done = l.some(i=>i.d);
+  const txt = L('list') + ' · Le Rempart\n' + l.filter(i=>!i.d).map(i=>'• '+i.n).join('\n');
+  return `${top()}
+    <div><h1 style="font-size:1.6rem">${E(L('list'))}</h1><p class="muted">${E(L('listTxt'))}</p></div>
+    <section class="card">
+      <form class="add" id="addForm"><input id="addInput" autocomplete="off" placeholder="${E(L('addPh'))}" aria-label="${E(L('addPh'))}"><button>${E(L('add'))}</button></form>
+      <div>${l.length?l.map((it,i)=>`<label class="li ${it.d?'done':''}"><input type="checkbox" data-i="${i}" ${it.d?'checked':''}><span>${E(it.n)}</span></label>`).join(''):`<p class="muted">${E(L('empty'))}</p>`}</div>
+      ${done?`<button class="btn ghost small" data-act="clear">${E(L('clearDone'))}</button>`:''}
+    </section>
+    ${l.some(i=>!i.d)?`<a class="btn" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">${E(L('share'))}</a>`:''}
+    <p class="muted">${E(L('bread'))}</p>`;
+}
+
+const VUES = [vAccueil, vAujourdhui, vAdresses, vAide, vCourses];
+const TABICO = ['home','sun','pin','play','cart'];
+
+function render(keepScroll){
+  const v = document.getElementById('view'), tabs = document.getElementById('tabs');
+  document.documentElement.lang = lang || 'fr';
+  if (termine()) { store.del(listKey); if(!lang) lang='fr'; v.innerHTML = vFin(); tabs.hidden = true; return; }
+  if (!lang) { v.innerHTML = vLangue(); tabs.hidden = true; return; }
+  tabs.hidden = false;
+  document.getElementById('tabsIn').innerHTML = L('nav').map((n,i)=>`<button role="tab" aria-selected="${i===tab}" data-tab="${i}">${ico(TABICO[i])}<span>${E(n)}</span></button>`).join('');
+  v.innerHTML = VUES[tab]();
+  if (!keepScroll) window.scrollTo(0,0);
+}
+
+function majArrivee(){
+  const t = document.getElementById('arrT'), m = document.getElementById('arrMsg'), go = document.getElementById('arrGo');
+  if (!t) return;
+  const msg = L('arrMsg').replace('{t}', t.value || '…');
+  m.textContent = msg; go.href = wa(msg);
+}
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-lang],[data-tab],[data-cat],[data-act],[data-video]'); if (!b) return;
+  if (b.dataset.lang){ lang = b.dataset.lang; store.set('rp-lang', lang); tab = video ? 3 : 0; render(); return; }
+  if (b.dataset.tab){ tab = +b.dataset.tab; render(); return; }
+  if (b.dataset.cat){ cat = b.dataset.cat; render(true); return; }
+  if (b.dataset.video){ video = b.dataset.video; render(); return; }
+  if (b.dataset.act === 'lang'){ lang = null; render(); return; }
+  if (b.dataset.act === 'arr'){ const box = document.getElementById('arrBox'); box.hidden = !box.hidden; b.setAttribute('aria-expanded', String(!box.hidden)); majArrivee(); return; }
+  if (b.dataset.act === 'clear'){ saveListe(liste().filter(i=>!i.d)); render(true); return; }
+});
+document.addEventListener('input', e => { if (e.target.id === 'arrT') majArrivee(); });
+document.addEventListener('change', e => {
+  if (e.target.dataset && e.target.dataset.i !== undefined){ const l = liste(); l[+e.target.dataset.i].d = e.target.checked; saveListe(l); render(true); }
+});
+document.addEventListener('submit', e => {
+  if (e.target.id !== 'addForm') return; e.preventDefault();
+  const i = document.getElementById('addInput'), v = i.value.trim(); if (!v) return;
+  const l = liste(); l.push({n:v.slice(0,80), d:false}); saveListe(l); render(true);
+  const n = document.getElementById('addInput'); if (n) n.focus();
+});
+
+render();
+RP.meteo().then(m => { if (m){ meteo = m; if (tab === 1) render(true); } });
+})();
+</script>
+</body>
+</html>
