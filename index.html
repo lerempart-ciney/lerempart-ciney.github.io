@@ -270,7 +270,8 @@ function vAlbum(){
   const fin = depart ? new Date(depart.getFullYear(), depart.getMonth(), depart.getDate()+1) : null;
   const ph = album ? album.photos : null;
   return `${top()}
-    <div><h1 style="font-size:1.6rem">${E(L('album'))}</h1><p class="muted">${E(L('albumTxt'))}</p></div>
+    <div class="albhero"><div><div class="eyebrow">${E(lieuNom)}</div><h1>${E(L('album'))}</h1></div></div>
+    <p class="muted">${E(L('albumTxt'))}</p>
     ${inviter()}
     ${horsLigne?`<p class="miss">${E(L('offline'))}</p>`:''}
     <label class="btn" style="text-align:center">${ico('photo','width="20" height="20"')} ${E(envoi ? L('sending') + ' (' + envoi + ')' : L('addPhoto'))}
@@ -302,52 +303,70 @@ function lignes(x, txt, maxW, maxL){
   if (out.length > maxL) { out.length = maxL; out[maxL-1] = out[maxL-1].replace(/\s*\S*$/, '') + '…'; }
   return out;
 }
+/* Mise en page « magazine » : couverture avec une photo du domaine, grille épurée, citation, signature. */
+const COUV = ['assets/rempart-facade.jpg', 'assets/rempart-jardin.jpg'];
+function grille(n, X, Y, W, H, g){
+  const c = (x, y, w, h) => [X + x, Y + y, w, h], h2 = (H - g) / 2, w2 = (W - g) / 2;
+  if (n === 1) return [c(0, 0, W, H)];
+  if (n === 2) return [c(0, 0, w2, H), c(w2 + g, 0, w2, H)];
+  if (n === 3) { const wl = W * 0.6; return [c(0, 0, wl, H), c(wl + g, 0, W - wl - g, h2), c(wl + g, h2 + g, W - wl - g, h2)]; }
+  if (n === 4) return [c(0, 0, w2, h2), c(w2 + g, 0, w2, h2), c(0, h2 + g, w2, h2), c(w2 + g, h2 + g, w2, h2)];
+  const w4 = (w2 - g) / 2;
+  return [c(0, 0, w2, H), c(w2 + g, 0, w4, h2), c(w2 + g + w4 + g, 0, w4, h2), c(w2 + g, h2 + g, w4, h2), c(w2 + g + w4 + g, h2 + g, w4, h2)];
+}
+function espace(x, txt, px){ x.save(); try { x.letterSpacing = px + 'px'; } catch (e) {} const r = x.measureText(txt).width; x.restore(); return r; }
+function texteEspace(x, txt, X, Y, px){ x.save(); if ('letterSpacing' in x) { x.letterSpacing = px + 'px'; x.fillText(txt, X, Y); } else x.fillText(txt.split('').join(String.fromCharCode(8202)), X, Y); x.restore(); }
 async function creerSouvenir(){
   souvEnCours = true; souvErr = ''; render(true);
   try {
-    await Promise.all([document.fonts.load('48px "Young Serif"'), document.fonts.load('600 30px Figtree')]).catch(()=>{});
+    await Promise.all([document.fonts.load('96px "Young Serif"'), document.fonts.load('600 30px Figtree'), document.fonts.load('italic 400 30px Figtree')]).catch(()=>{});
     const toutes = album.photos.filter(p => p.url);
-    const choix = toutes.filter(p => p.legende).concat(toutes.filter(p => !p.legende)).slice(0, 6)
+    const choix = toutes.filter(p => p.legende).concat(toutes.filter(p => !p.legende)).slice(0, 5)
       .sort((a, b) => toutes.indexOf(a) - toutes.indexOf(b));
-    const imgs = await Promise.all(choix.map(p => chargerImg(p.url)));
-    const W = 1080, H = 1350, c = document.createElement('canvas'); c.width = W; c.height = H;
-    const x = c.getContext('2d');
-    x.fillStyle = '#f4f1ea'; x.fillRect(0, 0, W, H);
-    x.fillStyle = '#a8782a'; x.font = '700 24px Figtree, sans-serif'; x.textAlign = 'center';
-    x.fillText(('Le Rempart · Ciney' + (G ? ' · Gîte ' + G : '')).toUpperCase().split('').join(String.fromCharCode(8202)), W/2, 78);
-    x.fillStyle = '#1c2420'; x.font = '58px "Young Serif", Georgia, serif'; x.fillText(L('souvenirTitle'), W/2, 150);
-    if (arrivee && depart) { x.fillStyle = '#5d6a62'; x.font = '500 28px Figtree, sans-serif';
-      x.fillText(fmt(arrivee,{day:'numeric',month:'long'}) + ' – ' + fmt(depart,{day:'numeric',month:'long',year:'numeric'}), W/2, 196); }
-    // Grille : 2 colonnes ; si le nombre de photos est impair, la première prend toute la largeur.
-    const n = imgs.length, rows = n <= 2 ? n : Math.ceil(n / 2);
-    const top0 = 236, bas = 1230, gap = 18, mx = 60, colW = (W - 2*mx - gap) / 2, ch = (bas - top0 - gap*(rows-1)) / rows;
-    const cases = [];
-    if (n <= 2) for (let i = 0; i < n; i++) cases.push([mx, top0 + i*(ch+gap), W - 2*mx]);
-    else { let r = 0, i = 0;
-      if (n % 2) { cases.push([mx, top0, W - 2*mx]); r = 1; i = 1; }
-      for (; i < n; i++, r += (i - (n % 2)) % 2 === 0 ? 1 : 0) cases.push([mx + ((i - (n % 2)) % 2) * (colW + gap), top0 + r*(ch+gap), colW]);
+    const [couv, ...imgs] = await Promise.all([chargerImg(COUV[RP.jourAn(arrivee || new Date()) % COUV.length])].concat(choix.map(p => chargerImg(p.url))));
+    const W = 1080, H = 1350, M = 64, c = document.createElement('canvas'); c.width = W; c.height = H;
+    const x = c.getContext('2d'), INK = '#1b211d', MUTE = '#7c857f', GOLD = '#b48a3c';
+    x.fillStyle = '#f7f5f0'; x.fillRect(0, 0, W, H);
+    // Couverture : photo du domaine, voile dégradé, titre.
+    const HC = 500; couvrir(x, couv, 0, 0, W, HC);
+    let g = x.createLinearGradient(0, 0, 0, HC); g.addColorStop(0, 'rgba(10,14,12,.15)'); g.addColorStop(.45, 'rgba(10,14,12,.05)'); g.addColorStop(1, 'rgba(10,14,12,.72)');
+    x.fillStyle = g; x.fillRect(0, 0, W, HC);
+    x.textAlign = 'left'; x.fillStyle = 'rgba(255,255,255,.9)'; x.font = '600 20px Figtree, sans-serif';
+    texteEspace(x, 'CINEY · BELGIQUE', M, 74, 5);
+    x.textAlign = 'right'; texteEspace(x, (G ? 'GÎTE ' + G : 'LE REMPART'), W - M, 74, 5);
+    x.textAlign = 'left'; x.fillStyle = '#fff'; x.font = '112px "Young Serif", Georgia, serif'; x.fillText('Le Rempart', M - 4, HC - 92);
+    x.font = '400 30px Figtree, sans-serif'; x.fillStyle = 'rgba(255,255,255,.88)';
+    const sous = L('ourStay') + (arrivee && depart ? '  ·  ' + fmt(arrivee,{day:'numeric',month:'long'}) + ' – ' + fmt(depart,{day:'numeric',month:'long',year:'numeric'}) : '');
+    x.fillText(sous, M, HC - 44);
+    // Citation (le premier petit mot), puis grille des photos.
+    const cit = choix.find(p => p.legende);
+    let Y = HC + 48, bas = 1222;
+    if (cit) {
+      x.font = 'italic 400 34px "Young Serif", Georgia, serif'; x.fillStyle = INK;
+      const ls = lignes(x, '« ' + cit.legende + ' »', W - 2*M, 2);
+      ls.forEach((t, k) => x.fillText(t, M, Y + 30 + k * 46)); Y += 30 + ls.length * 46 + 14;
     }
-    for (let i = 0; i < n; i++) {
-      const [X, Y, cw] = cases[i], cols = cw > colW + 1 ? 1 : 2;
-      x.save(); arrondi(x, X, Y, cw, ch, 22); x.clip(); couvrir(x, imgs[i], X, Y, cw, ch);
+    const cases = grille(imgs.length, M, Y, W - 2*M, bas - Y, 12);
+    imgs.forEach((im, i) => {
+      const [X, Yc, w, h] = cases[i]; x.save(); arrondi(x, X, Yc, w, h, 4); x.clip(); couvrir(x, im, X, Yc, w, h);
       const leg = choix[i].legende;
-      if (leg) {
-        x.font = 'italic 500 ' + (cols === 1 ? 34 : 26) + 'px Figtree, sans-serif';
-        const ls = lignes(x, '« ' + leg + ' »', cw - 48, 3), lh = cols === 1 ? 44 : 34, bh = ls.length * lh + 34;
-        const g = x.createLinearGradient(0, Y + ch - bh - 40, 0, Y + ch); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.72)');
-        x.fillStyle = g; x.fillRect(X, Y + ch - bh - 40, cw, bh + 40);
-        x.fillStyle = '#fff'; x.textAlign = 'left';
-        ls.forEach((t, k) => x.fillText(t, X + 24, Y + ch - bh + 24 + (k + 1) * lh - 10));
-        x.textAlign = 'center';
+      if (leg && choix[i] !== cit) {
+        x.font = '500 ' + (w > 400 ? 24 : 19) + 'px Figtree, sans-serif';
+        const ls = lignes(x, leg, w - 36, 2), lh = w > 400 ? 30 : 24;
+        g = x.createLinearGradient(0, Yc + h - lh * ls.length - 70, 0, Yc + h); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.6)');
+        x.fillStyle = g; x.fillRect(X, Yc + h - lh * ls.length - 70, w, lh * ls.length + 70);
+        x.fillStyle = '#fff'; ls.forEach((t, k) => x.fillText(t, X + 18, Yc + h - 18 - (ls.length - 1 - k) * lh));
       }
       x.restore();
-    }
-    // Signature
-    x.fillStyle = '#5f7a5c'; arrondi(x, W/2 - 300, 1262, 40, 40, 10); x.fill();
-    x.fillStyle = '#fff'; x.beginPath(); const hx = W/2 - 300, hy = 1262;
-    [[9,32],[9,17],[20,9],[31,17],[31,32],[24,32],[24,23],[16,23],[16,32]].forEach(([a,b],k) => k ? x.lineTo(hx+a,hy+b) : x.moveTo(hx+a,hy+b)); x.fill();
-    x.fillStyle = '#1c2420'; x.textAlign = 'left'; x.font = '600 28px Figtree, sans-serif'; x.fillText(L('souvenirSign'), W/2 - 244, 1292);
-    const blob = await new Promise((ok, ko) => c.toBlob(b => b ? ok(b) : ko(new Error('toBlob')), 'image/jpeg', 0.9));
+    });
+    // Signature : filet, monogramme, nom.
+    x.fillStyle = '#d9d4c8'; x.fillRect(M, 1258, W - 2*M, 1);
+    x.strokeStyle = GOLD; x.lineWidth = 1.5; x.beginPath(); x.arc(M + 22, 1300, 22, 0, Math.PI * 2); x.stroke();
+    x.fillStyle = GOLD; x.font = '24px "Young Serif", Georgia, serif'; x.textAlign = 'center'; x.fillText('R', M + 22, 1309);
+    x.textAlign = 'left'; x.fillStyle = INK; x.font = '700 19px Figtree, sans-serif'; texteEspace(x, 'LE REMPART', M + 62, 1296, 4);
+    x.fillStyle = MUTE; x.font = '400 19px Figtree, sans-serif'; x.fillText(L('souvenirSign').replace(/^Le Rempart · /, ''), M + 62, 1320);
+    x.textAlign = 'right'; x.fillStyle = MUTE; x.font = 'italic 400 19px Figtree, sans-serif'; x.fillText(L('souvenirFoot'), W - M, 1310);
+    const blob = await new Promise((ok, ko) => c.toBlob(b => b ? ok(b) : ko(new Error('toBlob')), 'image/jpeg', 0.92));
     if (souv) URL.revokeObjectURL(souv.url);
     souv = { url: URL.createObjectURL(blob), file: new File([blob], 'souvenir-le-rempart.jpg', {type:'image/jpeg'}) };
   } catch (e) { souvErr = L('souvenirErr'); }

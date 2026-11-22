@@ -177,6 +177,8 @@ RP.t = {
  souvenirTxt:{fr:'Une image avec vos plus belles photos et vos mots, à garder ou à partager. Elle est créée sur votre téléphone : rien n’est publié.',en:'An image with your best photos and words, to keep or share. It is made on your phone: nothing is published.',nl:'Een afbeelding met jullie mooiste foto’s en woorden, om te bewaren of te delen. Ze wordt op jullie telefoon gemaakt: er wordt niets gepubliceerd.',de:'Ein Bild mit Ihren schönsten Fotos und Worten, zum Behalten oder Teilen. Es wird auf Ihrem Handy erstellt: Nichts wird veröffentlicht.',es:'Una imagen con vuestras mejores fotos y palabras, para guardar o compartir. Se crea en vuestro móvil: no se publica nada.'},
  souvenirTitle:{fr:'Notre séjour au Rempart',en:'Our stay at Le Rempart',nl:'Ons verblijf in Le Rempart',de:'Unser Aufenthalt im Le Rempart',es:'Nuestra estancia en Le Rempart'},
  souvenirSign:{fr:'Le Rempart · Gîtes à Ciney, Belgique',en:'Le Rempart · Holiday houses in Ciney, Belgium',nl:'Le Rempart · Vakantiewoningen in Ciney, België',de:'Le Rempart · Ferienhäuser in Ciney, Belgien',es:'Le Rempart · Casas rurales en Ciney, Bélgica'},
+ souvenirFoot:{fr:'Souvenir de séjour',en:'Holiday memories',nl:'Vakantieherinnering',de:'Urlaubserinnerung',es:'Recuerdo de la estancia'},
+ ourStay:{fr:'Notre séjour',en:'Our stay',nl:'Ons verblijf',de:'Unser Aufenthalt',es:'Nuestra estancia'},
  making:{fr:'Création…',en:'Creating…',nl:'Bezig…',de:'Wird erstellt…',es:'Creando…'},
  save:{fr:'Enregistrer l’image',en:'Save the image',nl:'Afbeelding bewaren',de:'Bild speichern',es:'Guardar la imagen'},
  shareImg:{fr:'Partager',en:'Share',nl:'Delen',de:'Teilen',es:'Compartir'},
