@@ -100,7 +100,7 @@ function render(){
       ${pain&&!w.reseau?`<div class="box opt"><div class="eyebrow">${E(RP.t.cats.pain[lang])} · ${E(L('open'))}</div><div class="l" style="font-size:1.9vw;font-weight:700">${E(pain.nom)}</div><div class="small" style="font-size:1.3vw">${pain.min} ${E(L('min'))} · ${E(pain.adr)}</div></div>`:''}
       <div class="box"><div class="eyebrow">${E(L('tvApp'))}</div><div class="qrrow"><div class="l">${E(L('nav')[1])} · ${E(L('nav')[2])} · ${E(L('nav')[3])}<br><span class="small">${E(L('tvAppScan'))}</span></div><div class="qr">${RP.qrSvg(appUrl)}</div></div></div>
     </div>
-    <div class="foot"><span>${E(L('bye'))}</span>${fixe?'':`<span class="dots">${ordre.map(k=>`<i class="${k===lang?'on':''}"></i>`).join('')}</span>`}<span>WhatsApp <b>${E(RP.config.whatsapp)}</b> · ${E(RP.config.email)}</span></div>`;
+    <div class="foot"><span>${E(L('bye'))}</span>${fixe?'':`<span class="dots">${ordre.map(k=>`<i class="${k===lang?'on':''}"></i>`).join('')}</span>`}<span>WhatsApp <b>${E(RP.config.whatsapp)}</b></span></div>`;
 }
 
 /* Si la colonne de droite déborde (petit écran, texte long), on retire d'abord l'encadré facultatif. */

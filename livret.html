@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Le Rempart · Livret d'accueil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root{--ink:#1b211d;--paper:#fbfaf6;--soft:#56625a;--sage:#4f6a4c;--brass:#86601a;--line:#e2ddd1}
+*{box-sizing:border-box}
+body{margin:0;background:#ece7dc;color:var(--ink);font-family:Figtree,Arial,sans-serif;font-size:15px;line-height:1.45}
+.bar{position:sticky;top:0;z-index:2;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--sage);color:#fff}
+.bar a,.bar button{font:600 15px Figtree,Arial,sans-serif;border-radius:999px;padding:10px 16px;border:0;cursor:pointer;text-decoration:none}
+.bar button{background:#fff;color:var(--sage)} .bar a{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.6)}
+.bar p{flex-basis:100%;margin:0;font-size:13px;opacity:.9}
+.page{max-width:800px;margin:16px auto;background:var(--paper);padding:40px 44px;border-radius:12px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--brass);margin:0}
+h1{font-family:'Young Serif',Georgia,serif;font-weight:400;font-size:44px;line-height:1.05;margin:8px 0 6px}
+h2{font-family:'Young Serif',Georgia,serif;font-weight:400;font-size:24px;margin:28px 0 8px;padding-top:14px;border-top:2px solid var(--line)}
+.muted{color:var(--soft)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+.box{border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.box h3{margin:0 0 6px;font-size:15px}
+.row{display:flex;justify-content:space-between;gap:12px}
+.pl{display:grid;grid-template-columns:52px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);break-inside:avoid}
+.min{font-weight:700;color:var(--sage);font-size:18px;line-height:1.1}.min small{display:block;font-size:11px;font-weight:600}
+.pl b{font-size:16px}.pl .s{color:var(--soft);font-size:14px}
+.pep{margin:4px 0 0;font-size:14px}.pep b{color:var(--brass);font-size:14px}
+.foot{margin-top:28px;font-size:13px;color:var(--soft);text-align:center}
+@media (max-width:560px){.page{padding:24px 18px;margin:0;border-radius:0}.grid{grid-template-columns:1fr}h1{font-size:34px}}
+@media print{
+  @page{size:A4;margin:14mm}
+  body{background:#fff;font-size:11.5pt}.bar{display:none}.page{margin:0;padding:0;max-width:none;border-radius:0;background:#fff}
+  h2{break-after:avoid}.grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<main class="page" id="livret"></main>
+<script src="assets/data.js"></script>
+<script>
+(function(){
+/* Livret d'accueil créé à partir des données du guide, dans la langue du voyageur (?l=fr|en|nl|de|es).
+   Le Wi-Fi et les codes ne sont jamais dans ce livret. */
+const Q = new URLSearchParams(location.search), E = RP.esc;
+const lang = RP.langues[Q.get('l')] ? Q.get('l') : 'fr', L = k => RP.t[k][lang], C = RP.config;
+document.documentElement.lang = lang;
+document.title = 'Le Rempart · ' + L('bookTitle');
+const retour = document.referrer && new URL(document.referrer).origin === location.origin ? document.referrer : 'index.html';
+document.getElementById('bar').innerHTML = `<a href="${E(retour)}">← ${E(L('back'))}</a><button type="button" id="imp">${E(L('bookSave'))}</button><p>${E(L('bookHow'))}</p>`;
+document.getElementById('imp').addEventListener('click', () => window.print());
+
+const lieu = p => {
+  const chef = p.cat === 'chef', sub = RP.sousTitre(p, lang), mot = p.mot && (p.mot[lang] || p.mot.fr);
+  const st = p.regle ? RP.statut(p, new Date(), lang).txt : '';
+  return `<div class="pl"><div class="min">${chef ? '' : p.min + '<small>' + E(L('min')) + '</small>'}</div><div>
+    <b>${E(p.nom)}</b>
+    <div class="s">${E(chef ? L('chefNote') : [sub, p.adr].filter(Boolean).join(' · '))}</div>
+    <div class="s">${E([st, Array.isArray(p.ferme) ? RP.fermeTxt(p, lang) : '', p.tel || ''].filter(Boolean).join(' · '))}</div>
+    ${mot ? `<p class="pep"><b>★ ${E(L('pepite'))}</b> · ${E(mot)}</p>` : ''}</div></div>`;
+};
+const cats = ['pain','snack','resto','gastro','visite','sortie','chef'];
+document.getElementById('livret').innerHTML = `
+  <p class="eyebrow">${E(L('bookTitle'))} · Ciney</p>
+  <h1>${E(L('welcome'))}</h1>
+  <p class="muted" style="margin:0">${E(C.adresse)} · GPS ${E(C.gps)}</p>
+  <p>${E(L('bookSub'))}</p>
+  <div class="grid">
+    <div class="box"><h3>${E(L('sos'))}</h3>
+      <div class="row"><span>${E(L('sos1'))}</span><b>112</b></div>
+      <div class="row"><span>${E(L('sos2'))}</span><b>1733</b></div>
+      <div class="row"><span>${E(L('sos3'))}</span><b>pharmacie.be</b></div></div>
+    <div class="box"><h3>${E(L('contactWa'))}</h3>
+      <div class="row"><span>Frédéric</span><b>${E(C.whatsapp)}</b></div>
+      <h3 style="margin-top:10px">${E(L('tyre'))}</h3>
+      <div>Ludo Pneu · 0478 50 31 33</div><div class="muted">Allée des Artisans 7, Ciney · ${E(L('closedOn'))}${E(RP.dayName(lang, 0))}</div></div>
+  </div>
+  ${cats.map(c => { const ps = RP.adresses.filter(p => p.cat === c); return ps.length ? `<h2>${E(RP.t.cats[c][lang])}</h2>${ps.map(lieu).join('')}` : ''; }).join('')}
+  <p class="foot">Le Rempart · ${E(C.adresse)} · WhatsApp ${E(C.whatsapp)}<br>${E(L('src'))}</p>`;
+})();
+</script>
+</body>
+</html>

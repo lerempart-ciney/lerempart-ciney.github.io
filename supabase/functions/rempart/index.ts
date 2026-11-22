@@ -51,8 +51,8 @@ function pinOk(b: any) {
   return !!pin && String(b?.pin ?? "") === pin;
 }
 
-// Le voyageur peut annoncer son arrivée à partir de la veille du jour d'arrivée.
-const peutAnnoncer = (s: any) => aujourdhui() >= plusJours(s.arrivee, -1);
+// Le voyageur peut annoncer son arrivée seulement à partir du jour prévu de l'arrivée.
+const peutAnnoncer = (s: any) => aujourdhui() >= s.arrivee;
 
 function nouveauToken() {
   const b = new Uint8Array(18); crypto.getRandomValues(b);
@@ -135,7 +135,7 @@ Deno.serve(async (req) => {
 
       if (a === "sejours") {
         const { data } = await db.from("v_sejours")
-          .select("token, gite_id, nom, langue, langue_le, arrivee, depart, heure_arrivee, arrivee_annoncee, code_portail, code_porte")
+          .select("token, gite_id, nom, langue, langue_le, arrivee, depart, heure_arrivee, arrivee_annoncee, acces_retire, code_portail, code_porte")
           .gte("depart", plusJours(aujourdhui(), -1)).order("arrivee");
         return json({ sejours: data ?? [] });
       }
@@ -145,7 +145,9 @@ Deno.serve(async (req) => {
         for (const k of ["nom", "code_portail", "code_porte"]) if (k in b) maj[k] = court(b[k], k === "nom" ? 60 : 40);
         if ("heure" in b) maj.heure_arrivee = /^\d{2}:\d{2}$/.test(b.heure ?? "") ? b.heure : null;
         if ("langue" in b) { maj.langue = LANGUES[b.langue] ? b.langue : null; maj.langue_le = maj.langue ? new Date().toISOString() : null; }
-        if (b.debloquer === true) maj.arrivee_annoncee = new Date().toISOString(); // Frédéric ouvre l'accès lui-même (ex. arrivée annoncée par téléphone)
+        // Frédéric ouvre (true) ou referme (false) l'accès au Wi-Fi, aux codes et à l'album, à tout moment.
+        if (b.debloquer === true) { maj.arrivee_annoncee = new Date().toISOString(); maj.acces_retire = false; }
+        if (b.debloquer === false) { maj.arrivee_annoncee = null; maj.acces_retire = true; }
         const { error } = await db.from("v_sejours").update(maj).eq("token", String(b.token ?? ""));
         if (error) return erreur(error.message, 500);
         return json({ ok: true });
@@ -172,7 +174,7 @@ Deno.serve(async (req) => {
     if (a === "etat") {
       const r: Record<string, unknown> = {
         gite: sejour.gite_id, arrivee: sejour.arrivee, depart: sejour.depart, langue: sejour.langue,
-        heure: sejour.heure_arrivee, debloque, peutAnnoncer: peutAnnoncer(sejour),
+        heure: sejour.heure_arrivee, debloque, peutAnnoncer: peutAnnoncer(sejour), retire: !!sejour.acces_retire,
       };
       if (debloque) {
         r.wifi = { reseau: await config("wifi_reseau"), motDePasse: await config("wifi_mdp") };
@@ -191,10 +193,12 @@ Deno.serve(async (req) => {
     }
 
     if (a === "arrivee" && req.method === "POST") {
-      if (!peutAnnoncer(sejour)) return erreur("Trop tôt : l'arrivée s'annonce à partir de la veille.", 409);
+      if (!peutAnnoncer(sejour)) return erreur("Trop tôt : l'arrivée s'annonce le jour prévu de l'arrivée.", 409);
       const heure = /^\d{2}:\d{2}$/.test(corps?.heure ?? "") ? corps.heure : null;
+      // Si Frédéric a retiré les codes, le bouton note l'heure mais ne les rouvre pas.
       await db.from("v_sejours").update({
-        arrivee_annoncee: sejour.arrivee_annoncee ?? new Date().toISOString(), heure_arrivee: heure ?? sejour.heure_arrivee,
+        arrivee_annoncee: sejour.acces_retire ? null : (sejour.arrivee_annoncee ?? new Date().toISOString()),
+        heure_arrivee: heure ?? sejour.heure_arrivee,
       }).eq("token", sejour.token);
       return json({ ok: true });
     }

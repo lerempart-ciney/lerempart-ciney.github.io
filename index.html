@@ -87,7 +87,6 @@ function vFin(){
     <p>${E(L('endedTxt'))}</p>
     <a class="btn" href="${wa('')}" target="_blank" rel="noopener">${E(L('writeWa'))}</a>
     <div class="row"><span>WhatsApp</span><span class="nw">${E(C.whatsapp)}</span></div>
-    <div class="row"><span>E-mail</span><span>${E(C.email)}</span></div>
   </div>`;
 }
 
@@ -95,7 +94,7 @@ function vFin(){
 function acces(){
   if (!S) return `<p class="muted">${E(L('guideOnly'))}</p>`;
   if (!etat) return '';
-  if (!etat.debloque) return `<div class="lock"><b>🔒 ${E(L('lockTitle'))}</b><p class="muted" style="margin:0">${E(L('lockTxt'))}</p></div>`;
+  if (!etat.debloque) return `<div class="lock"><b>🔒 ${E(L('lockTitle'))}</b><p class="muted" style="margin:0">${E(L(etat.retire?'retireTxt':'lockTxt'))}</p></div>`;
   const w = etat.wifi || {}, c = etat.codes || {}, qr = RP.wifiQr(w.reseau ? w : null);
   return `<div class="eyebrow" style="margin-top:6px">${E(L('accessTitle'))}</div>
     ${w.reseau?`<div class="row"><span>Wi-Fi · ${E(L('network'))}</span><span>${E(w.reseau)}</span></div>
@@ -105,14 +104,20 @@ function acces(){
     ${c.porte?`<div class="row"><span>${E(L('door'))}</span><span class="nw"><b>${E(c.porte)}</b></span></div>`:''}
     <p class="muted">${E(c.portail||c.porte?L('keepCodes'):L('noCodes'))}</p>`;
 }
+/* Le bouton d'arrivée (et donc le Wi-Fi et les codes) n'est disponible qu'à partir du jour prévu de l'arrivée. */
+function tropTot(){
+  if (!S || !arrivee || (etat && (etat.debloque || etat.peutAnnoncer))) return false;
+  const t = now(); return new Date(t.getFullYear(), t.getMonth(), t.getDate()) < arrivee;
+}
 async function chargerEtat(){
   if (!S) return;
+  const avant = JSON.stringify(etat);
   try {
     etat = await RP.api('etat', S);
     if (!lang && RP.langues[etat.langue]) { lang = etat.langue; store.set(langKey, lang); }
     else if (lang && !etat.langue && !Q.get('l')) { etat.langue = lang; RP.api('langue', S, {langue: lang}).catch(() => {}); }
   } catch (e) { if (e.status === 403) etat = null; }
-  render(true);
+  if (JSON.stringify(etat) !== avant) render(true); /* redessine seulement si quelque chose a changé */
 }
 async function annoncerArrivee(heure){
   arrErr = '';
@@ -131,13 +136,17 @@ function vAccueil(){
     <section class="card">
       <div class="eyebrow">${E(L('stay'))}${G?' · Gîte '+G:''}</div>
       ${arrivee&&depart?`<h2 style="font-size:1.25rem">${E(fmt(arrivee,{weekday:'short',day:'numeric',month:'long'}))} → ${E(fmt(depart,{weekday:'short',day:'numeric',month:'long'}))}</h2>`:''}
+      <div class="row"><span>${E(L('address'))}</span><span style="text-align:right">${E(C.adresse)}</span></div>
+      <div class="row"><span>GPS</span><span class="nw">${E(C.gps)}</span></div>
+      <a class="btn ghost" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(C.gps.replace(/\s/g,''))}" target="_blank" rel="noopener">${E(L('route'))}</a>
       ${acces()}
     </section>
     <section class="card">
       ${etat&&etat.debloque?`<span class="tag t-ok" style="align-self:flex-start">${E(L('arrDone'))}</span>`:''}
-      <button class="btn" data-act="arr" aria-expanded="false" aria-controls="arrBox">${E(L('arrBtn'))}</button>
+      <button class="btn" data-act="arr" aria-expanded="false" aria-controls="arrBox" ${tropTot()?'disabled':''}>${E(L('arrBtn'))}</button>
       <p class="muted">${E(L('arrHint'))}</p>
-      ${etat&&!etat.debloque&&!etat.peutAnnoncer&&arrivee?`<p class="muted">${E(L('lockFrom').replace('{d}', fmt(new Date(arrivee.getFullYear(), arrivee.getMonth(), arrivee.getDate()-1),{weekday:'long',day:'numeric',month:'long'})))}</p>`:''}
+      ${tropTot()?`<p class="muted"><b>${E(L('lockFrom').replace('{d}', fmt(arrivee,{weekday:'long',day:'numeric',month:'long'})))}</b></p>
+        <button class="btn ghost" data-act="ics">${E(L('remind'))}</button><p class="muted">${E(L('remindNote'))}</p>`:''}
       ${arrErr?`<p class="miss">${E(arrErr)}</p>`:''}
       <div id="arrBox" hidden style="display:flex;flex-direction:column;gap:10px">
         <div class="field"><label for="arrT">${E(L('arrTime'))}</label><input type="time" id="arrT" value="16:00"></div>
@@ -153,7 +162,6 @@ function vAccueil(){
       <p class="muted" style="margin:0">${E(L('askTxt'))}</p>
       ${L('askTopics').map((s,i)=>`<a class="btn ${i===3?'ghost':''}" href="${wa((G?'[Gîte '+G+'] ':'') + L('askMsgs')[i])}" target="_blank" rel="noopener">${E(s)}</a>`).join('')}
       <div class="row"><span>WhatsApp</span><span class="nw">${E(C.whatsapp)}</span></div>
-      <div class="row"><span>E-mail</span><span>${E(C.email)}</span></div>
     </section>
     <section class="card">
       <div class="eyebrow">${E(L('sos'))}</div>
@@ -163,7 +171,7 @@ function vAccueil(){
       <div class="row"><span>${E(L('tyre'))} Ludo Pneu</span><span class="nw">0478 50 31 33</span></div>
       <p class="muted">Allée des Artisans 7, Ciney · ${E(L('closedOn'))}${E(RP.dayName(lang,0))}</p>
     </section>
-    <p class="muted" style="text-align:center">${E(C.adresse)}</p>`;
+    <p class="muted" style="text-align:center">${E(C.adresse)}<br>GPS : ${E(C.gps)}</p>`;
 }
 
 function meteoCard(){
@@ -212,7 +220,7 @@ function vAdresses(){
     <div><h1 style="font-size:1.6rem">${E(L('nav')[2])}</h1><p class="muted">${E(L('carLong'))}</p></div>
     <div class="chips" role="group">${cats.map(c=>`<button data-cat="${c}" aria-pressed="${c===cat}">${E(c==='tout'?L('all'):c==='pepites'?'★ '+L('pepites'):RP.t.cats[c][lang])}</button>`).join('')}</div>
     ${groupes.map(g=>{const ps=RP.adresses.filter(p=>g==='pepites'?p.mot:p.cat===g);return ps.length?`<section class="card"><div class="eyebrow">${E(g==='pepites'?'★ '+L('pepites'):RP.t.cats[g][lang])}</div>${ps.map(lieu).join('')}</section>`:''}).join('')}
-    <a class="btn ghost" href="assets/livret.pdf" target="_blank" rel="noopener">${E(L('pdf'))}</a>`;
+    <a class="btn ghost" href="livret.html?l=${lang}">${E(L('pdf'))}</a>`;
 }
 
 function vAide(){
@@ -247,7 +255,7 @@ function ics(){
   const txt = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Le Rempart//Guide//FR','BEGIN:VEVENT',
     'UID:rempart-' + f(debut) + '@le-rempart','DTSTAMP:' + f(new Date()),'DTSTART:' + f(debut),'DTEND:' + f(fin),
     'SUMMARY:' + esc(L('remindTitle')),'DESCRIPTION:' + esc('WhatsApp ' + C.whatsapp + ' · ' + wa(L('arrMsg').replace('{t}', t))),
-    'LOCATION:' + esc(C.adresse),'BEGIN:VALARM','TRIGGER:PT0M','ACTION:DISPLAY','DESCRIPTION:' + esc(L('remindTitle')),'END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
+    'LOCATION:' + esc(C.adresse),'GEO:' + C.gps.replace(/\s/g,'').replace(',', ';'),'BEGIN:VALARM','TRIGGER:PT0M','ACTION:DISPLAY','DESCRIPTION:' + esc(L('remindTitle')),'END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([txt], {type:'text/calendar'})); a.download = 'le-rempart-rappel.ics';
   document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
@@ -542,6 +550,9 @@ RP.meteo().then(m => { if (m){ meteo = m; if (tab === 1) render(true); } });
 if (S && !termine()) {
   chargerEtat();
   chargerListe();
+  /* Frédéric peut ouvrir, fermer ou changer les codes à tout moment : on relit l'état chaque minute. */
+  setInterval(() => { if (!document.hidden && tab === 0) chargerEtat(); }, 60000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) chargerEtat(); });
   setInterval(() => { if (tab === 4 && !document.hidden) chargerListe(); }, 20000);
   setInterval(() => { if (tab === 5 && !document.hidden && !envoi) chargerAlbum(); }, 30 * 60 * 1000); // liens d'images valables 2 h
 }

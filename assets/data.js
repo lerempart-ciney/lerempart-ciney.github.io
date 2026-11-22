@@ -7,8 +7,8 @@ window.RP = {};
 /* ---------- 1. Réglages ---------- */
 RP.config = {
   whatsapp: '+32 475 72 88 67',
-  email: 'acls@live.be',
   adresse: 'Avenue de Namur 6, 5590 Ciney',
+  gps: '50.298440, 5.101953', // coordonnées données par Sacha le 22/11/2026
   // Wi-Fi : laisser vide tant que ce n'est pas connu. S'affiche dans l'appli et sur la TV.
   /* Ne pas remplir : le dépôt est public. Le Wi-Fi est réglé dans la page hôte et donné au voyageur après l'annonce de son arrivée. */
   wifi: { reseau: '', motDePasse: '', securite: 'WPA' },
@@ -112,8 +112,9 @@ RP.t = {
  network:{fr:'Réseau',en:'Network',nl:'Netwerk',de:'Netzwerk',es:'Red'},
  pass:{fr:'Mot de passe',en:'Password',nl:'Wachtwoord',de:'Passwort',es:'Contraseña'},
  lockTitle:{fr:'Disponible à votre arrivée',en:'Available when you arrive',nl:'Beschikbaar bij jullie aankomst',de:'Verfügbar bei Ihrer Ankunft',es:'Disponible a vuestra llegada'},
- lockTxt:{fr:"Le Wi-Fi, les codes d'accès et l'album photo s'ouvrent quand vous prévenez Frédéric de votre arrivée, avec le bouton ci-dessous.",en:'The Wi-Fi, the access codes and the photo album unlock when you let Frédéric know you are arriving, with the button below.',nl:'De wifi, de toegangscodes en het fotoalbum worden zichtbaar zodra jullie Frédéric jullie aankomst laten weten, met de knop hieronder.',de:'WLAN, Zugangscodes und Fotoalbum werden freigeschaltet, sobald Sie Frédéric Ihre Ankunft mitteilen, mit der Schaltfläche unten.',es:'El wifi, los códigos de acceso y el álbum de fotos se desbloquean cuando avisáis a Frédéric de vuestra llegada, con el botón de abajo.'},
- lockFrom:{fr:'Vous pourrez prévenir Frédéric à partir du {d}.',en:'You can let Frédéric know from {d}.',nl:'Jullie kunnen Frédéric verwittigen vanaf {d}.',de:'Sie können Frédéric ab dem {d} Bescheid geben.',es:'Podréis avisar a Frédéric a partir del {d}.'},
+ lockTxt:{fr:"Vous recevrez le Wi-Fi, le code du portail et le code de la porte le jour prévu de votre arrivée, quand vous prévenez Frédéric avec le bouton ci-dessous. L'album photo s'ouvre en même temps.",en:'You will receive the Wi-Fi, the gate code and the door code on your planned arrival day, when you let Frédéric know with the button below. The photo album opens at the same time.',nl:'Jullie krijgen de wifi, de code van de poort en de deurcode op de geplande aankomstdag, wanneer jullie Frédéric verwittigen met de knop hieronder. Het fotoalbum opent tegelijk.',de:'Sie erhalten WLAN, Torcode und Türcode am geplanten Anreisetag, wenn Sie Frédéric mit der Schaltfläche unten Bescheid geben. Das Fotoalbum öffnet sich zur gleichen Zeit.',es:'Recibiréis el wifi, el código del portón y el código de la puerta el día previsto de vuestra llegada, cuando aviséis a Frédéric con el botón de abajo. El álbum de fotos se abre al mismo tiempo.'},
+ lockFrom:{fr:'Ce bouton sera disponible le {d}, jour de votre arrivée.',en:'This button will be available on {d}, your arrival day.',nl:'Deze knop is beschikbaar op {d}, jullie aankomstdag.',de:'Diese Schaltfläche ist am {d}, Ihrem Anreisetag, verfügbar.',es:'Este botón estará disponible el {d}, día de vuestra llegada.'},
+ retireTxt:{fr:'Frédéric vous donnera les codes directement.',en:'Frédéric will give you the codes directly.',nl:'Frédéric geeft jullie de codes rechtstreeks.',de:'Frédéric gibt Ihnen die Codes direkt.',es:'Frédéric os dará los códigos directamente.'},
  accessTitle:{fr:'Vos accès',en:'Your access',nl:'Jullie toegang',de:'Ihr Zugang',es:'Vuestros accesos'},
  gate:{fr:'Code du portail',en:'Gate code',nl:'Code van de poort',de:'Code für das Tor',es:'Código del portón'},
  door:{fr:'Code de la porte',en:'Door code',nl:'Deurcode',de:'Türcode',es:'Código de la puerta'},
@@ -159,9 +160,16 @@ RP.t = {
  aprnov:{fr:'D’avril à novembre',en:'April to November',nl:'Van april tot november',de:'April bis November',es:'De abril a noviembre'},
  min:{fr:'min',en:'min',nl:'min',de:'Min.',es:'min'},
  carLong:{fr:'Temps en voiture depuis le gîte, hors trafic.',en:'Driving time from the house, without traffic.',nl:'Rijtijd vanaf de gîte, zonder verkeer.',de:'Fahrzeit ab dem Ferienhaus, ohne Verkehr.',es:'Tiempo en coche desde la casa, sin tráfico.'},
+ address:{fr:'Adresse',en:'Address',nl:'Adres',de:'Adresse',es:'Dirección'},
  route:{fr:'Itinéraire',en:'Directions',nl:'Route',de:'Route',es:'Cómo llegar'},
  all:{fr:'Tout',en:'All',nl:'Alles',de:'Alle',es:'Todo'},
- pdf:{fr:'Livret complet (PDF, en français)',en:'Full welcome guide (PDF, in French)',nl:'Volledig onthaalboekje (pdf, in het Frans)',de:'Komplette Gästemappe (PDF, auf Französisch)',es:'Guía completa (PDF, en francés)'},
+ pdf:{fr:'Livret complet (PDF)',en:'Full welcome guide (PDF)',nl:'Volledig onthaalboekje (pdf)',de:'Komplette Gästemappe (PDF)',es:'Guía completa (PDF)'},
+ bookTitle:{fr:"Livret d'accueil",en:'Welcome guide',nl:'Onthaalboekje',de:'Gästemappe',es:'Guía de bienvenida'},
+ bookSub:{fr:'Toutes nos bonnes adresses autour du gîte, avec le temps de trajet en voiture.',en:'All our favourite places around the house, with the driving time.',nl:'Al onze favoriete adressen rond het vakantiehuis, met de rijtijd.',de:'Alle unsere Lieblingsadressen rund um das Haus, mit der Fahrzeit.',es:'Todos nuestros sitios favoritos cerca de la casa, con el tiempo en coche.'},
+ bookSave:{fr:'Enregistrer en PDF ou imprimer',en:'Save as PDF or print',nl:'Opslaan als pdf of afdrukken',de:'Als PDF speichern oder drucken',es:'Guardar en PDF o imprimir'},
+ bookHow:{fr:'Sur le téléphone : choisissez « Enregistrer en PDF » dans la fenêtre qui s’ouvre.',en:'On a phone: choose “Save as PDF” in the window that opens.',nl:'Op de telefoon: kies ‘Opslaan als pdf’ in het venster dat opent.',de:'Auf dem Handy: Wählen Sie im sich öffnenden Fenster „Als PDF speichern“.',es:'En el móvil: elegid «Guardar como PDF» en la ventana que se abre.'},
+ back:{fr:'Retour au guide',en:'Back to the guide',nl:'Terug naar de gids',de:'Zurück zum Führer',es:'Volver a la guía'},
+ contactWa:{fr:'Nous contacter (WhatsApp)',en:'Contact us (WhatsApp)',nl:'Contact (WhatsApp)',de:'Kontakt (WhatsApp)',es:'Contacto (WhatsApp)'},
  chefNote:{fr:'Le chef vient cuisiner au gîte. À partir de 8 couverts. Réservez plusieurs jours à l’avance.',en:'The chef comes to cook at the house. From 8 guests. Book several days ahead.',nl:'De chef komt in de gîte koken. Vanaf 8 personen. Enkele dagen vooraf reserveren.',de:'Der Koch kocht bei Ihnen im Haus. Ab 8 Personen. Einige Tage im Voraus buchen.',es:'El chef viene a cocinar a la casa. A partir de 8 comensales. Reservad con varios días de antelación.'},
  pepite:{fr:'Pépite du Rempart',en:'A Le Rempart gem',nl:'Pareltje van Le Rempart',de:'Tipp vom Le Rempart',es:'Joya de Le Rempart'},
  pepites:{fr:'Les pépites du Rempart',en:'Le Rempart’s gems',nl:'Pareltjes van Le Rempart',de:'Tipps vom Le Rempart',es:'Las joyas de Le Rempart'},
@@ -293,7 +301,12 @@ RP.ideePluie = date => {
   const c = RP.adresses.filter(p => p.pluie && RP.ouvert(p, date));
   return c.length ? c[RP.jourAn(date) % c.length] : null;
 };
-RP.sousTitre = (p, lang) => p.desc ? RP.t.desc[p.desc][lang] : (p.type || '');
+/* Types d'adresses à traduire (les autres, comme « Pizza » ou « Michelin ★ », sont compris partout). */
+RP.typesT = {
+ 'Friterie': {fr:'Friterie',en:'Chip shop',nl:'Frituur',de:'Pommesbude',es:'Freiduría'},
+ 'Italien': {fr:'Italien',en:'Italian',nl:'Italiaans',de:'Italienisch',es:'Italiano'}
+};
+RP.sousTitre = (p, lang) => p.desc ? RP.t.desc[p.desc][lang] : (p.type ? (RP.typesT[p.type] ? RP.typesT[p.type][lang] : p.type) : '');
 RP.qrSvg = text => {
   try { const q = qrcode(0, 'M'); q.addData(text); q.make(); return q.createSvgTag({cellSize:4, margin:1, scalable:true}); }
   catch (e) { return ''; }
