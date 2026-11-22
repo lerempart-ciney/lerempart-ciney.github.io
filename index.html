@@ -114,12 +114,13 @@ function vAccueil(){
         ${arrivee?`<button class="btn ghost" data-act="ics">${E(L('remind'))}</button><p class="muted">${E(L('remindNote'))}</p>`:''}
       </div>
     </section>
-    <section class="card">
+    <section class="card" id="frederic">
       <div class="eyebrow">Contact · Frédéric</div>
-      <p style="margin:0">${E(L('contactTxt'))}</p>
+      <h2 style="font-size:1.25rem">${E(L('askTitle'))}</h2>
+      <p class="muted" style="margin:0">${E(L('askTxt'))}</p>
+      ${L('askTopics').map((s,i)=>`<a class="btn ${i===3?'ghost':''}" href="${wa((G?'[Gîte '+G+'] ':'') + L('askMsgs')[i])}" target="_blank" rel="noopener">${E(s)}</a>`).join('')}
       <div class="row"><span>WhatsApp</span><span class="nw">${E(C.whatsapp)}</span></div>
       <div class="row"><span>E-mail</span><span>${E(C.email)}</span></div>
-      <a class="btn ghost" href="${wa('')}" target="_blank" rel="noopener">${E(L('writeWa'))}</a>
     </section>
     <section class="card">
       <div class="eyebrow">${E(L('sos'))}</div>
