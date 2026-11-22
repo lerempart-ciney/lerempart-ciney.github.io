@@ -29,7 +29,10 @@ const store = {
 };
 const parseDay = s => { if(!/^\d{4}-\d{2}-\d{2}$/.test(s||'')) return null; const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); };
 const arrivee = parseDay(Q.get('a')), depart = parseDay(Q.get('d'));
-const sejourId = arrivee && depart ? Q.get('a') + '_' + Q.get('d') : 'general';
+/* Numéro du gîte dans Le Rempart (1, 2 ou 3), donné par le lien du séjour. */
+const G = ['1','2','3'].includes(Q.get('g')) ? Q.get('g') : null;
+const lieuNom = 'Le Rempart · ' + (G ? 'Gîte ' + G : 'Ciney');
+const sejourId = (G ? 'g' + G + '_' : '') + (arrivee && depart ? Q.get('a') + '_' + Q.get('d') : 'general');
 const listKey = 'rp-liste-' + sejourId;
 /* Jeton du séjour (créé par l'hôte) : active la liste partagée et l'album. */
 const S = /^[A-Za-z0-9_-]{16,64}$/.test(Q.get('s') || '') ? Q.get('s') : null;
@@ -63,7 +66,7 @@ const ICONS = {
 const ico = (k, extra='') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${ICONS[k]}</svg>`;
 const fmt = (d,o) => new Intl.DateTimeFormat(RP.langues[lang], o).format(d);
 const wa = text => 'https://wa.me/' + RP.waNumber() + (text ? '?text=' + encodeURIComponent(text) : '');
-const top = () => `<div class="top"><div class="eyebrow">Le Rempart · Ciney</div><button class="langbtn" data-act="lang" aria-label="${E(L('choose'))}">${lang.toUpperCase()}</button></div>`;
+const top = () => `<div class="top"><div class="eyebrow">${E(lieuNom)}</div><button class="langbtn" data-act="lang" aria-label="${E(L('choose'))}">${lang.toUpperCase()}</button></div>`;
 
 /* ---------- Écrans ---------- */
 function vLangue(){
@@ -93,7 +96,7 @@ function vAccueil(){
     </section>
     ${inviter()}
     <section class="card">
-      <div class="eyebrow">${E(L('stay'))}</div>
+      <div class="eyebrow">${E(L('stay'))}${G?' · Gîte '+G:''}</div>
       ${arrivee&&depart?`<h2 style="font-size:1.25rem">${E(fmt(arrivee,{weekday:'short',day:'numeric',month:'long'}))} → ${E(fmt(depart,{weekday:'short',day:'numeric',month:'long'}))}</h2>`:''}
       <div class="row"><span>Wi-Fi · ${E(L('network'))}</span><span>${w.reseau?E(w.reseau):'…'}</span></div>
       <div class="row"><span>Wi-Fi · ${E(L('pass'))}</span><span>${w.motDePasse?E(w.motDePasse):'…'}</span></div>

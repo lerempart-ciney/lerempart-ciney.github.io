@@ -73,6 +73,7 @@ h1,h2{font-family:var(--f-display);font-weight:400;margin:0}
 (function(){
 const Q = new URLSearchParams(location.search);
 const fixe = RP.langues[Q.get('l')] ? Q.get('l') : null;
+const G = ['1','2','3'].includes(Q.get('g')) ? Q.get('g') : null; // tv.html?g=2 : TV du gîte 2
 const ordre = Object.keys(RP.langues);
 let lang = fixe || 'fr', meteo = null, jour = new Date().toDateString();
 const E = RP.esc, L = k => RP.t[k][lang];
@@ -86,7 +87,7 @@ function render(){
   const typ = meteo ? meteo.type : null;
   document.documentElement.lang = lang;
   document.getElementById('tv').innerHTML = `
-    <div class="top"><div><div class="eyebrow">Le Rempart · Ciney</div><h1>${E(L('welcome'))}</h1></div>
+    <div class="top"><div><div class="eyebrow">Le Rempart · ${G ? 'Gîte ' + G : 'Ciney'}</div><h1>${E(L('welcome'))}</h1></div>
       <div class="right">${meteo?`<div class="wxh"><div class="deg">${meteo.temp}°</div><div class="txt">${E(RP.meteoTxt[typ][lang])} · ${meteo.min}° / ${meteo.max}°${meteo.mm?' · ☂ '+meteo.mm+' mm':''}</div><div class="small">${E(RP.meteoSource)}</div></div>`:''}
       <div class="clock"><div class="t">${E(fmt(d,{hour:'2-digit',minute:'2-digit'}))}</div><div class="d">${E(fmt(d,{weekday:'long',day:'numeric',month:'long'}))}</div></div></div></div>
     <div class="ideas"><h2>${E(L('three'))}</h2>

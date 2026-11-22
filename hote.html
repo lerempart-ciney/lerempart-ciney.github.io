@@ -38,6 +38,7 @@ label.f input,label.f select{border:1px solid var(--line);border-radius:10px;pad
   <section class="card"><div class="step"><div class="num">1</div><div style="display:flex;flex-direction:column;gap:10px">
     <h2 style="font-size:1.2rem">Le séjour</h2>
     <div class="grid2">
+      <label class="f">Gîte<select id="gite"><option value="">Choisir…</option><option value="1">Gîte 1</option><option value="2">Gîte 2</option><option value="3">Gîte 3</option></select></label>
       <label class="f">Langue du voyageur<select id="lang"></select></label>
       <label class="f">Téléphone du voyageur (facultatif)<input id="tel" type="tel" inputmode="tel" placeholder="+32 …" autocomplete="off"></label>
       <label class="f">Date d'arrivée<input id="a" type="date"></label>
@@ -74,7 +75,7 @@ label.f input,label.f select{border:1px solid var(--line);border-radius:10px;pad
     <div id="msgs" style="display:flex;flex-direction:column;gap:12px"></div>
   </section>
 
-  <p class="muted">Écran TV : <a href="tv.html" target="_blank" rel="noopener">tv.html</a> (5 langues à tour de rôle) ou <a href="tv.html?l=fr" target="_blank" rel="noopener">tv.html?l=fr</a> (une seule langue). Étiquettes QR des appareils : <a href="qr.html" target="_blank" rel="noopener">qr.html</a>.</p>
+  <p class="muted">Écran TV : <a href="tv.html" target="_blank" rel="noopener">tv.html</a> (5 langues à tour de rôle) ou <a href="tv.html?l=fr" target="_blank" rel="noopener">tv.html?l=fr</a> (une seule langue). Ajoute <code>&amp;g=1</code>, <code>&amp;g=2</code> ou <code>&amp;g=3</code> pour afficher le numéro du gîte, par exemple <code>tv.html?g=2</code>. Étiquettes QR des appareils : <a href="qr.html" target="_blank" rel="noopener">qr.html</a>.</p>
 </div>
 <script src="assets/qrcode.js"></script>
 <script src="assets/data.js"></script>
@@ -91,7 +92,7 @@ const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return
 if (store.get('rp-hote-pin')) { $('pin').value = store.get('rp-hote-pin'); $('pinMem').checked = true; }
 function lienSejour(){
   const l = $('lang').value, a = $('a').value, d = $('d').value;
-  const p = new URLSearchParams({l}); if (a && d) { p.set('a', a); p.set('d', d); if (jeton && jetonPour === a + '_' + d) p.set('s', jeton); }
+  const p = new URLSearchParams({l}); if ($('gite').value) p.set('g', $('gite').value); if (a && d) { p.set('a', a); p.set('d', d); if (jeton && jetonPour === a + '_' + d) p.set('s', jeton); }
   return base + '?' + p.toString();
 }
 function valeurs(){
@@ -156,10 +157,11 @@ function infoJeton(){
 $('creer').addEventListener('click', async () => {
   const a = $('a').value, d = $('d').value, pin = $('pin').value.trim(), b = $('creer');
   if (!a || !d || d < a) { $('creerInfo').innerHTML = '<span class="miss">Indique d’abord les bonnes dates.</span>'; return; }
+  if (!$('gite').value) { $('creerInfo').innerHTML = '<span class="miss">Choisis d’abord le gîte (1, 2 ou 3).</span>'; return; }
   if (!pin) { $('creerInfo').innerHTML = '<span class="miss">Tape le code hôte.</span>'; return; }
   b.disabled = true; b.textContent = 'Création…';
   try {
-    const j = await RP.api('sejour', null, {pin, langue: $('lang').value, arrivee: a, depart: d});
+    const j = await RP.api('sejour', null, {pin, langue: $('lang').value, arrivee: a, depart: d, gite: $('gite').value});
     jeton = j.token; jetonPour = a + '_' + d;
     if ($('pinMem').checked) store.set('rp-hote-pin', pin); else store.del('rp-hote-pin');
     render();

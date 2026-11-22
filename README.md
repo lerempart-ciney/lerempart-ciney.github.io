@@ -1,17 +1,17 @@
 # Le Rempart · guide du séjour
 
-Site mobile pour les voyageurs du gîte Le Rempart (Avenue de Namur 6, 5590 Ciney), en 5 langues : français, anglais, néerlandais, allemand, espagnol.
+Site mobile pour les voyageurs du Rempart (Avenue de Namur 6, 5590 Ciney), qui compte 3 gîtes (gîte 1, 2 et 3),, en 5 langues : français, anglais, néerlandais, allemand, espagnol.
 
 ## Les 3 pages
 
 | Page | Pour qui | Adresse |
 |---|---|---|
 | Guide du séjour | Les voyageurs (téléphone) | `index.html?l=fr&a=AAAA-MM-JJ&d=AAAA-MM-JJ` |
-| Écran TV | Les TV du gîte (plein écran) | `tv.html` (5 langues à tour de rôle) ou `tv.html?l=fr` |
+| Écran TV | Les TV du gîte (plein écran) | `tv.html?g=2` (5 langues à tour de rôle) ou `tv.html?g=2&l=fr` |
 | Messages du séjour | Frédéric, Sacha, Anne, Manu | `hote.html` |
 | QR à imprimer | À coller près des appareils | `qr.html` |
 
-- `l` = langue, `a` = date d'arrivée, `d` = date de départ. Le lien s'arrête le lendemain du départ et la liste de courses est effacée.
+- `l` = langue, `g` = gîte (1, 2 ou 3), `a` = date d'arrivée, `d` = date de départ, `s` = jeton du lien partagé. Le lien s'arrête le lendemain du départ et la liste de courses est effacée.
 - QR près d'un appareil : `index.html?v=sauna` (valeurs : `tv`, `lave`, `sauna`, `four`, `micro`, `taque`, `flipper`).
 
 ## Modifier une info

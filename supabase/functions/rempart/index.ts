@@ -100,8 +100,9 @@ Deno.serve(async (req) => {
       if (!["fr", "en", "nl", "de", "es"].includes(b.langue)) return erreur("Langue inconnue.");
       if (!/^\d{4}-\d{2}-\d{2}$/.test(b.arrivee) || !/^\d{4}-\d{2}-\d{2}$/.test(b.depart) || b.depart < b.arrivee)
         return erreur("Dates invalides.");
+      if (!["1", "2", "3"].includes(String(b.gite))) return erreur("Gîte inconnu (1, 2 ou 3).");
       const token = nouveauToken();
-      const { error } = await db.from("v_sejours").insert({ token, langue: b.langue, arrivee: b.arrivee, depart: b.depart });
+      const { error } = await db.from("v_sejours").insert({ token, gite_id: String(b.gite), langue: b.langue, arrivee: b.arrivee, depart: b.depart });
       if (error) return erreur(error.message, 500);
       return json({ token });
     }
