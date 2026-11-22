@@ -60,6 +60,12 @@ label.f input,label.f select{border:1px solid var(--line);border-radius:10px;pad
   <section class="card"><div class="step"><div class="num">3</div><div style="display:flex;flex-direction:column;gap:10px;min-width:0">
     <h2 style="font-size:1.2rem">Le lien du séjour</h2>
     <p class="muted">Ce lien ouvre le guide dans la langue du voyageur. Il s'arrête le lendemain du départ.</p>
+    <div class="grid2" style="align-items:end">
+      <label class="f">Code hôte (pour la liste partagée et l'album)<input id="pin" type="password" autocomplete="off" inputmode="numeric"></label>
+      <label style="display:flex;gap:8px;align-items:center;font-size:.85rem;color:var(--muted)"><input type="checkbox" id="pinMem"> Se souvenir du code sur cet appareil</label>
+    </div>
+    <button class="btn small" id="creer" type="button" style="align-self:flex-start">Créer le lien avec liste partagée et album</button>
+    <p class="muted" id="creerInfo">Sans ce bouton, le lien marche quand même, mais sans album et avec une liste sur chaque téléphone.</p>
     <div id="lien"></div>
   </div></div></section>
 
@@ -79,9 +85,13 @@ const $ = id => document.getElementById(id), E = RP.esc;
 $('lang').innerHTML = Object.keys(RP.langues).map(k=>`<option value="${k}">${RP.nomsLangues[k]}</option>`).join('');
 const base = new URL('index.html', location.href).href;
 
+/* Jeton du séjour créé sur le serveur. Il ne vaut que pour les dates choisies au moment de sa création. */
+let jeton = null, jetonPour = '';
+const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(e){} }, del(k){ try { localStorage.removeItem(k); } catch(e){} } };
+if (store.get('rp-hote-pin')) { $('pin').value = store.get('rp-hote-pin'); $('pinMem').checked = true; }
 function lienSejour(){
   const l = $('lang').value, a = $('a').value, d = $('d').value;
-  const p = new URLSearchParams({l}); if (a && d) { p.set('a', a); p.set('d', d); }
+  const p = new URLSearchParams({l}); if (a && d) { p.set('a', a); p.set('d', d); if (jeton && jetonPour === a + '_' + d) p.set('s', jeton); }
   return base + '?' + p.toString();
 }
 function valeurs(){
@@ -103,6 +113,7 @@ function waLink(t){
 const NOMS = {'LIEN DU SÉJOUR':'les dates d’arrivée et de départ', 'DATE/HEURE D’ARRIVÉE':'la date d’arrivée', 'CODE DU PORTAIL':'le code du portail', 'CODE DE LA PORTE':'le code de la porte'};
 
 function render(){
+  infoJeton();
   const l = $('lang').value, v = valeurs(), ok = $('a').value && $('d').value;
   if (ok && $('d').value < $('a').value) {
     $('lien').innerHTML = '<p class="miss">La date de départ est avant la date d’arrivée.</p>';
@@ -137,6 +148,25 @@ async function copier(txt, btn){
   setTimeout(() => { btn.textContent = avant; }, 1800);
 }
 
+function infoJeton(){
+  const ok = jeton && jetonPour === $('a').value + '_' + $('d').value;
+  $('creerInfo').innerHTML = ok ? '<b style="color:var(--ok)">✓ Lien partagé créé : liste commune et album privé pour ce séjour.</b>'
+    : (jeton ? '<span class="miss">Les dates ont changé : crée un nouveau lien partagé.</span>' : 'Sans ce bouton, le lien marche quand même, mais sans album et avec une liste sur chaque téléphone.');
+}
+$('creer').addEventListener('click', async () => {
+  const a = $('a').value, d = $('d').value, pin = $('pin').value.trim(), b = $('creer');
+  if (!a || !d || d < a) { $('creerInfo').innerHTML = '<span class="miss">Indique d’abord les bonnes dates.</span>'; return; }
+  if (!pin) { $('creerInfo').innerHTML = '<span class="miss">Tape le code hôte.</span>'; return; }
+  b.disabled = true; b.textContent = 'Création…';
+  try {
+    const j = await RP.api('sejour', null, {pin, langue: $('lang').value, arrivee: a, depart: d});
+    jeton = j.token; jetonPour = a + '_' + d;
+    if ($('pinMem').checked) store.set('rp-hote-pin', pin); else store.del('rp-hote-pin');
+    render();
+  } catch (e) { $('creerInfo').innerHTML = '<span class="miss">' + E(e.message || 'Pas de connexion.') + '</span>'; }
+  b.disabled = false; b.textContent = 'Créer le lien avec liste partagée et album';
+});
+$('pinMem').addEventListener('change', () => { if (!$('pinMem').checked) store.del('rp-hote-pin'); });
 document.addEventListener('input', render);
 document.addEventListener('change', render);
 document.addEventListener('click', e => {

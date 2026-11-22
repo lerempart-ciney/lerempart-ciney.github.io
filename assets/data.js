@@ -13,8 +13,10 @@ RP.config = {
   wifi: { reseau: '', motDePasse: '', securite: 'WPA' },
   // Date à laquelle les adresses du livret ont été vérifiées (AAAA-MM-JJ). Vide = non affichée.
   livretVerifieLe: '',
-  // Météo : désactivée tant que le service n'est pas choisi (conditions d'usage à valider).
-  meteo: { active: false, latitude: null, longitude: null },
+  // Serveur du site (Supabase, projet « gites ») : météo, liste partagée, album.
+  api: 'https://pnqhxoemzprhcnomlkyk.supabase.co/functions/v1/rempart',
+  // Météo : MET Norway (licence CC BY 4.0, usage commercial permis), via le serveur.
+  meteo: { active: true },
   // Durée pendant laquelle le lien reste actif avant l'arrivée (jours).
   joursAvantArrivee: 30
 };
@@ -94,7 +96,7 @@ RP.nomsLangues = { fr:'Français', en:'English', nl:'Nederlands', de:'Deutsch', 
 
 RP.t = {
  choose:{fr:'Choisissez votre langue',en:'Choose your language',nl:'Kies jullie taal',de:'Wählen Sie Ihre Sprache',es:'Elegid vuestro idioma'},
- nav:{fr:['Accueil',"Aujourd'hui",'Adresses','Aide','Courses'],en:['Home','Today','Places','Help','Shopping'],nl:['Welkom','Vandaag','Adressen','Hulp','Boodschappen'],de:['Start','Heute','Adressen','Hilfe','Einkauf'],es:['Inicio','Hoy','Lugares','Ayuda','Compras']},
+ nav:{fr:['Accueil',"Aujourd'hui",'Adresses','Aide','Courses','Photos'],en:['Home','Today','Places','Help','Shopping','Photos'],nl:['Welkom','Vandaag','Adressen','Hulp','Boodschappen',"Foto's"],de:['Start','Heute','Adressen','Hilfe','Einkauf','Fotos'],es:['Inicio','Hoy','Lugares','Ayuda','Compras','Fotos']},
  welcome:{fr:'Bienvenue au Rempart',en:'Welcome to Le Rempart',nl:'Welkom bij Le Rempart',de:'Willkommen im Le Rempart',es:'Bienvenidos a Le Rempart'},
  intro:{fr:'Je suis Frédéric, et je suis très heureux de vous accueillir. Prenez le temps de vous installer tranquillement et de vous sentir chez vous.',
   en:"I'm Frédéric, and I'm so pleased to welcome you. Take your time settling in and make yourself comfortable.",
@@ -149,6 +151,19 @@ RP.t = {
  helpAsk:{fr:'Un appareil ne fonctionne pas ? Écrivez à Frédéric.',en:'Is an appliance not working? Message Frédéric.',nl:'Werkt een toestel niet? Stuur Frédéric een bericht.',de:'Funktioniert ein Gerät nicht? Schreiben Sie Frédéric.',es:'¿No funciona un aparato? Escribid a Frédéric.'},
  list:{fr:'Liste de courses',en:'Shopping list',nl:'Boodschappenlijst',de:'Einkaufsliste',es:'Lista de la compra'},
  listTxt:{fr:'Gardée sur ce téléphone. Effacée automatiquement à la fin du séjour.',en:'Kept on this phone. Cleared automatically at the end of your stay.',nl:'Bewaard op deze telefoon. Wordt automatisch gewist aan het einde van jullie verblijf.',de:'Auf diesem Handy gespeichert. Wird am Ende Ihres Aufenthalts automatisch gelöscht.',es:'Se guarda en este móvil. Se borra automáticamente al final de la estancia.'},
+ listShared:{fr:'Liste partagée : tout le groupe la voit avec le lien du séjour. Effacée automatiquement après le départ.',en:'Shared list: everyone with the stay link sees it. Deleted automatically after you leave.',nl:'Gedeelde lijst: iedereen met de verblijfslink ziet hem. Wordt na vertrek automatisch gewist.',de:'Gemeinsame Liste: Alle mit dem Aufenthaltslink sehen sie. Wird nach der Abreise automatisch gelöscht.',es:'Lista compartida: la ve todo el grupo con el enlace de la estancia. Se borra automáticamente tras la salida.'},
+ offline:{fr:'Pas de connexion. Réessayez dans un instant.',en:'No connection. Please try again in a moment.',nl:'Geen verbinding. Probeer het zo opnieuw.',de:'Keine Verbindung. Bitte gleich noch einmal versuchen.',es:'Sin conexión. Volved a intentarlo en un momento.'},
+ album:{fr:'Album du séjour',en:'Stay album',nl:'Album van het verblijf',de:'Album des Aufenthalts',es:'Álbum de la estancia'},
+ albumTxt:{fr:'Privé : seules les personnes qui ont le lien de votre séjour voient ces photos. Rien n’est publié. Toutes les photos sont supprimées automatiquement après votre départ.',en:'Private: only people with your stay link can see these photos. Nothing is published. All photos are deleted automatically after you leave.',nl:'Privé: alleen wie de link van jullie verblijf heeft, ziet deze foto’s. Er wordt niets gepubliceerd. Alle foto’s worden na jullie vertrek automatisch gewist.',de:'Privat: Nur Personen mit Ihrem Aufenthaltslink sehen diese Fotos. Nichts wird veröffentlicht. Alle Fotos werden nach Ihrer Abreise automatisch gelöscht.',es:'Privado: solo quien tenga el enlace de vuestra estancia ve estas fotos. No se publica nada. Todas las fotos se borran automáticamente tras vuestra salida.'},
+ albumSave:{fr:'Pensez à enregistrer vos photos avant le {d} : touchez une photo pour l’ouvrir, puis enregistrez-la.',en:'Remember to save your photos before {d}: tap a photo to open it, then save it.',nl:'Bewaar jullie foto’s vóór {d}: tik op een foto om hem te openen en sla hem dan op.',de:'Speichern Sie Ihre Fotos vor dem {d}: Tippen Sie auf ein Foto, um es zu öffnen, und speichern Sie es dann.',es:'Acordaos de guardar vuestras fotos antes del {d}: tocad una foto para abrirla y luego guardadla.'},
+ addPhoto:{fr:'Ajouter des photos',en:'Add photos',nl:'Foto’s toevoegen',de:'Fotos hinzufügen',es:'Añadir fotos'},
+ sending:{fr:'Envoi…',en:'Uploading…',nl:'Uploaden…',de:'Wird hochgeladen…',es:'Subiendo…'},
+ albumEmpty:{fr:'Aucune photo pour l’instant.',en:'No photos yet.',nl:'Nog geen foto’s.',de:'Noch keine Fotos.',es:'Todavía no hay fotos.'},
+ delPhoto:{fr:'Supprimer',en:'Delete',nl:'Verwijderen',de:'Löschen',es:'Borrar'},
+ delSure:{fr:'Confirmer ?',en:'Confirm?',nl:'Bevestigen?',de:'Bestätigen?',es:'¿Confirmar?'},
+ photoErr:{fr:'Une photo n’a pas pu être envoyée.',en:'A photo could not be uploaded.',nl:'Een foto kon niet worden geüpload.',de:'Ein Foto konnte nicht hochgeladen werden.',es:'No se ha podido subir una foto.'},
+ invite:{fr:'Inviter mon groupe',en:'Invite my group',nl:'Mijn groep uitnodigen',de:'Meine Gruppe einladen',es:'Invitar a mi grupo'},
+ inviteMsg:{fr:'Notre guide du Rempart (liste de courses commune et album privé) :',en:'Our Le Rempart guide (shared shopping list and private album):',nl:'Onze gids van Le Rempart (gedeelde boodschappenlijst en privé-album):',de:'Unser Le-Rempart-Guide (gemeinsame Einkaufsliste und privates Album):',es:'Nuestra guía de Le Rempart (lista de la compra común y álbum privado):'},
  addPh:{fr:'Ajouter un article',en:'Add an item',nl:'Artikel toevoegen',de:'Artikel hinzufügen',es:'Añadir un artículo'},
  add:{fr:'Ajouter',en:'Add',nl:'Toevoegen',de:'Hinzufügen',es:'Añadir'},
  empty:{fr:'Votre liste est vide.',en:'Your list is empty.',nl:'Jullie lijst is leeg.',de:'Ihre Liste ist leer.',es:'Vuestra lista está vacía.'},
@@ -253,17 +268,26 @@ RP.wifiQr = () => {
   const e = s => s.replace(/([\\;,:"])/g, '\\$1');
   return RP.qrSvg('WIFI:T:' + (w.securite || 'WPA') + ';S:' + e(w.reseau) + ';P:' + e(w.motDePasse) + ';;');
 };
-/* Météo (désactivée par défaut). Renvoie {temp, code} ou null. */
+/* Appel au serveur. a = action, s = jeton du séjour. */
+RP.api = async (a, s, corps) => {
+  const u = RP.config.api + '?a=' + a + (s ? '&s=' + encodeURIComponent(s) : '');
+  const o = corps instanceof FormData ? {method:'POST', body:corps}
+    : corps ? {method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(Object.assign({s}, corps))} : {};
+  const r = await fetch(u, o);
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) { const e = new Error(j.erreur || ('HTTP ' + r.status)); e.status = r.status; throw e; }
+  return j;
+};
+/* Météo de Ciney. Renvoie {temp, type, min, max, mm, heure} ou null. */
 RP.meteo = async () => {
-  const m = RP.config.meteo;
-  if (!m.active || m.latitude == null || m.longitude == null) return null;
+  if (!RP.config.meteo.active) return null;
   try {
-    const r = await fetch('https://api.open-meteo.com/v1/forecast?latitude=' + m.latitude + '&longitude=' + m.longitude + '&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Europe%2FBrussels&forecast_days=1');
-    if (!r.ok) return null;
-    const j = await r.json();
-    return {temp: Math.round(j.current.temperature_2m), code: j.current.weather_code, max: Math.round(j.daily.temperature_2m_max[0]), min: Math.round(j.daily.temperature_2m_min[0]), pluie: j.daily.precipitation_probability_max[0], heure: new Date()};
+    const j = await RP.api('meteo');
+    if (!j || j.temp == null) return null;
+    return {temp: j.temp, type: RP.meteoType(j.symbole || ''), min: j.min, max: j.max, mm: j.pluie_mm_12h, heure: new Date(j.maj)};
   } catch (e) { return null; }
 };
+RP.meteoSource = 'Météo : MET Norway (CC BY 4.0)';
 RP.meteoTxt = {
   clair:{fr:'Ensoleillé',en:'Sunny',nl:'Zonnig',de:'Sonnig',es:'Soleado'},
   nuage:{fr:'Nuageux',en:'Cloudy',nl:'Bewolkt',de:'Bewölkt',es:'Nublado'},
@@ -272,4 +296,6 @@ RP.meteoTxt = {
   neige:{fr:'Neige',en:'Snow',nl:'Sneeuw',de:'Schnee',es:'Nieve'},
   orage:{fr:'Orage',en:'Thunderstorm',nl:'Onweer',de:'Gewitter',es:'Tormenta'}
 };
-RP.meteoType = c => c <= 1 ? 'clair' : c <= 3 ? 'nuage' : c <= 48 ? 'brouillard' : (c >= 71 && c <= 77) || c === 85 || c === 86 ? 'neige' : c >= 95 ? 'orage' : 'pluie';
+/* Code MET Norway (ex. 'lightrainshowers_day') → type d'affichage. */
+RP.meteoType = s => /thunder/.test(s) ? 'orage' : /snow|sleet/.test(s) ? 'neige' : /rain/.test(s) ? 'pluie'
+  : /fog/.test(s) ? 'brouillard' : /clearsky|fair/.test(s) ? 'clair' : 'nuage';

@@ -29,7 +29,15 @@ Les messages du parcours sont dans `assets/messages.js`.
 
 - Ce dépôt est public : **jamais de code d'accès ni de mot de passe autre que le Wi-Fi**. Les codes se tapent dans `hote.html`, restent sur l'écran et ne sont jamais enregistrés.
 - La page hôte n'envoie rien : elle prépare le texte, et c'est l'hôte qui envoie.
-- La météo est désactivée (`meteo.active: false`) tant que le service n'est pas choisi.
+- Météo : MET Norway (licence CC BY 4.0), via le serveur. La source est affichée.
+
+## Liste partagée et album (serveur Supabase, projet gratuit « gites »)
+
+- Dans `hote.html`, taper le **code hôte** puis « Créer le lien avec liste partagée et album ». Le lien reçoit `&s=…`.
+- Tous ceux qui ont ce lien voient la même liste et le même album. Bouton « Inviter mon groupe » dans l'appli.
+- Sans ce bouton, le lien marche, mais la liste reste sur chaque téléphone et il n'y a pas d'album.
+- L'album est privé (jamais publié). Le lien s'arrête le lendemain du départ. Chaque nuit à 3 h 15 (UTC), le serveur efface les séjours finis depuis 2 jours : liste et photos.
+- Code du serveur : `supabase/functions/rempart/index.ts`. Le code hôte est le secret `HOTE_PIN` dans Supabase (jamais dans ce dépôt).
 
 ## Mise en ligne
 

@@ -25,6 +25,13 @@ h1,h2{font-family:var(--f-display);font-weight:400;margin:0}
 .clock .t{font-family:var(--f-display);font-size:5.6vw;line-height:1;font-variant-numeric:tabular-nums}
 .clock .d{font-size:1.6vw;color:var(--soft)}
 .clock .d::first-letter{text-transform:uppercase}
+.top{align-items:center}
+.right{display:flex;align-items:center}
+.right > * + *{margin-left:2.4vw;padding-left:2.4vw;border-left:1px solid rgba(255,255,255,.15)}
+.wxh{text-align:right}
+.wxh .deg{font-family:var(--f-display);font-size:4vw;line-height:1}
+.wxh .txt{font-size:1.4vw;color:#dfe7dc}
+.wxh .small{font-size:.9vw}
 .ideas{display:flex;flex-direction:column;min-height:0;overflow:hidden}
 .ideas > * + *{margin-top:1vw}
 .ideas h2{font-size:2vw;color:var(--gold)}
@@ -76,17 +83,17 @@ function render(){
   const d = new Date(), r = RP.ideePluie(d), w = RP.config.wifi, wq = RP.wifiQr();
   const pj = RP.pepiteDuJour(d);
   const pain = RP.adresses.filter(p => p.cat === 'pain' && p.ferme && p.ferme.length < 7 && RP.ouvert(p, d)).sort((x, y) => x.min - y.min)[0];
-  const typ = meteo ? RP.meteoType(meteo.code) : null;
+  const typ = meteo ? meteo.type : null;
   document.documentElement.lang = lang;
   document.getElementById('tv').innerHTML = `
     <div class="top"><div><div class="eyebrow">Le Rempart · Ciney</div><h1>${E(L('welcome'))}</h1></div>
-      <div class="clock"><div class="t">${E(fmt(d,{hour:'2-digit',minute:'2-digit'}))}</div><div class="d">${E(fmt(d,{weekday:'long',day:'numeric',month:'long'}))}</div></div></div>
+      <div class="right">${meteo?`<div class="wxh"><div class="deg">${meteo.temp}°</div><div class="txt">${E(RP.meteoTxt[typ][lang])} · ${meteo.min}° / ${meteo.max}°${meteo.mm?' · ☂ '+meteo.mm+' mm':''}</div><div class="small">${E(RP.meteoSource)}</div></div>`:''}
+      <div class="clock"><div class="t">${E(fmt(d,{hour:'2-digit',minute:'2-digit'}))}</div><div class="d">${E(fmt(d,{weekday:'long',day:'numeric',month:'long'}))}</div></div></div></div>
     <div class="ideas"><h2>${E(L('three'))}</h2>
       ${RP.idees(d,lang).map(([k,p])=>p?`<div class="idea"><div class="m">${p.min}<small>${E(L('min'))}</small></div><div><div class="k">${E(k)}</div><b>${E(p.nom)}</b><span>${E(RP.sousTitre(p,lang)||p.adr)}</span></div></div>`:'').join('')}
       ${r?`<div class="idea rain"><div class="m">☔</div><div><div class="k">${E(L('rain'))}</div><b>${E(r.nom)}</b><span>${r.min} ${E(L('min'))} · ${E(RP.sousTitre(r,lang))}</span></div></div>`:''}
     </div>
     <div class="side">
-      ${meteo?`<div class="box"><div class="eyebrow">${E(L('weather'))}</div><div class="wx"><div class="deg">${meteo.temp}°</div><span>${E(RP.meteoTxt[typ][lang])}<br>${meteo.min}° / ${meteo.max}° · ☂ ${meteo.pluie}%</span></div><div class="small">Open-Meteo · ${E(fmt(meteo.heure,{hour:'2-digit',minute:'2-digit'}))}</div></div>`:''}
       ${w.reseau?`<div class="box"><div class="eyebrow">${E(L('tvWifi'))}</div><div class="qrrow"><div class="l">${E(L('network'))} : <b>${E(w.reseau)}</b><br>${E(L('pass'))} : <b>${E(w.motDePasse)}</b><br><span class="small">${E(L('tvWifiScan'))}</span></div>${wq?`<div class="qr">${wq}</div>`:''}</div></div>`:''}
       ${pj?`<div class="box" style="background:rgba(226,189,114,.12)"><div class="eyebrow">★ ${E(L('pepiteJour'))}</div><div style="font-size:1.9vw;font-weight:700">${E(pj.nom)}</div><div class="small" style="font-size:1.25vw;line-height:1.4">${E(pj.mot[lang]||pj.mot.fr)}</div></div>`:''}
       ${pain&&!w.reseau?`<div class="box opt"><div class="eyebrow">${E(RP.t.cats.pain[lang])} · ${E(L('open'))}</div><div class="l" style="font-size:1.9vw;font-weight:700">${E(pain.nom)}</div><div class="small" style="font-size:1.3vw">${pain.min} ${E(L('min'))} · ${E(pain.adr)}</div></div>`:''}

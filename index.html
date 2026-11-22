@@ -31,6 +31,9 @@ const parseDay = s => { if(!/^\d{4}-\d{2}-\d{2}$/.test(s||'')) return null; cons
 const arrivee = parseDay(Q.get('a')), depart = parseDay(Q.get('d'));
 const sejourId = arrivee && depart ? Q.get('a') + '_' + Q.get('d') : 'general';
 const listKey = 'rp-liste-' + sejourId;
+/* Jeton du séjour (créé par l'hôte) : active la liste partagée et l'album. */
+const S = /^[A-Za-z0-9_-]{16,64}$/.test(Q.get('s') || '') ? Q.get('s') : null;
+let partagee = null, horsLigne = false, album = null, envoi = 0, albumErr = '', suppr = null;
 
 let lang = RP.langues[Q.get('l')] ? Q.get('l') : (RP.langues[store.get('rp-lang')] ? store.get('rp-lang') : null);
 let tab = 0, cat = 'tout', video = RP.videos[Q.get('v')] ? Q.get('v') : null;
@@ -54,7 +57,8 @@ const ICONS = {
  rain:'<path d="M7 15h10a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.2 6.6 4.2 4.2 0 0 0 7 15z"/><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3"/>',
  pin:'<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
  play:'<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 9.5v5l4.5-2.5z"/>',
- cart:'<path d="M3 4h2l2.4 11h10.4L20 8H6.2"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="16.5" cy="19.5" r="1.3"/>'
+ cart:'<path d="M3 4h2l2.4 11h10.4L20 8H6.2"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="16.5" cy="19.5" r="1.3"/>',
+ photo:'<rect x="3" y="5" width="18" height="15" rx="3"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8.5 5l1.5-2h4l1.5 2"/>'
 };
 const ico = (k, extra='') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${ICONS[k]}</svg>`;
 const fmt = (d,o) => new Intl.DateTimeFormat(RP.langues[lang], o).format(d);
@@ -87,6 +91,7 @@ function vAccueil(){
       <video src="assets/accueil.mp4" poster="assets/accueil.jpg" controls playsinline preload="none" aria-label="Frédéric"></video>
       <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><h1>${E(L('welcome'))}</h1><p>${E(L('intro'))}</p></div>
     </section>
+    ${inviter()}
     <section class="card">
       <div class="eyebrow">${E(L('stay'))}</div>
       ${arrivee&&depart?`<h2 style="font-size:1.25rem">${E(fmt(arrivee,{weekday:'short',day:'numeric',month:'long'}))} → ${E(fmt(depart,{weekday:'short',day:'numeric',month:'long'}))}</h2>`:''}
@@ -126,12 +131,12 @@ function vAccueil(){
 
 function meteoCard(){
   if (!meteo) return '';
-  const type = RP.meteoType(meteo.code);
+  const type = meteo.type;
   const icon = type==='clair'?'sun':type==='pluie'||type==='orage'?'rain':'cloud';
   return `<section class="card"><div class="eyebrow">${E(L('weather'))} · Ciney</div>
     <div class="wx">${ico(icon,'width="44" height="44" style="color:var(--brass)"')}<div class="deg">${meteo.temp}°</div>
-    <div><b>${E(RP.meteoTxt[type][lang])}</b><p class="muted">${meteo.min}° / ${meteo.max}° · ☂ ${meteo.pluie}%</p></div></div>
-    <p class="muted">Open-Meteo · ${E(fmt(meteo.heure,{hour:'2-digit',minute:'2-digit'}))}</p></section>`;
+    <div><b>${E(RP.meteoTxt[type][lang])}</b><p class="muted">${meteo.min}° / ${meteo.max}° · ☂ ${meteo.mm} mm / 12 h</p></div></div>
+    <p class="muted">${E(RP.meteoSource)} · ${E(fmt(meteo.heure,{hour:'2-digit',minute:'2-digit'}))}</p></section>`;
 }
 
 function vAujourdhui(){
@@ -210,16 +215,38 @@ function ics(){
   a.href = URL.createObjectURL(new Blob([txt], {type:'text/calendar'})); a.download = 'le-rempart-rappel.ics';
   document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
 }
-function liste(){ try { return JSON.parse(store.get(listKey)) || []; } catch(e){ return []; } }
+function listeLocale(){ try { return JSON.parse(store.get(listKey)) || []; } catch(e){ return []; } }
+/* Liste partagée si le lien contient un jeton, sinon liste sur ce téléphone. Format commun : {id, n, d}. */
+function liste(){ return S && partagee ? partagee : listeLocale(); }
+const enPartage = () => !!(S && partagee);
+async function chargerListe(){
+  if (!S) return;
+  try { const j = await RP.api('liste', S); partagee = j.articles.map(a => ({id:a.id, n:a.nom, d:a.fait})); horsLigne = false; }
+  catch (e) { horsLigne = true; }
+  if (tab === 4) majVue();
+}
+async function opListe(corps){
+  try { const j = await RP.api('liste', S, corps); partagee = j.articles.map(a => ({id:a.id, n:a.nom, d:a.fait})); horsLigne = false; }
+  catch (e) { horsLigne = true; }
+  majVue();
+}
+/* Redessine sans perdre la saisie en cours. */
+function majVue(){
+  const i = document.getElementById('addInput'), v = i ? i.value : '', f = document.activeElement === i;
+  render(true);
+  const n = document.getElementById('addInput'); if (n) { n.value = v; if (f) n.focus(); }
+}
 function saveListe(l){ store.set(listKey, JSON.stringify(l)); }
 function vCourses(){
   const l = liste(), done = l.some(i=>i.d);
   const txt = L('list') + ' · Le Rempart\n' + l.filter(i=>!i.d).map(i=>'• '+i.n).join('\n');
   return `${top()}
-    <div><h1 style="font-size:1.6rem">${E(L('list'))}</h1><p class="muted">${E(L('listTxt'))}</p></div>
+    <div><h1 style="font-size:1.6rem">${E(L('list'))}</h1><p class="muted">${E(L(enPartage() ? 'listShared' : 'listTxt'))}</p></div>
+    ${enPartage() ? inviter() : ''}
+    ${horsLigne?`<p class="miss">${E(L('offline'))}</p>`:''}
     <section class="card">
       <form class="add" id="addForm"><input id="addInput" autocomplete="off" placeholder="${E(L('addPh'))}" aria-label="${E(L('addPh'))}"><button>${E(L('add'))}</button></form>
-      <div>${l.length?l.map((it,i)=>`<label class="li ${it.d?'done':''}"><input type="checkbox" data-i="${i}" ${it.d?'checked':''}><span>${E(it.n)}</span></label>`).join(''):`<p class="muted">${E(L('empty'))}</p>`}</div>
+      <div>${l.length?l.map((it,i)=>`<label class="li ${it.d?'done':''}"><input type="checkbox" data-i="${i}" ${it.d?'checked':''} aria-label="${E(it.n)}"><span>${E(it.n)}</span></label>`).join(''):`<p class="muted">${E(L('empty'))}</p>`}</div>
       ${done?`<button class="btn ghost small" data-act="clear">${E(L('clearDone'))}</button>`:''}
     </section>
     ${l.some(i=>!i.d)?`<a class="btn" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">${E(L('share'))}</a>`:''}
@@ -228,8 +255,56 @@ function vCourses(){
     <p class="muted">${E(L('bread'))}</p>`;
 }
 
-const VUES = [vAccueil, vAujourdhui, vAdresses, vAide, vCourses];
-const TABICO = ['home','sun','pin','play','cart'];
+/* Bouton pour envoyer le lien du séjour (avec liste et album) aux autres voyageurs. */
+const inviter = () => S ? `<button class="btn ghost small" data-act="invite" style="align-self:flex-start">${E(L('invite'))}</button>` : '';
+function partagerLien(){
+  const txt = L('inviteMsg'), url = location.href.split('#')[0].replace(/([?&])v=[^&]*&?/, '$1');
+  if (navigator.share) { navigator.share({title:'Le Rempart', text:txt, url}).catch(()=>{}); return; }
+  window.open('https://wa.me/?text=' + encodeURIComponent(txt + ' ' + url), '_blank', 'noopener');
+}
+function vAlbum(){
+  const fin = depart ? new Date(depart.getFullYear(), depart.getMonth(), depart.getDate()+1) : null;
+  const ph = album ? album.photos : null;
+  return `${top()}
+    <div><h1 style="font-size:1.6rem">${E(L('album'))}</h1><p class="muted">${E(L('albumTxt'))}</p></div>
+    ${inviter()}
+    ${horsLigne?`<p class="miss">${E(L('offline'))}</p>`:''}
+    <label class="btn" style="text-align:center">${ico('photo','width="20" height="20"')} ${E(envoi ? L('sending') + ' (' + envoi + ')' : L('addPhoto'))}
+      <input type="file" id="photoIn" accept="image/*" multiple hidden ${envoi?'disabled':''}></label>
+    ${albumErr?`<p class="miss">${E(albumErr)}</p>`:''}
+    ${ph===null?'':ph.length?`<div class="gal">${ph.map(p=>`<figure><a href="${E(p.url||'#')}" target="_blank" rel="noopener"><img src="${E(p.url||'')}" alt="" loading="lazy"></a>
+      <button class="del" data-del="${p.id}">${E(L(suppr===p.id?'delSure':'delPhoto'))}</button></figure>`).join('')}</div>`:`<p class="muted">${E(L('albumEmpty'))}</p>`}
+    ${fin?`<p class="muted">${E(L('albumSave').replace('{d}', fmt(fin,{day:'numeric',month:'long'})))}</p>`:''}`;
+}
+async function chargerAlbum(){
+  try { album = await RP.api('album', S); horsLigne = false; } catch (e) { horsLigne = true; }
+  if (tab === 5) render(true);
+}
+/* Réduit la photo (max 2560 px, JPEG) avant l'envoi. Si le navigateur ne sait pas la lire, envoie l'original. */
+function reduire(f){
+  return new Promise(ok => {
+    const img = new Image(), u = URL.createObjectURL(f);
+    img.onload = () => {
+      const k = Math.min(1, 2560 / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth*k); c.height = Math.round(img.naturalHeight*k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(u);
+      c.toBlob(b => ok(b && b.size < f.size ? new File([b], 'photo.jpg', {type:'image/jpeg'}) : f), 'image/jpeg', 0.85);
+    };
+    img.onerror = () => { URL.revokeObjectURL(u); ok(f); };
+    img.src = u;
+  });
+}
+async function envoyer(fichiers){
+  albumErr = ''; envoi = fichiers.length; render(true);
+  for (const f of fichiers) {
+    try { const fd = new FormData(); fd.append('photo', await reduire(f)); album = await RP.api('album', S, fd); }
+    catch (e) { albumErr = L('photoErr') + (e.message && !/fetch/i.test(e.message) ? ' (' + e.message + ')' : ''); }
+    envoi--; render(true);
+  }
+}
+
+const VUES = [vAccueil, vAujourdhui, vAdresses, vAide, vCourses].concat(S ? [vAlbum] : []);
+const TABICO = ['home','sun','pin','play','cart','photo'];
 
 function render(keepScroll){
   const v = document.getElementById('view'), tabs = document.getElementById('tabs');
@@ -237,7 +312,7 @@ function render(keepScroll){
   if (termine()) { store.del(listKey); if(!lang) lang='fr'; v.innerHTML = vFin(); tabs.hidden = true; return; }
   if (!lang) { v.innerHTML = vLangue(); tabs.hidden = true; return; }
   tabs.hidden = false;
-  document.getElementById('tabsIn').innerHTML = L('nav').map((n,i)=>`<button role="tab" aria-selected="${i===tab}" data-tab="${i}">${ico(TABICO[i])}<span>${E(n)}</span></button>`).join('');
+  document.getElementById('tabsIn').innerHTML = L('nav').slice(0, VUES.length).map((n,i)=>`<button role="tab" aria-selected="${i===tab}" data-tab="${i}">${ico(TABICO[i])}<span>${E(n)}</span></button>`).join('');
   v.innerHTML = VUES[tab]();
   if (!keepScroll) window.scrollTo(0,0);
 }
@@ -250,29 +325,47 @@ function majArrivee(){
 }
 
 document.addEventListener('click', e => {
-  const b = e.target.closest('[data-lang],[data-tab],[data-cat],[data-act],[data-video]'); if (!b) return;
+  const b = e.target.closest('[data-lang],[data-tab],[data-cat],[data-act],[data-video],[data-del]'); if (!b) return;
+  if (b.dataset.del){
+    const id = +b.dataset.del;
+    if (suppr !== id){ suppr = id; render(true); return; }
+    suppr = null; RP.api('album_suppr', S, {id}).then(chargerAlbum, () => { horsLigne = true; render(true); }); return;
+  }
   if (b.dataset.lang){ lang = b.dataset.lang; store.set('rp-lang', lang); tab = video ? 3 : 0; render(); return; }
-  if (b.dataset.tab){ tab = +b.dataset.tab; render(); return; }
+  if (b.dataset.tab){ tab = +b.dataset.tab; render(); if (tab === 4) chargerListe(); if (tab === 5) chargerAlbum(); return; }
   if (b.dataset.cat){ cat = b.dataset.cat; render(true); return; }
   if (b.dataset.video){ video = b.dataset.video; render(); return; }
   if (b.dataset.act === 'lang'){ lang = null; render(); return; }
   if (b.dataset.act === 'arr'){ const box = document.getElementById('arrBox'); box.hidden = !box.hidden; b.setAttribute('aria-expanded', String(!box.hidden)); majArrivee(); return; }
   if (b.dataset.act === 'ics'){ ics(); return; }
-  if (b.dataset.act === 'clear'){ saveListe(liste().filter(i=>!i.d)); render(true); return; }
+  if (b.dataset.act === 'invite'){ partagerLien(); return; }
+  if (b.dataset.act === 'clear'){ if (enPartage()) opListe({op:'vider'}); else { saveListe(listeLocale().filter(i=>!i.d)); render(true); } return; }
 });
 document.addEventListener('input', e => { if (e.target.id === 'arrT') majArrivee(); });
 document.addEventListener('change', e => {
-  if (e.target.dataset && e.target.dataset.i !== undefined){ const l = liste(); l[+e.target.dataset.i].d = e.target.checked; saveListe(l); render(true); }
+  if (e.target.id === 'photoIn' && e.target.files.length){ envoyer(Array.from(e.target.files)); return; }
+  if (e.target.dataset && e.target.dataset.i !== undefined){
+    const l = liste(), it = l[+e.target.dataset.i];
+    if (enPartage()) { it.d = e.target.checked; opListe({op:'coche', id:it.id, fait:it.d}); return; }
+    it.d = e.target.checked; saveListe(l); render(true);
+  }
 });
 document.addEventListener('submit', e => {
   if (e.target.id !== 'addForm') return; e.preventDefault();
   const i = document.getElementById('addInput'), v = i.value.trim(); if (!v) return;
-  const l = liste(); l.push({n:v.slice(0,80), d:false}); saveListe(l); render(true);
+  if (enPartage()) { i.value = ''; opListe({op:'ajout', nom:v.slice(0,80)}); return; }
+  const l = listeLocale(); l.push({n:v.slice(0,80), d:false}); saveListe(l); render(true);
   const n = document.getElementById('addInput'); if (n) n.focus();
 });
 
 render();
 RP.meteo().then(m => { if (m){ meteo = m; if (tab === 1) render(true); } });
+/* Liste partagée : mise à jour toutes les 20 s quand l'onglet Courses est ouvert. */
+if (S && !termine()) {
+  chargerListe();
+  setInterval(() => { if (tab === 4 && !document.hidden) chargerListe(); }, 20000);
+  setInterval(() => { if (tab === 5 && !document.hidden && !envoi) chargerAlbum(); }, 30 * 60 * 1000); // liens d'images valables 2 h
+}
 })();
 </script>
 </body>
