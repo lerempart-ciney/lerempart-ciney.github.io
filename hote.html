@@ -107,7 +107,7 @@ label.f input,label.f select{border:1px solid var(--line);border-radius:10px;pad
 (function(){
 const $ = id => document.getElementById(id), E = RP.esc;
 const LANG_FR = {fr:'français', en:'anglais', nl:'néerlandais', de:'allemand', es:'espagnol'};
-$('lang').innerHTML = Object.keys(RP.langues).map(k=>`<option value="${k}">${RP.nomsLangues[k]}</option>`).join('');
+$('lang').innerHTML = '<option value="multi">Les 5 langues ensemble</option>' + Object.keys(RP.langues).map(k=>`<option value="${k}">${RP.nomsLangues[k]}</option>`).join('');
 const base = new URL('index.html', location.href).href;
 const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(e){} }, del(k){ try { localStorage.removeItem(k); } catch(e){} } };
 if (store.get('rp-hote-pin')) { $('pin').value = store.get('rp-hote-pin'); $('pinMem').checked = true; }
@@ -175,9 +175,17 @@ function valeurs(s, l){
     'CODE DE LA PORTE': s.code_porte || ''
   };
 }
-function texte(m, v, l){
-  if (m.multi) return RP.texteMulti(m, v['LIEN DU SÉJOUR']);
-  return m.champs.reduce((t, c) => t.split('[' + c + ']').join(v[c] || '[' + c + ']'), m[l]);
+/* l = une langue (fr, en, nl, de, es) : le message dans cette langue seulement.
+   l = 'multi' : le message dans les 5 langues, l'une sous l'autre. */
+const LANGS = ['fr','en','nl','de','es'];
+function remplir(m, v, l){ return m.champs.reduce((t, c) => t.split('[' + c + ']').join(v[c] || '[' + c + ']'), m[l]); }
+function texte(m, s, l){
+  if (l === 'multi') {
+    if (m.multi) return RP.texteMulti(m, lienDe(s));
+    return LANGS.map(k => k.toUpperCase() + ' · ' + remplir(m, valeurs(s, k), k)).join('\n\n');
+  }
+  if (m.multi) return lienDe(s) + '\n\n' + m[l] + '\n\nFrédéric · WhatsApp ' + RP.config.whatsapp;
+  return remplir(m, valeurs(s, l), l);
 }
 function waLink(t){
   const n = $('tel').value.replace(/[^\d]/g, '').replace(/^00/, '');
@@ -188,17 +196,19 @@ const NOMS = {'CODE DU PORTAIL':'le code du portail', 'CODE DE LA PORTE':'le cod
 function rendreMsgs(){
   const s = sel();
   if (!s) { $('lienBox').innerHTML = ''; $('msgs').innerHTML = ''; $('msgOpts').hidden = true; $('msgInfo').textContent = 'Choisis un séjour dans la liste (bouton « Lien et messages »).'; return; }
-  if (!langueTouchee) $('lang').value = s.langue || 'fr';
-  const l = $('lang').value, v = valeurs(s, l), url = lienDe(s);
+  if (!langueTouchee) $('lang').value = s.langue || 'multi';
+  const l = $('lang').value, v = valeurs(s, l === 'multi' ? 'fr' : l), url = lienDe(s);
   $('msgOpts').hidden = false;
   $('msgInfo').innerHTML = `Gîte ${E(s.gite_id)}${s.nom?' · '+E(s.nom):''}, du ${E(jour(s.arrivee))} au ${E(jour(s.depart))}. `
-    + (s.langue ? `Le voyageur a choisi le <b>${E(LANG_FR[s.langue])}</b> : les messages 2 à 7 sont dans cette langue.` : 'Le voyageur n’a pas encore choisi sa langue : envoie d’abord le message 1, il est en 5 langues.');
+    + (s.langue ? `Langue choisie par le voyageur : <b>${E(LANG_FR[s.langue])}</b>. ` : 'Le voyageur n’a pas encore choisi sa langue. ')
+    + (l === 'multi' ? 'Messages affichés : <b>les 5 langues ensemble</b>.' : `Messages affichés : <b>${E(LANG_FR[l])}</b> seulement.`)
+    + ' Change la langue ci-dessous si besoin. Les messages partent exactement comme affichés.';
   $('lienBox').innerHTML = `<div class="card" style="gap:10px"><div class="eyebrow">Lien du séjour</div><div class="link">${E(url)}</div>
     <div class="acts"><button class="btn small" data-copy="lien">Copier le lien</button><a class="btn small ghost" href="${E(url)}" target="_blank" rel="noopener">Ouvrir le guide</a></div>
     <div class="qrbox">${RP.qrSvg(url)}</div><p class="muted">Ce lien est pour ce groupe seulement. Il s’arrête le lendemain du départ.</p></div>`;
   $('msgs').innerHTML = RP.messages.map((m, i) => {
     const manque = m.champs.filter(c => !v[c]);
-    const t = texte(m, v, l);
+    const t = texte(m, s, l);
     return `<article class="card msg"><div class="hd"><h3>${E(m.titre)}</h3><span class="muted">${E(m.quand)}</span></div>
       ${m.brouillon?'<span class="tag t-warn" style="align-self:flex-start">Brouillon : à valider par Sacha</span>':''}
       ${m.code?'<span class="tag t-no" style="align-self:flex-start">Contient un code : envoyer seulement à ce voyageur</span>':''}
@@ -267,7 +277,7 @@ document.addEventListener('click', e => {
   if (b.dataset.open) { majSejour(b.dataset.open, {debloquer: true}, b.closest('.sej')); return; }
   if (b.dataset.close) { majSejour(b.dataset.close, {debloquer: false}, b.closest('.sej')); return; }
   if (b.dataset.copy === 'lien') { const s = sel(); if (s) copier(lienDe(s), b); return; }
-  const s = sel(), m = RP.messages[+b.dataset.copy]; if (s && m) copier(texte(m, valeurs(s, $('lang').value), $('lang').value), b);
+  const s = sel(), m = RP.messages[+b.dataset.copy]; if (s && m) copier(texte(m, s, $('lang').value), b);
 });
 $('lang').addEventListener('change', () => { langueTouchee = true; rendreMsgs(); });
 $('tel').addEventListener('input', rendreMsgs);

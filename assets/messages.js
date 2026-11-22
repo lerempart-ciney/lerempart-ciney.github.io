@@ -5,7 +5,7 @@
    « au_revoir » : texte de Claude, validé par Sacha le 22/11/2026 ; P.-S. souvenir ajouté avec son accord le 22/11/2026. */
 
 RP.messages = [
- {id:'reservation', titre:'1. Juste après la réservation (5 langues, avec le lien)', quand:'Dès que la réservation arrive', champs:['LIEN DU SÉJOUR'], multi:true, brouillon:true,
+ {id:'reservation', titre:'1. Juste après la réservation (avec le lien)', quand:'Dès que la réservation arrive', champs:['LIEN DU SÉJOUR'], multi:true, brouillon:true,
   fr:"Merci pour votre réservation au Rempart ! Je suis Frédéric, votre contact pendant le séjour. Ouvrez votre guide avec le lien ci-dessus et choisissez votre langue : je vous écrirai ensuite dans cette langue. Vous pouvez déjà découvrir nos adresses, les appareils et la liste de courses. Le Wi-Fi, les codes d’accès et l’album photo s’ouvriront quand vous me préviendrez de votre arrivée.",
   en:"Thank you for booking Le Rempart! I’m Frédéric, your contact during your stay. Open your guide with the link above and choose your language: I will then write to you in that language. You can already discover our favourite places, the appliances and the shopping list. The Wi-Fi, the access codes and the photo album will unlock when you let me know you are arriving.",
   nl:"Bedankt voor jullie reservatie bij Le Rempart! Ik ben Frédéric, jullie contactpersoon tijdens het verblijf. Open jullie gids met de link hierboven en kies jullie taal: daarna schrijf ik jullie in die taal. Jullie kunnen nu al onze adressen, de toestellen en de boodschappenlijst ontdekken. De wifi, de toegangscodes en het fotoalbum worden zichtbaar zodra jullie me jullie aankomst laten weten.",
