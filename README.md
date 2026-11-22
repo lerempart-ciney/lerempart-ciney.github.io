@@ -18,7 +18,7 @@ Site mobile pour les voyageurs du gîte Le Rempart (Avenue de Namur 6, 5590 Cine
 Tout est dans `assets/data.js` :
 - **Wi-Fi** : `wifi: { reseau: '…', motDePasse: '…' }` (s'affiche dans l'appli et sur la TV, avec un QR de connexion).
 - **Adresses du livret** : liste `RP.adresses` (jours de fermeture, temps de trajet).
-- **Pépites de Frédéric** : ajouter `mot: { fr: '…' }` sur une adresse.
+- **Les pépites du Rempart** : ajouter `mot: { fr: '…', en: '…', nl: '…', de: '…', es: '…' }` sur une adresse. Elle apparaît dans « ★ Les pépites du Rempart », et une pépite du jour s'affiche dans l'appli et sur la TV.
 - **Date de vérification du livret** : `livretVerifieLe: 'AAAA-MM-JJ'`.
 - **Vidéos d'aide** : déposer le fichier dans `videos/` puis l'indiquer dans `RP.videos`.
 
@@ -35,3 +35,7 @@ Les messages du parcours sont dans `assets/messages.js`.
 GitHub → Settings → Pages → « Deploy from a branch » → `main` / `(root)`.
 
 Code QR : bibliothèque de Kazuhiko Arase (licence MIT), `assets/qrcode.js`.
+
+## Écran TV (Smart TV Samsung)
+
+Ouvrir l'application **Internet** de la TV, aller à l'adresse `…/le-rempart/tv.html`, puis l'ajouter aux favoris. Cliquer une fois avec la télécommande pour passer en plein écran. Désactiver la mise en veille automatique de la TV dans ses réglages. La page se met à jour seule (heure, idées du jour, langue).

@@ -1,7 +1,7 @@
 /* Le Rempart · messages du parcours voyageur, en 5 langues.
    Les champs entre crochets sont remplis par la page hôte au moment de l'envoi.
    « reservation » et « accueil » : textes de Sacha (correction NL : « Jullie kunnen me bereiken »).
-   « au_revoir » : brouillon à remplacer par le texte de Sacha. */
+   « au_revoir » : texte de Claude, validé par Sacha le 22/11/2026. */
 
 RP.messages = [
  {id:'reservation', titre:'1. Juste après la réservation', quand:'Dès que la réservation arrive', champs:[],
@@ -46,7 +46,7 @@ RP.messages = [
   de:"Hallo und herzlich willkommen im Le Rempart! Ich bin Frédéric und freue mich sehr, Sie begrüßen zu dürfen. Vielen Dank, dass Sie sich für Le Rempart entschieden haben. Ich hoffe, Sie fühlen sich hier wohl und können Ihren Aufenthalt genießen. Richten Sie sich ganz in Ruhe ein und fühlen Sie sich wie zu Hause. Die praktischen Informationen zu Ihrer Ankunft und die Zugangscodes erhalten Sie separat, damit Sie alles zur Hand haben. Bei Fragen erreichen Sie mich über WhatsApp oder per E-Mail an acls@live.be. Ich wünsche Ihnen einen wunderschönen Aufenthalt im Le Rempart. Bis bald!",
   es:"¡Hola y muy bienvenidos a Le Rempart! Soy Frédéric y me alegra mucho recibiros. Gracias por elegir Le Rempart para vuestra estancia. Espero que os sintáis como en casa y que disfrutéis mucho de estos días. Instalaos con calma y poneos cómodos. Os enviaré por separado la información práctica para vuestra llegada y los códigos de acceso, para que los tengáis a mano cuando los necesitéis. Si tenéis alguna pregunta, podéis escribirme por WhatsApp o por correo electrónico a acls@live.be. Os deseo una estancia estupenda en Le Rempart. ¡Hasta pronto!"},
 
- {id:'au_revoir', titre:'7. Fin de séjour', quand:'Après le départ', champs:[], brouillon:true,
+ {id:'au_revoir', titre:'7. Fin de séjour', quand:'Après le départ', champs:[],
   fr:"Bonjour ! Merci d’avoir séjourné au Rempart, ce fut un plaisir de vous accueillir. J’espère que tout s’est bien passé.\n\nSi vous avez un moment, dites-moi simplement ce que vous avez aimé, ou ce que nous pourrions améliorer. Et si quelque chose n’a pas fonctionné pendant votre séjour, n’hésitez pas à me le signaler.\n\nBon retour, et peut-être à une prochaine fois !\nFrédéric",
   en:"Hello! Thank you for staying at Le Rempart, it was a pleasure to have you. I hope everything went well.\n\nIf you have a moment, just let me know what you enjoyed, or what we could do better. And if anything didn’t work properly during your stay, please tell me.\n\nSafe journey home, and perhaps see you again!\nFrédéric",
   nl:"Hallo! Bedankt voor jullie verblijf in Le Rempart, het was een plezier om jullie te ontvangen. Ik hoop dat alles goed verlopen is.\n\nHebben jullie even tijd? Laat me gerust weten wat jullie leuk vonden, of wat we nog beter kunnen doen. En werkte er tijdens jullie verblijf iets niet zoals het hoort, laat het me dan zeker weten.\n\nGoede terugreis en misschien tot een volgende keer!\nFrédéric",

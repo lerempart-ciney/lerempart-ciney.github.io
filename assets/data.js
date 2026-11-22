@@ -28,7 +28,7 @@ RP.videos = { tv: {}, lave: {}, sauna: {}, four: {}, micro: {}, taque: {}, flipp
    ferme = jours de fermeture (0 = dimanche, 1 = lundi … 6 = samedi).
    regle = 'saison' (horaires selon la saison), 'annee' (toute l'année), 'avr-nov'.
    pluie = idée possible s'il pleut (activité en intérieur).
-   mot = « Le mot de Frédéric » (sa pépite), à écrire en français : { fr: '…' }. */
+   mot = texte « Les pépites du Rempart » (5 langues). L'adresse apparaît alors dans les pépites. */
 RP.adresses = [
  {cat:'pain',  nom:'Vander Cammen',        min:3,  adr:'Rue du Commerce 2, Ciney',               ferme:[4],     tel:'083 21 59 68'},
  {cat:'pain',  nom:'Hennau – Marcin',      min:4,  adr:'Rue du Commerce 144, Ciney',             ferme:[1,2],   tel:'083 21 56 21'},
@@ -36,7 +36,7 @@ RP.adresses = [
  {cat:'pain',  nom:'Dechamps & Fille',     min:10, adr:'Chaussée de Dinant 27, Spontin',         ferme:[2,3],   tel:'083 69 97 89'},
  {cat:'pain',  nom:'Nelis & Fils',         min:15, adr:'Place Communale 13, Assesse',            ferme:[],      tel:'083 65 53 37'},
  {cat:'pain',  nom:'Pierson',              min:17, adr:'Chaussée de Luxembourg 7, Courrière',    ferme:[],      tel:'083 65 53 01'},
- {cat:'pain',  nom:'Le Mont Blanc Cinacien',min:3, adr:'Avenue de Namur 59A, Ciney',             ferme:[],      tel:'083 21 69 30'},
+ {cat:'pain',  nom:'Le Mont Blanc Cinacien',min:3, adr:'Avenue de Namur 59A, Ciney',             ferme:[],      tel:'083 21 69 30', mot:{fr:"À 3 minutes du gîte et ouvert 7 jours sur 7 : parfait pour une douceur à n’importe quel moment du séjour.", en:"Just 3 minutes from the house and open 7 days a week: perfect for a sweet treat at any time during your stay.", nl:"Op 3 minuten van de gîte en 7 dagen op 7 open: ideaal voor iets lekkers op elk moment van jullie verblijf.", de:"Nur 3 Minuten vom Haus entfernt und 7 Tage die Woche geöffnet: ideal für etwas Süßes zu jeder Zeit Ihres Aufenthalts.", es:"A 3 minutos de la casa y abierto todos los días: perfecto para darse un capricho dulce en cualquier momento de la estancia."}},
  {cat:'snack', nom:'La Récré',             min:3,  adr:'Place Monseu 29, Ciney',                 ferme:[],      tel:'0478 24 89 90', type:'Friterie'},
  {cat:'snack', nom:'Pita Turquoise',       min:3,  adr:'Rue du Commerce 81, Ciney',              ferme:[],      tel:'0493 55 51 54', type:'Dürüm, pitas'},
  {cat:'snack', nom:'Zampa',                min:3,  adr:'Rue du Centre 52, Ciney',                ferme:[0,1,2], tel:'083 22 01 05', type:'Pizza'},
@@ -49,13 +49,13 @@ RP.adresses = [
  {cat:'resto', nom:"L'Effet Bœuf",         min:30, adr:'Rue des Chasseurs Ardennais 3, Marche',  ferme:[],      tel:'084 44 47 40'},
  {cat:'resto', nom:'Brasserie du Quai',    min:30, adr:'Rue du Quai 9, Namur',                   ferme:[],      tel:'081 65 70 03'},
  {cat:'resto', nom:"Barbetta's",           min:30, adr:'Rue Général Michel 31, Namur',           ferme:[1,2],   tel:'081 22 33 50', type:'Italien'},
- {cat:'gastro',nom:'Recto Verso',          min:5,  adr:'Avenue de Namur 29, Ciney',              ferme:[1,2],   tel:'083 33 00 47'},
+ {cat:'gastro',nom:'Recto Verso',          min:5,  adr:'Avenue de Namur 29, Ciney',              ferme:[1,2],   tel:'083 33 00 47', mot:{fr:"À 5 minutes du gîte : une adresse bistronomique toute proche, idéale pour le premier soir. Réservation conseillée.", en:"5 minutes from the house: a bistro-style table close by, ideal for your first evening. Booking recommended.", nl:"Op 5 minuten van de gîte: een bistronomisch adres vlakbij, ideaal voor de eerste avond. Reserveren aangeraden.", de:"5 Minuten vom Haus: ein bistronomisches Restaurant ganz in der Nähe, ideal für den ersten Abend. Reservierung empfohlen.", es:"A 5 minutos de la casa: un bistró gastronómico muy cerca, ideal para la primera noche. Se recomienda reservar."}},
  {cat:'gastro',nom:'Au Gré des Saisons',   min:12, adr:"Rue d'Achet 70, Achet",                  ferme:[1,2],   tel:'083 65 75 65', type:'Bib Gourmand'},
  {cat:'gastro',nom:'Bistro Gourmand',      min:15, adr:'Route de Ciney 104, Sorinne',            ferme:[6,0],   tel:'0492 45 99 15', type:'Bib Gourmand'},
  {cat:'gastro',nom:'Le Trois X 15',        min:22, adr:'Rue Richier 45, Bouvignes',              ferme:[1,2,3], tel:'0473 39 23 30'},
  {cat:'gastro',nom:'Garde Manger',         min:22, adr:'Chaussée de Gramptinne 37, Faulx-les-Tombes', ferme:[2,3], tel:'083 44 66 31'},
  {cat:'gastro',nom:'Mona Lisa',            min:25, adr:'Rue Colonel Tachet 19, Yvoir',           ferme:[0,1],   tel:'082 71 30 19', type:'Bib Gourmand'},
- {cat:'gastro',nom:"La Grange d'Hamois",   min:8,  adr:"Chaussée d'Andenne 10A, Emptinne",       ferme:[0,1],   tel:'083 22 05 49', type:'Michelin ★'},
+ {cat:'gastro',nom:"La Grange d'Hamois",   min:8,  adr:"Chaussée d'Andenne 10A, Emptinne",       ferme:[0,1],   tel:'083 22 05 49', type:'Michelin ★', mot:{fr:"Une étoile Michelin à 8 minutes du gîte : l’adresse pour une belle occasion. Pensez à réserver.", en:"A Michelin star 8 minutes from the house: the place for a special occasion. Remember to book.", nl:"Een Michelinster op 8 minuten van de gîte: hét adres voor een speciale gelegenheid. Vergeet niet te reserveren.", de:"Ein Michelin-Stern 8 Minuten vom Haus entfernt: die Adresse für einen besonderen Anlass. Denken Sie an die Reservierung.", es:"Una estrella Michelin a 8 minutos de la casa: el sitio para una ocasión especial. No olvidéis reservar."}},
  {cat:'gastro',nom:'Bistro Blaise',        min:30, adr:'Rue Porte Haute 5, Marche-en-Famenne',   ferme:[0,1],   tel:'0470 89 57 12', type:'Michelin ★'},
  {cat:'gastro',nom:'La Roseraie',          min:30, adr:'Route de Limet 80, Modave',              ferme:[1,2,3], tel:'085 41 13 60', type:'Michelin ★'},
  {cat:'gastro',nom:"L'Essentiel",          min:35, adr:'Rue Roger Clément 32, Temploux',         ferme:[0,1,2], tel:'081 56 86 16', type:'Michelin ★'},
@@ -63,11 +63,11 @@ RP.adresses = [
  {cat:'visite',nom:'Château de Vêves',     min:20, adr:'Celles (Houyet)',  regle:'saison', desc:'veves'},
  {cat:'visite',nom:"Jardins d’Annevoie",   min:25, adr:'Anhée',            regle:'avr-nov', desc:'annevoie'},
  {cat:'visite',nom:'Château de Freÿr',     min:25, adr:'Hastière',         regle:'saison', desc:'freyr'},
- {cat:'visite',nom:'Dinant',               min:20, adr:'Dinant',           regle:'annee',  desc:'dinant'},
- {cat:'visite',nom:'Abbaye de Maredsous',  min:25, adr:'Denée',            regle:'annee',  desc:'maredsous'},
+ {cat:'visite',nom:'Dinant',               min:20, adr:'Dinant',           regle:'annee',  desc:'dinant', mot:{fr:"À 20 minutes : la collégiale, la citadelle et les bords de Meuse. Une belle journée, en toute saison.", en:"20 minutes away: the collegiate church, the citadel and the Meuse riverside. A lovely day out in any season.", nl:"Op 20 minuten: de collegiale kerk, de citadel en de Maasoevers. Een mooie dag uit, in elk seizoen.", de:"20 Minuten entfernt: Stiftskirche, Zitadelle und Maasufer. Ein schöner Tagesausflug zu jeder Jahreszeit.", es:"A 20 minutos: la colegiata, la ciudadela y las orillas del Mosa. Un día estupendo en cualquier época del año."}},
+ {cat:'visite',nom:'Abbaye de Maredsous',  min:25, adr:'Denée',            regle:'annee',  desc:'maredsous', mot:{fr:"À 25 minutes, toute l’année : l’abbaye, son fromage et sa bière. Une sortie qui plaît aux petits comme aux grands.", en:"25 minutes away, all year round: the abbey, its cheese and its beer. An outing for young and old alike.", nl:"Op 25 minuten, het hele jaar door: de abdij, haar kaas en haar bier. Een uitstap voor jong en oud.", de:"25 Minuten entfernt, das ganze Jahr über: die Abtei, ihr Käse und ihr Bier. Ein Ausflug für Groß und Klein.", es:"A 25 minutos, todo el año: la abadía, su queso y su cerveza. Una salida para pequeños y mayores."}},
  {cat:'visite',nom:'Citadelle de Namur',   min:30, adr:'Namur',            regle:'annee',  desc:'citadelle'},
  {cat:'visite',nom:'Domaine des Grottes de Han', min:35, adr:'Han-sur-Lesse', regle:'saison', desc:'han'},
- {cat:'sortie',nom:'Padel Ciney',          min:4,  adr:"Quai de l'Industrie 29, Ciney",          ferme:[],    tel:'083 21 27 53', desc:'padel'},
+ {cat:'sortie',nom:'Padel Ciney',          min:4,  adr:"Quai de l'Industrie 29, Ciney",          ferme:[],    tel:'083 21 27 53', desc:'padel', mot:{fr:"À 4 minutes et ouvert 7 jours sur 7 : parfait pour bouger en groupe. Réservez à l’avance le week-end.", en:"4 minutes away and open 7 days a week: perfect for getting active as a group. Book ahead at weekends.", nl:"Op 4 minuten en 7 dagen op 7 open: ideaal om samen te sporten. Reserveer in het weekend op voorhand.", de:"4 Minuten entfernt und 7 Tage die Woche geöffnet: ideal, um gemeinsam aktiv zu sein. Am Wochenende vorab reservieren.", es:"A 4 minutos y abierto todos los días: perfecto para hacer deporte en grupo. Reservad con antelación los fines de semana."}},
  {cat:'sortie',nom:'Karting & arcade',     min:30, adr:'Rue des Deux Provinces 1, Marche-en-Famenne', ferme:[1,2], tel:'084 77 02 22', desc:'karting'},
  {cat:'sortie',nom:'Bowling & billard',    min:30, adr:'Rue Baschamps 17, Marche-en-Famenne',    ferme:[1,2], tel:'084 38 77 18', desc:'bowling', pluie:true},
  {cat:'sortie',nom:'Escape Game Namur',    min:30, adr:'Avenue Prince de Liège 96, Jambes',      ferme:[],    tel:'0487 45 52 51', desc:'escape', pluie:true},
@@ -129,7 +129,9 @@ RP.t = {
  all:{fr:'Tout',en:'All',nl:'Alles',de:'Alle',es:'Todo'},
  pdf:{fr:'Livret complet (PDF, en français)',en:'Full welcome guide (PDF, in French)',nl:'Volledig onthaalboekje (pdf, in het Frans)',de:'Komplette Gästemappe (PDF, auf Französisch)',es:'Guía completa (PDF, en francés)'},
  chefNote:{fr:'Le chef vient cuisiner au gîte. À partir de 8 couverts. Réservez plusieurs jours à l’avance.',en:'The chef comes to cook at the house. From 8 guests. Book several days ahead.',nl:'De chef komt in de gîte koken. Vanaf 8 personen. Enkele dagen vooraf reserveren.',de:'Der Koch kocht bei Ihnen im Haus. Ab 8 Personen. Einige Tage im Voraus buchen.',es:'El chef viene a cocinar a la casa. A partir de 8 comensales. Reservad con varios días de antelación.'},
- pepite:{fr:'Le mot de Frédéric',en:'Frédéric’s tip',nl:'Tip van Frédéric',de:'Frédérics Tipp',es:'El consejo de Frédéric'},
+ pepite:{fr:'Pépite du Rempart',en:'A Le Rempart gem',nl:'Pareltje van Le Rempart',de:'Tipp vom Le Rempart',es:'Joya de Le Rempart'},
+ pepites:{fr:'Les pépites du Rempart',en:'Le Rempart’s gems',nl:'Pareltjes van Le Rempart',de:'Tipps vom Le Rempart',es:'Las joyas de Le Rempart'},
+ pepiteJour:{fr:'La pépite du jour',en:'Today’s gem',nl:'Pareltje van de dag',de:'Tipp des Tages',es:'La joya del día'},
  help:{fr:'Vidéos d’aide',en:'Help videos',nl:'Hulpvideo’s',de:'Hilfevideos',es:'Vídeos de ayuda'},
  helpTxt:{fr:'Scannez le QR code près de l’appareil, ou choisissez-le ici.',en:'Scan the QR code next to the appliance, or choose it here.',nl:'Scan de QR-code bij het toestel, of kies het hier.',de:'Scannen Sie den QR-Code am Gerät oder wählen Sie es hier aus.',es:'Escanead el código QR junto al aparato o elegidlo aquí.'},
  soon:{fr:'Bientôt disponible',en:'Coming soon',nl:'Binnenkort beschikbaar',de:'Bald verfügbar',es:'Disponible pronto'},
@@ -206,6 +208,10 @@ RP.choisir = (cats, date) => {
   return c.length ? c[RP.jourAn(date) % c.length] : null;
 };
 RP.idees = (date, lang) => [[RP.t.kEat[lang], RP.choisir(['resto', 'gastro'], date)], [RP.t.kSee[lang], RP.choisir(['visite'], date)], [RP.t.kDo[lang], RP.choisir(['sortie'], date)]];
+RP.pepiteDuJour = date => {
+  const c = RP.adresses.filter(p => p.mot && (RP.ouvert(p, date) || p.regle === 'annee'));
+  return c.length ? c[(RP.jourAn(date) + 3) % c.length] : null;
+};
 RP.ideePluie = date => {
   const c = RP.adresses.filter(p => p.pluie && RP.ouvert(p, date));
   return c.length ? c[RP.jourAn(date) % c.length] : null;
