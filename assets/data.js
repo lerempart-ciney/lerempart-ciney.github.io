@@ -8,7 +8,7 @@ window.RP = {};
 RP.config = {
   whatsapp: '+32 475 72 88 67',
   adresse: 'Avenue de Namur 6, 5590 Ciney',
-  gps: '50.298440, 5.101953', // coordonnées données par Sacha le 22/11/2026
+  gps: '50.298357, 5.101378', // devant l'entrée, coordonnées données par Sacha le 22/11/2026
   // Wi-Fi : laisser vide tant que ce n'est pas connu. S'affiche dans l'appli et sur la TV.
   /* Ne pas remplir : le dépôt est public. Le Wi-Fi est réglé dans la page hôte et donné au voyageur après l'annonce de son arrivée. */
   wifi: { reseau: '', motDePasse: '', securite: 'WPA' },
