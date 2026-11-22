@@ -1,15 +1,16 @@
 /* Le Rempart · messages du parcours voyageur, en 5 langues.
    Les champs entre crochets sont remplis par la page hôte au moment de l'envoi.
-   « reservation » et « accueil » : textes de Sacha (correction NL : « Jullie kunnen me bereiken »).
+   « reservation » : version 5 langues avec le lien (22/11/2026, brouillon d'après le texte de Sacha, à valider).
+   « accueil » : texte de Sacha (correction NL : « Jullie kunnen me bereiken »).
    « au_revoir » : texte de Claude, validé par Sacha le 22/11/2026 ; P.-S. souvenir ajouté avec son accord le 22/11/2026. */
 
 RP.messages = [
- {id:'reservation', titre:'1. Juste après la réservation', quand:'Dès que la réservation arrive', champs:[],
-  fr:"Bonjour et merci pour votre réservation au Rempart ! Je suis Frédéric et je suis très heureux de vous accueillir. Je serai votre contact pendant votre séjour. Si vous avez la moindre question, vous pouvez me joindre sur WhatsApp ou par e-mail à l’adresse acls@live.be.\n\nQuelle langue préférez-vous pour nos échanges et les informations pratiques : français, anglais, néerlandais, allemand ou espagnol ? Répondez simplement avec votre choix.",
-  en:"Hello, and thank you for booking Le Rempart! I’m Frédéric, and I’m delighted to welcome you. I’ll be your point of contact during your stay. If you have any questions, you can reach me on WhatsApp or by email at acls@live.be.\n\nWhich language would you prefer for our messages and the practical information: French, English, Dutch, German or Spanish? Just reply with your choice.",
-  nl:"Hallo en bedankt voor jullie reservatie bij Le Rempart! Ik ben Frédéric en ik ben heel blij jullie te mogen verwelkomen. Tijdens jullie verblijf ben ik jullie contactpersoon. Hebben jullie een vraag? Jullie kunnen me bereiken via WhatsApp of per e-mail op acls@live.be.\n\nIn welke taal ontvangen jullie het liefst onze berichten en de praktische informatie: Frans, Engels, Nederlands, Duits of Spaans? Antwoord gewoon met jullie keuze.",
-  de:"Hallo und vielen Dank für Ihre Buchung im Le Rempart! Ich bin Frédéric und freue mich sehr, Sie willkommen zu heißen. Während Ihres Aufenthalts bin ich Ihr Ansprechpartner. Wenn Sie Fragen haben, erreichen Sie mich über WhatsApp oder per E-Mail an acls@live.be.\n\nIn welcher Sprache möchten Sie unsere Nachrichten und die praktischen Informationen erhalten: Französisch, Englisch, Niederländisch, Deutsch oder Spanisch? Antworten Sie einfach mit Ihrer Wahl.",
-  es:"¡Hola y gracias por vuestra reserva en Le Rempart! Soy Frédéric y me alegra mucho daros la bienvenida. Seré vuestro contacto durante la estancia. Si tenéis alguna pregunta, podéis escribirme por WhatsApp o por correo electrónico a acls@live.be.\n\n¿En qué idioma preferís recibir nuestros mensajes y la información práctica: francés, inglés, neerlandés, alemán o español? Responded simplemente con vuestra elección."},
+ {id:'reservation', titre:'1. Juste après la réservation (5 langues, avec le lien)', quand:'Dès que la réservation arrive (e-mail ou WhatsApp)', champs:['LIEN DU SÉJOUR'], multi:true, brouillon:true,
+  fr:"Merci pour votre réservation au Rempart ! Je suis Frédéric, votre contact pendant le séjour. Ouvrez votre guide avec le lien ci-dessus et choisissez votre langue : je vous écrirai ensuite dans cette langue. Vous pouvez déjà découvrir nos adresses, les appareils et la liste de courses. Le Wi-Fi, les codes d’accès et l’album photo s’ouvriront quand vous me préviendrez de votre arrivée.",
+  en:"Thank you for booking Le Rempart! I’m Frédéric, your contact during your stay. Open your guide with the link above and choose your language: I will then write to you in that language. You can already discover our favourite places, the appliances and the shopping list. The Wi-Fi, the access codes and the photo album will unlock when you let me know you are arriving.",
+  nl:"Bedankt voor jullie reservatie bij Le Rempart! Ik ben Frédéric, jullie contactpersoon tijdens het verblijf. Open jullie gids met de link hierboven en kies jullie taal: daarna schrijf ik jullie in die taal. Jullie kunnen nu al onze adressen, de toestellen en de boodschappenlijst ontdekken. De wifi, de toegangscodes en het fotoalbum worden zichtbaar zodra jullie me jullie aankomst laten weten.",
+  de:"Vielen Dank für Ihre Buchung im Le Rempart! Ich bin Frédéric, Ihr Ansprechpartner während des Aufenthalts. Öffnen Sie Ihren Führer über den Link oben und wählen Sie Ihre Sprache: Danach schreibe ich Ihnen in dieser Sprache. Sie können schon jetzt unsere Adressen, die Geräte und die Einkaufsliste entdecken. WLAN, Zugangscodes und Fotoalbum werden freigeschaltet, sobald Sie mir Ihre Ankunft mitteilen.",
+  es:"¡Gracias por vuestra reserva en Le Rempart! Soy Frédéric, vuestro contacto durante la estancia. Abrid vuestra guía con el enlace de arriba y elegid vuestro idioma: después os escribiré en ese idioma. Ya podéis descubrir nuestros sitios favoritos, los aparatos y la lista de la compra. El wifi, los códigos de acceso y el álbum de fotos se desbloquearán cuando me aviséis de vuestra llegada."},
 
  {id:'avant', titre:'2. Avant l’arrivée (guide du séjour)', quand:'Environ une semaine avant', champs:['LIEN DU SÉJOUR'],
   fr:"Bonjour ! Votre séjour au Rempart approche et je m’en réjouis. Voici votre guide du séjour : [LIEN DU SÉJOUR]\n\nVous y trouverez nos bonnes adresses autour du gîte : restaurants, visites et activités. Si une adresse vous tente, vous pouvez déjà réserver directement auprès d’elle. Les disponibilités ne dépendent pas de nous : n’attendez pas trop pour les adresses très demandées.\n\nÀ très bientôt !\nFrédéric",
@@ -25,14 +26,14 @@ RP.messages = [
   de:"Hallo! Damit ich alles vorbereiten und Sie persönlich empfangen kann, geben Sie mir bitte mindestens 2 Stunden vor Ihrer Ankunft Bescheid. Ihre Ankunft ist für [DATE/HEURE D’ARRIVÉE] geplant.\n\nAntworten Sie einfach auf diese Nachricht oder nutzen Sie in Ihrem Aufenthaltsführer die Schaltfläche „Frédéric meine Ankunft mitteilen“.\n\nGute Fahrt!\nFrédéric",
   es:"¡Hola! Para poder prepararlo todo y estar allí para recibiros, ¿podríais avisarme al menos 2 horas antes de vuestra llegada? Vuestra llegada está prevista para el [DATE/HEURE D’ARRIVÉE].\n\nBasta con responder a este mensaje o usar el botón «Avisar a Frédéric de nuestra llegada» en vuestra guía de la estancia.\n\n¡Buen viaje!\nFrédéric"},
 
- {id:'portail', titre:'4. Code du portail', quand:'Avant l’arrivée, message séparé', champs:['CODE DU PORTAIL','DATE/HEURE D’ARRIVÉE'], code:true,
+ {id:'portail', titre:'4. Secours : code du portail', quand:'Seulement si l’appli ne marche pas (le code est déjà dans l’appli après l’annonce d’arrivée)', champs:['CODE DU PORTAIL','DATE/HEURE D’ARRIVÉE'], code:true,
   fr:"Voici le code du portail pour votre séjour au Rempart : [CODE DU PORTAIL]\nArrivée prévue : [DATE/HEURE D’ARRIVÉE]\n\nMerci de garder ce code pour votre groupe uniquement.\nÀ très bientôt !\nFrédéric",
   en:"Here is the gate code for your stay at Le Rempart: [CODE DU PORTAIL]\nPlanned arrival: [DATE/HEURE D’ARRIVÉE]\n\nPlease keep this code within your group.\nSee you very soon!\nFrédéric",
   nl:"Hier is de code van de poort voor jullie verblijf in Le Rempart: [CODE DU PORTAIL]\nGeplande aankomst: [DATE/HEURE D’ARRIVÉE]\n\nHou deze code alsjeblieft binnen jullie groep.\nTot heel binnenkort!\nFrédéric",
   de:"Hier ist der Code für das Tor für Ihren Aufenthalt im Le Rempart: [CODE DU PORTAIL]\nGeplante Ankunft: [DATE/HEURE D’ARRIVÉE]\n\nBitte geben Sie diesen Code nur innerhalb Ihrer Gruppe weiter.\nBis ganz bald!\nFrédéric",
   es:"Aquí tenéis el código del portón para vuestra estancia en Le Rempart: [CODE DU PORTAIL]\nLlegada prevista: [DATE/HEURE D’ARRIVÉE]\n\nPor favor, no compartáis este código fuera de vuestro grupo.\n¡Hasta muy pronto!\nFrédéric"},
 
- {id:'porte', titre:'5. Code de la porte', quand:'Avant l’arrivée, message séparé', champs:['CODE DE LA PORTE','DATE/HEURE D’ARRIVÉE'], code:true,
+ {id:'porte', titre:'5. Secours : code de la porte', quand:'Seulement si l’appli ne marche pas (le code est déjà dans l’appli après l’annonce d’arrivée)', champs:['CODE DE LA PORTE','DATE/HEURE D’ARRIVÉE'], code:true,
   fr:"Voici le code de la porte pour votre séjour au Rempart : [CODE DE LA PORTE]\nArrivée prévue : [DATE/HEURE D’ARRIVÉE]\n\nMerci de garder ce code pour votre groupe uniquement.\nÀ très bientôt !\nFrédéric",
   en:"Here is the door code for your stay at Le Rempart: [CODE DE LA PORTE]\nPlanned arrival: [DATE/HEURE D’ARRIVÉE]\n\nPlease keep this code within your group.\nSee you very soon!\nFrédéric",
   nl:"Hier is de deurcode voor jullie verblijf in Le Rempart: [CODE DE LA PORTE]\nGeplande aankomst: [DATE/HEURE D’ARRIVÉE]\n\nHou deze code alsjeblieft binnen jullie groep.\nTot heel binnenkort!\nFrédéric",
@@ -63,3 +64,8 @@ RP.dateHeure = (lang, dateStr, heure) => {
   const h = heure.replace(':', lang === 'en' ? ':' : (lang === 'fr' ? 'h' : ':'));
   return date + ({fr:' à ', en:' at ', nl:' om ', de:' um ', es:' a las '}[lang]) + h + (lang === 'de' ? ' Uhr' : '');
 };
+
+/* Message en 5 langues (le voyageur n'a pas encore choisi sa langue). */
+RP.texteMulti = (m, lien) => (lien || '[LIEN DU SÉJOUR]') + '\n\n' +
+  ['fr','en','nl','de','es'].map(k => k.toUpperCase() + ' · ' + m[k]).join('\n\n') +
+  '\n\nFrédéric · WhatsApp ' + RP.config.whatsapp + ' · ' + RP.config.email;

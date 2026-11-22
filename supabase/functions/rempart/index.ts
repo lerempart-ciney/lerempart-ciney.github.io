@@ -1,6 +1,9 @@
 // Le Rempart · Edge Function unique pour le site voyageurs.
 // Les visiteurs n'ont aucun accès direct à la base : tout passe par ici.
-// Routes (paramètre ?a=) : sejour, liste, album, album_suppr, meteo, purge.
+// Routes (paramètre ?a=) : meteo, purge,
+//   hôte (code HOTE_PIN) : hote_test, sejour, sejours, sejour_maj, wifi_regler,
+//   voyageur (jeton s) : etat, langue, arrivee, liste, album, album_legende, album_suppr.
+// Le Wi-Fi, les codes d'accès et l'album ne sont donnés qu'après l'annonce de l'arrivée.
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
 const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
@@ -26,15 +29,30 @@ const plusJours = (d: string, n: number) => {
   const x = new Date(d + "T12:00:00Z"); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10);
 };
 
-// Un séjour est utilisable de 30 jours avant l'arrivée jusqu'au lendemain du départ.
+// Un séjour est utilisable dès sa création (le lien part à la réservation) jusqu'au lendemain du départ.
 async function sejourActif(token: string | null) {
   if (!token || !/^[A-Za-z0-9_-]{16,64}$/.test(token)) return null;
   const { data } = await db.from("v_sejours").select("*").eq("token", token).maybeSingle();
   if (!data) return null;
-  const t = aujourdhui();
-  if (t < plusJours(data.arrivee, -30) || t > plusJours(data.depart, 1)) return null;
+  if (aujourdhui() > plusJours(data.depart, 1)) return null;
   return data;
 }
+
+const LANGUES: Record<string, string> = { fr: "français", en: "anglais", nl: "néerlandais", de: "allemand", es: "espagnol" };
+const court = (v: unknown, n: number) => { const t = String(v ?? "").trim().slice(0, n); return t || null; };
+
+async function config(cle: string) {
+  const { data } = await db.from("v_config").select("valeur").eq("cle", cle).maybeSingle();
+  return data?.valeur ?? null;
+}
+
+function pinOk(b: any) {
+  const pin = Deno.env.get("HOTE_PIN");
+  return !!pin && String(b?.pin ?? "") === pin;
+}
+
+// Le voyageur peut annoncer son arrivée à partir de la veille du jour d'arrivée.
+const peutAnnoncer = (s: any) => aujourdhui() >= plusJours(s.arrivee, -1);
 
 function nouveauToken() {
   const b = new Uint8Array(18); crypto.getRandomValues(b);
@@ -82,7 +100,7 @@ async function purge() {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
-  const url = new URL(req.url), a = url.searchParams.get("a");
+  const url = new URL(req.url), a = url.searchParams.get("a") ?? "";
   try {
     if (a === "meteo") return json(await meteo());
 
@@ -92,19 +110,54 @@ Deno.serve(async (req) => {
       return json(await purge());
     }
 
-    if (a === "sejour" && req.method === "POST") {
-      const pin = Deno.env.get("HOTE_PIN");
-      if (!pin) return erreur("Le code hôte n'est pas encore réglé dans Supabase.", 503);
+    // ---------- Routes de l'hôte (code HOTE_PIN) ----------
+    if (["hote_test", "sejour", "sejours", "sejour_maj", "wifi_regler"].includes(a ?? "") && req.method === "POST") {
+      if (!Deno.env.get("HOTE_PIN")) return erreur("Le code hôte n'est pas encore réglé dans Supabase.", 503);
       const b = await req.json();
-      if (String(b.pin ?? "") !== pin) return erreur("Code hôte incorrect.", 401);
-      if (!["fr", "en", "nl", "de", "es"].includes(b.langue)) return erreur("Langue inconnue.");
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(b.arrivee) || !/^\d{4}-\d{2}-\d{2}$/.test(b.depart) || b.depart < b.arrivee)
-        return erreur("Dates invalides.");
-      if (!["1", "2", "3"].includes(String(b.gite))) return erreur("Gîte inconnu (1, 2 ou 3).");
-      const token = nouveauToken();
-      const { error } = await db.from("v_sejours").insert({ token, gite_id: String(b.gite), langue: b.langue, arrivee: b.arrivee, depart: b.depart });
-      if (error) return erreur(error.message, 500);
-      return json({ token });
+      if (!pinOk(b)) return erreur("Code hôte incorrect.", 401);
+
+      if (a === "hote_test") return json({ ok: true, wifi: { reseau: await config("wifi_reseau"), motDePasse: await config("wifi_mdp") } });
+
+      if (a === "sejour") {
+        if (b.langue && !LANGUES[b.langue]) return erreur("Langue inconnue.");
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(b.arrivee) || !/^\d{4}-\d{2}-\d{2}$/.test(b.depart) || b.depart < b.arrivee)
+          return erreur("Dates invalides.");
+        if (!["1", "2", "3"].includes(String(b.gite))) return erreur("Gîte inconnu (1, 2 ou 3).");
+        const token = nouveauToken();
+        const { error } = await db.from("v_sejours").insert({
+          token, gite_id: String(b.gite), langue: b.langue || null, arrivee: b.arrivee, depart: b.depart,
+          nom: court(b.nom, 60), code_portail: court(b.code_portail, 40), code_porte: court(b.code_porte, 40),
+          heure_arrivee: /^\d{2}:\d{2}$/.test(b.heure ?? "") ? b.heure : null,
+        });
+        if (error) return erreur(error.message, 500);
+        return json({ token });
+      }
+
+      if (a === "sejours") {
+        const { data } = await db.from("v_sejours")
+          .select("token, gite_id, nom, langue, langue_le, arrivee, depart, heure_arrivee, arrivee_annoncee, code_portail, code_porte")
+          .gte("depart", plusJours(aujourdhui(), -1)).order("arrivee");
+        return json({ sejours: data ?? [] });
+      }
+
+      if (a === "sejour_maj") {
+        const maj: Record<string, unknown> = {};
+        for (const k of ["nom", "code_portail", "code_porte"]) if (k in b) maj[k] = court(b[k], k === "nom" ? 60 : 40);
+        if ("heure" in b) maj.heure_arrivee = /^\d{2}:\d{2}$/.test(b.heure ?? "") ? b.heure : null;
+        if ("langue" in b) { maj.langue = LANGUES[b.langue] ? b.langue : null; maj.langue_le = maj.langue ? new Date().toISOString() : null; }
+        if (b.debloquer === true) maj.arrivee_annoncee = new Date().toISOString(); // Frédéric ouvre l'accès lui-même (ex. arrivée annoncée par téléphone)
+        const { error } = await db.from("v_sejours").update(maj).eq("token", String(b.token ?? ""));
+        if (error) return erreur(error.message, 500);
+        return json({ ok: true });
+      }
+
+      if (a === "wifi_regler") {
+        await db.from("v_config").upsert([
+          { cle: "wifi_reseau", valeur: String(b.reseau ?? "").trim().slice(0, 64) },
+          { cle: "wifi_mdp", valeur: String(b.motDePasse ?? "").trim().slice(0, 64) },
+        ]);
+        return json({ ok: true });
+      }
     }
 
     // Tout le reste demande un séjour actif.
@@ -113,6 +166,38 @@ Deno.serve(async (req) => {
     if (req.method === "POST" && req.headers.get("content-type")?.includes("application/json")) corps = await req.json();
     const sejour = await sejourActif(s ?? corps?.s ?? null);
     if (!sejour) return erreur("Séjour terminé ou lien invalide.", 403);
+
+    const debloque = !!sejour.arrivee_annoncee;
+
+    if (a === "etat") {
+      const r: Record<string, unknown> = {
+        gite: sejour.gite_id, arrivee: sejour.arrivee, depart: sejour.depart, langue: sejour.langue,
+        heure: sejour.heure_arrivee, debloque, peutAnnoncer: peutAnnoncer(sejour),
+      };
+      if (debloque) {
+        r.wifi = { reseau: await config("wifi_reseau"), motDePasse: await config("wifi_mdp") };
+        r.codes = { portail: sejour.code_portail, porte: sejour.code_porte };
+      }
+      return json(r);
+    }
+
+    if (a === "langue" && req.method === "POST") {
+      if (!LANGUES[corps?.langue]) return erreur("Langue inconnue.");
+      // Seul le premier choix du groupe est enregistré ; Frédéric peut le corriger dans sa page.
+      if (!sejour.langue_le) {
+        await db.from("v_sejours").update({ langue: corps.langue, langue_le: new Date().toISOString() }).eq("token", sejour.token);
+      }
+      return json({ ok: true });
+    }
+
+    if (a === "arrivee" && req.method === "POST") {
+      if (!peutAnnoncer(sejour)) return erreur("Trop tôt : l'arrivée s'annonce à partir de la veille.", 409);
+      const heure = /^\d{2}:\d{2}$/.test(corps?.heure ?? "") ? corps.heure : null;
+      await db.from("v_sejours").update({
+        arrivee_annoncee: sejour.arrivee_annoncee ?? new Date().toISOString(), heure_arrivee: heure ?? sejour.heure_arrivee,
+      }).eq("token", sejour.token);
+      return json({ ok: true });
+    }
 
     if (a === "liste") {
       if (req.method === "POST") {
@@ -132,6 +217,9 @@ Deno.serve(async (req) => {
       const { data } = await db.from("v_liste").select("id, nom, fait").eq("sejour", sejour.token).order("id");
       return json({ articles: data ?? [] });
     }
+
+    // L'album s'ouvre seulement après l'annonce de l'arrivée.
+    if (a.startsWith("album") && !debloque) return erreur("L'album s'ouvre quand vous prévenez Frédéric de votre arrivée.", 423);
 
     if (a === "album") {
       if (req.method === "POST") {

@@ -38,7 +38,11 @@ const listKey = 'rp-liste-' + sejourId;
 const S = /^[A-Za-z0-9_-]{16,64}$/.test(Q.get('s') || '') ? Q.get('s') : null;
 let partagee = null, horsLigne = false, album = null, envoi = 0, albumErr = '', suppr = null, souv = null, souvEnCours = false, souvErr = '';
 
-let lang = RP.langues[Q.get('l')] ? Q.get('l') : (RP.langues[store.get('rp-lang')] ? store.get('rp-lang') : null);
+/* Avec un lien de séjour, le voyageur choisit sa langue à la première ouverture ; ce choix est enregistré pour Frédéric. */
+const langKey = S ? 'rp-lang-' + S : 'rp-lang';
+let lang = RP.langues[Q.get('l')] ? Q.get('l') : (RP.langues[store.get(langKey)] ? store.get(langKey) : null);
+/* État du séjour donné par le serveur : langue, arrivée annoncée, et (après l'annonce) Wi-Fi et codes. */
+let etat = null, arrErr = '';
 let tab = 0, cat = 'tout', video = RP.videos[Q.get('v')] ? Q.get('v') : null;
 if (video) tab = 3;
 let meteo = null;
@@ -87,8 +91,37 @@ function vFin(){
   </div>`;
 }
 
+/* Wi-Fi et codes : seulement avec un lien de séjour, après l'annonce de l'arrivée. */
+function acces(){
+  if (!S) return `<p class="muted">${E(L('guideOnly'))}</p>`;
+  if (!etat) return '';
+  if (!etat.debloque) return `<div class="lock"><b>🔒 ${E(L('lockTitle'))}</b><p class="muted" style="margin:0">${E(L('lockTxt'))}</p></div>`;
+  const w = etat.wifi || {}, c = etat.codes || {}, qr = RP.wifiQr(w.reseau ? w : null);
+  return `<div class="eyebrow" style="margin-top:6px">${E(L('accessTitle'))}</div>
+    ${w.reseau?`<div class="row"><span>Wi-Fi · ${E(L('network'))}</span><span>${E(w.reseau)}</span></div>
+      <div class="row"><span>Wi-Fi · ${E(L('pass'))}</span><span class="nw">${E(w.motDePasse||'')}</span></div>
+      ${qr?`<div class="wifi-qr">${qr}</div>`:''}`:`<p class="muted">${E(L('wifiSoon'))}</p>`}
+    ${c.portail?`<div class="row"><span>${E(L('gate'))}</span><span class="nw"><b>${E(c.portail)}</b></span></div>`:''}
+    ${c.porte?`<div class="row"><span>${E(L('door'))}</span><span class="nw"><b>${E(c.porte)}</b></span></div>`:''}
+    <p class="muted">${E(c.portail||c.porte?L('keepCodes'):L('noCodes'))}</p>`;
+}
+async function chargerEtat(){
+  if (!S) return;
+  try {
+    etat = await RP.api('etat', S);
+    if (!lang && RP.langues[etat.langue]) { lang = etat.langue; store.set(langKey, lang); }
+    else if (lang && !etat.langue && !Q.get('l')) { etat.langue = lang; RP.api('langue', S, {langue: lang}).catch(() => {}); }
+  } catch (e) { if (e.status === 403) etat = null; }
+  render(true);
+}
+async function annoncerArrivee(heure){
+  arrErr = '';
+  try { await RP.api('arrivee', S, {heure}); }
+  catch (e) { if (e.status === 409) arrErr = ''; else horsLigne = true; }
+  chargerEtat();
+}
+
 function vAccueil(){
-  const w = C.wifi, qr = RP.wifiQr();
   return `${top()}
     <section class="card hello">
       <video src="assets/accueil.mp4" poster="assets/accueil.jpg" controls playsinline preload="none" aria-label="Frédéric"></video>
@@ -98,14 +131,14 @@ function vAccueil(){
     <section class="card">
       <div class="eyebrow">${E(L('stay'))}${G?' · Gîte '+G:''}</div>
       ${arrivee&&depart?`<h2 style="font-size:1.25rem">${E(fmt(arrivee,{weekday:'short',day:'numeric',month:'long'}))} → ${E(fmt(depart,{weekday:'short',day:'numeric',month:'long'}))}</h2>`:''}
-      <div class="row"><span>Wi-Fi · ${E(L('network'))}</span><span>${w.reseau?E(w.reseau):'…'}</span></div>
-      <div class="row"><span>Wi-Fi · ${E(L('pass'))}</span><span>${w.motDePasse?E(w.motDePasse):'…'}</span></div>
-      ${qr?`<div class="wifi-qr">${qr}</div>`:''}
-      <p class="muted">${E(L('codes'))}</p>
+      ${acces()}
     </section>
     <section class="card">
+      ${etat&&etat.debloque?`<span class="tag t-ok" style="align-self:flex-start">${E(L('arrDone'))}</span>`:''}
       <button class="btn" data-act="arr" aria-expanded="false" aria-controls="arrBox">${E(L('arrBtn'))}</button>
       <p class="muted">${E(L('arrHint'))}</p>
+      ${etat&&!etat.debloque&&!etat.peutAnnoncer&&arrivee?`<p class="muted">${E(L('lockFrom').replace('{d}', fmt(new Date(arrivee.getFullYear(), arrivee.getMonth(), arrivee.getDate()-1),{weekday:'long',day:'numeric',month:'long'})))}</p>`:''}
+      ${arrErr?`<p class="miss">${E(arrErr)}</p>`:''}
       <div id="arrBox" hidden style="display:flex;flex-direction:column;gap:10px">
         <div class="field"><label for="arrT">${E(L('arrTime'))}</label><input type="time" id="arrT" value="16:00"></div>
         <div class="bubble" id="arrMsg"></div>
@@ -269,6 +302,9 @@ function partagerLien(){
 function vAlbum(){
   const fin = depart ? new Date(depart.getFullYear(), depart.getMonth(), depart.getDate()+1) : null;
   const ph = album ? album.photos : null;
+  if (etat && !etat.debloque) return `${top()}
+    <div class="albhero"><div><div class="eyebrow">${E(lieuNom)}</div><h1>${E(L('album'))}</h1></div></div>
+    <section class="card"><div class="lock"><b>🔒 ${E(L('lockTitle'))}</b><p class="muted" style="margin:0">${E(L('albumLocked'))}</p></div></section>`;
   return `${top()}
     <div class="albhero"><div><div class="eyebrow">${E(lieuNom)}</div><h1>${E(L('album'))}</h1></div></div>
     <p class="muted">${E(L('albumTxt'))}</p>
@@ -453,14 +489,20 @@ function majArrivee(){
 }
 
 document.addEventListener('click', e => {
+  if (S && e.target.closest('#arrGo')) { annoncerArrivee((document.getElementById('arrT') || {}).value || ''); }
   const b = e.target.closest('[data-lang],[data-tab],[data-cat],[data-act],[data-video],[data-del]'); if (!b) return;
   if (b.dataset.del){
     const id = +b.dataset.del;
     if (suppr !== id){ suppr = id; render(true); return; }
     suppr = null; oublierSouv(); RP.api('album_suppr', S, {id}).then(chargerAlbum, () => { horsLigne = true; render(true); }); return;
   }
-  if (b.dataset.lang){ lang = b.dataset.lang; store.set('rp-lang', lang); tab = video ? 3 : 0; render(); return; }
-  if (b.dataset.tab){ tab = +b.dataset.tab; render(); if (tab === 4) chargerListe(); if (tab === 5) chargerAlbum(); return; }
+  if (b.dataset.lang){
+    lang = b.dataset.lang; store.set(langKey, lang); tab = video ? 3 : 0; render();
+    /* Premier choix du groupe : enregistré pour Frédéric (page « Mes séjours »). */
+    if (S && etat && !etat.langue) { etat.langue = lang; RP.api('langue', S, {langue: lang}).catch(() => {}); }
+    return;
+  }
+  if (b.dataset.tab){ tab = +b.dataset.tab; render(); if (tab === 4) chargerListe(); if (tab === 5 && (!etat || etat.debloque)) chargerAlbum(); return; }
   if (b.dataset.cat){ cat = b.dataset.cat; render(true); return; }
   if (b.dataset.video){ video = b.dataset.video; render(); return; }
   if (b.dataset.act === 'lang'){ lang = null; render(); return; }
@@ -498,6 +540,7 @@ render();
 RP.meteo().then(m => { if (m){ meteo = m; if (tab === 1) render(true); } });
 /* Liste partagée : mise à jour toutes les 20 s quand l'onglet Courses est ouvert. */
 if (S && !termine()) {
+  chargerEtat();
   chargerListe();
   setInterval(() => { if (tab === 4 && !document.hidden) chargerListe(); }, 20000);
   setInterval(() => { if (tab === 5 && !document.hidden && !envoi) chargerAlbum(); }, 30 * 60 * 1000); // liens d'images valables 2 h

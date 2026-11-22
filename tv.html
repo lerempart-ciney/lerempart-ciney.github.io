@@ -81,7 +81,7 @@ const appUrl = new URL('index.html', location.href).href;
 const fmt = (d,o) => new Intl.DateTimeFormat(RP.langues[lang], o).format(d);
 
 function render(){
-  const d = new Date(), r = RP.ideePluie(d), w = RP.config.wifi, wq = RP.wifiQr();
+  const d = new Date(), r = RP.ideePluie(d), w = RP.config.wifi, wq = RP.wifiQr(w);
   const pj = RP.pepiteDuJour(d);
   const pain = RP.adresses.filter(p => p.cat === 'pain' && p.ferme && p.ferme.length < 7 && RP.ouvert(p, d)).sort((x, y) => x.min - y.min)[0];
   const typ = meteo ? meteo.type : null;

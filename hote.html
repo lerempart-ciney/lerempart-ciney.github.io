@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
-<title>Le Rempart · Messages du séjour</title>
+<title>Le Rempart · Mes séjours</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap">
@@ -25,55 +25,79 @@ label.f input,label.f select{border:1px solid var(--line);border-radius:10px;pad
 .qrbox{width:160px;max-width:100%;background:#fff;padding:8px;border-radius:12px}
 .qrbox svg{display:block;width:100%;height:auto}
 .miss{color:var(--no);font-weight:600;font-size:.88rem}
+.sej{display:flex;flex-direction:column;gap:8px}
+.sej.sel{outline:3px solid var(--sage)}
+.sej .t{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline}
+.sej h3{font-family:var(--f-body);font-weight:700;font-size:1.05rem}
+.st{display:flex;gap:6px;flex-wrap:wrap}
+.okc{color:var(--ok);font-weight:600}
+.edit{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:10px}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div class="eyebrow">Le Rempart · page hôte</div>
-    <h1 style="font-size:1.9rem">Messages du séjour</h1>
-    <p class="muted">Remplis les cases. Les messages se préparent tout seuls dans la langue du voyageur. Rien n'est enregistré ni envoyé par cette page : c'est toi qui envoies.</p>
+    <div class="eyebrow">Le Rempart · page de Frédéric</div>
+    <h1 style="font-size:1.9rem">Mes séjours</h1>
+    <p class="muted">Ici, tu crées le lien de chaque séjour et tu vois la langue choisie par le voyageur et son arrivée. Rien n'est envoyé par cette page : c'est toi qui envoies les messages.</p>
   </header>
 
   <section class="card"><div class="step"><div class="num">1</div><div style="display:flex;flex-direction:column;gap:10px">
-    <h2 style="font-size:1.2rem">Le séjour</h2>
-    <div class="grid2">
-      <label class="f">Gîte<select id="gite"><option value="">Choisir…</option><option value="1">Gîte 1</option><option value="2">Gîte 2</option><option value="3">Gîte 3</option></select></label>
-      <label class="f">Langue du voyageur<select id="lang"></select></label>
-      <label class="f">Téléphone du voyageur (facultatif)<input id="tel" type="tel" inputmode="tel" placeholder="+32 …" autocomplete="off"></label>
-      <label class="f">Date d'arrivée<input id="a" type="date"></label>
-      <label class="f">Heure d'arrivée<input id="h" type="time" value="16:00"></label>
-      <label class="f">Date de départ<input id="d" type="date"></label>
-    </div>
-  </div></div></section>
-
-  <section class="card"><div class="step"><div class="num">2</div><div style="display:flex;flex-direction:column;gap:10px">
-    <h2 style="font-size:1.2rem">Les codes de ce séjour</h2>
-    <div class="grid2">
-      <label class="f">Code du portail<input id="cp" autocomplete="off" spellcheck="false"></label>
-      <label class="f">Code de la porte<input id="cd" autocomplete="off" spellcheck="false"></label>
-    </div>
-    <p class="muted">Les codes restent sur cet écran. Ils disparaissent quand tu fermes la page.</p>
-  </div></div></section>
-
-  <div class="warnbox">Avant chaque envoi : vérifie la date, l'heure et les codes de CE séjour.</div>
-
-  <section class="card"><div class="step"><div class="num">3</div><div style="display:flex;flex-direction:column;gap:10px;min-width:0">
-    <h2 style="font-size:1.2rem">Le lien du séjour</h2>
-    <p class="muted">Ce lien ouvre le guide dans la langue du voyageur. Il s'arrête le lendemain du départ.</p>
+    <h2 style="font-size:1.2rem">Ton code hôte</h2>
     <div class="grid2" style="align-items:end">
-      <label class="f">Code hôte (pour la liste partagée et l'album)<input id="pin" type="password" autocomplete="off" inputmode="numeric"></label>
+      <label class="f">Code hôte<input id="pin" type="password" autocomplete="off" inputmode="numeric"></label>
       <label style="display:flex;gap:8px;align-items:center;font-size:.85rem;color:var(--muted)"><input type="checkbox" id="pinMem"> Se souvenir du code sur cet appareil</label>
     </div>
-    <button class="btn small" id="creer" type="button" style="align-self:flex-start">Créer le lien avec liste partagée et album</button>
-    <p class="muted" id="creerInfo">Sans ce bouton, le lien marche quand même, mais sans album et avec une liste sur chaque téléphone.</p>
-    <div id="lien"></div>
+    <button class="btn small" id="ouvrir" type="button" style="align-self:flex-start">Ouvrir mes séjours</button>
+    <p class="muted" id="pinInfo"></p>
   </div></div></section>
 
   <section style="display:flex;flex-direction:column;gap:12px">
-    <div class="step"><div class="num">4</div><div><h2 style="font-size:1.2rem">Les messages, dans l'ordre</h2><p class="muted">Copier, puis coller dans WhatsApp ou l'e-mail. Ou « Ouvrir dans WhatsApp » : tu vérifies, puis tu appuies toi-même sur Envoyer.</p></div></div>
+    <div class="step"><div class="num">2</div><div><h2 style="font-size:1.2rem">Séjours en cours et à venir</h2><p class="muted">La langue et l'arrivée se mettent à jour quand le voyageur utilise l'appli. Appuie sur « Actualiser » pour voir les nouveautés.</p></div></div>
+    <button class="btn small ghost" id="actu" type="button" style="align-self:flex-start">Actualiser</button>
+    <div id="liste" style="display:flex;flex-direction:column;gap:12px"><p class="muted">Tape ton code hôte, puis « Ouvrir mes séjours ».</p></div>
+  </section>
+
+  <section class="card"><div class="step"><div class="num">3</div><div style="display:flex;flex-direction:column;gap:10px">
+    <h2 style="font-size:1.2rem">Nouveau séjour</h2>
+    <p class="muted">À faire dès qu'une réservation arrive. Le voyageur choisira lui-même sa langue en ouvrant le lien.</p>
+    <div class="grid2">
+      <label class="f">Gîte<select id="gite"><option value="">Choisir…</option><option value="1">Gîte 1</option><option value="2">Gîte 2</option><option value="3">Gîte 3</option></select></label>
+      <label class="f">Nom (pour toi, facultatif)<input id="nom" maxlength="60" placeholder="Famille Dupont" autocomplete="off"></label>
+      <label class="f">Date d'arrivée<input id="a" type="date"></label>
+      <label class="f">Heure prévue<input id="h" type="time" value="16:00"></label>
+      <label class="f">Date de départ<input id="d" type="date"></label>
+    </div>
+    <div class="grid2">
+      <label class="f">Code du portail<input id="cp" maxlength="40" autocomplete="off" spellcheck="false"></label>
+      <label class="f">Code de la porte<input id="cd" maxlength="40" autocomplete="off" spellcheck="false"></label>
+    </div>
+    <p class="muted">Les codes sont gardés avec ce séjour. Le voyageur les voit seulement après avoir annoncé son arrivée. Ils sont effacés 2 jours après le départ. Tu peux les remplir plus tard.</p>
+    <button class="btn small" id="creer" type="button" style="align-self:flex-start">Créer le séjour</button>
+    <p class="muted" id="creerInfo"></p>
+  </div></div></section>
+
+  <section style="display:flex;flex-direction:column;gap:12px" id="msgZone">
+    <div class="step"><div class="num">4</div><div><h2 style="font-size:1.2rem">Le lien et les messages</h2><p class="muted" id="msgInfo">Choisis un séjour dans la liste (bouton « Lien et messages »).</p></div></div>
+    <div id="lienBox"></div>
+    <div class="grid2" id="msgOpts" hidden>
+      <label class="f">Langue des messages<select id="lang"></select></label>
+      <label class="f">Téléphone du voyageur (facultatif)<input id="tel" type="tel" inputmode="tel" placeholder="+32 …" autocomplete="off"></label>
+      <label class="f">E-mail du voyageur (facultatif)<input id="mail" type="email" autocomplete="off"></label>
+    </div>
     <div id="msgs" style="display:flex;flex-direction:column;gap:12px"></div>
   </section>
+
+  <section class="card"><div class="step"><div class="num">5</div><div style="display:flex;flex-direction:column;gap:10px">
+    <h2 style="font-size:1.2rem">Wi-Fi (les 3 gîtes)</h2>
+    <p class="muted">Gardé sur le serveur, pas sur le site public. Le voyageur le voit seulement après avoir annoncé son arrivée.</p>
+    <div class="grid2">
+      <label class="f">Nom du réseau<input id="wr" maxlength="64" autocomplete="off" spellcheck="false"></label>
+      <label class="f">Mot de passe<input id="wp" maxlength="64" autocomplete="off" spellcheck="false"></label>
+    </div>
+    <button class="btn small" id="wifiOk" type="button" style="align-self:flex-start">Enregistrer le Wi-Fi</button>
+    <p class="muted" id="wifiInfo"></p>
+  </div></div></section>
 
   <p class="muted">Écran TV : <a href="tv.html" target="_blank" rel="noopener">tv.html</a> (5 langues à tour de rôle) ou <a href="tv.html?l=fr" target="_blank" rel="noopener">tv.html?l=fr</a> (une seule langue). Ajoute <code>&amp;g=1</code>, <code>&amp;g=2</code> ou <code>&amp;g=3</code> pour afficher le numéro du gîte, par exemple <code>tv.html?g=2</code>. Étiquettes QR des appareils : <a href="qr.html" target="_blank" rel="noopener">qr.html</a>.</p>
 </div>
@@ -83,57 +107,108 @@ label.f input,label.f select{border:1px solid var(--line);border-radius:10px;pad
 <script>
 (function(){
 const $ = id => document.getElementById(id), E = RP.esc;
+const LANG_FR = {fr:'français', en:'anglais', nl:'néerlandais', de:'allemand', es:'espagnol'};
 $('lang').innerHTML = Object.keys(RP.langues).map(k=>`<option value="${k}">${RP.nomsLangues[k]}</option>`).join('');
 const base = new URL('index.html', location.href).href;
-
-/* Jeton du séjour créé sur le serveur. Il ne vaut que pour les dates choisies au moment de sa création. */
-let jeton = null, jetonPour = '';
 const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(e){} }, del(k){ try { localStorage.removeItem(k); } catch(e){} } };
 if (store.get('rp-hote-pin')) { $('pin').value = store.get('rp-hote-pin'); $('pinMem').checked = true; }
-function lienSejour(){
-  const l = $('lang').value, a = $('a').value, d = $('d').value;
-  const p = new URLSearchParams({l}); if ($('gite').value) p.set('g', $('gite').value); if (a && d) { p.set('a', a); p.set('d', d); if (jeton && jetonPour === a + '_' + d) p.set('s', jeton); }
-  return base + '?' + p.toString();
+
+let sejours = null, choisi = null, edite = null, langueTouchee = false;
+const pin = () => $('pin').value.trim();
+const jour = d => { const [y,m,j] = d.split('-').map(Number); return new Intl.DateTimeFormat('fr-BE',{weekday:'short',day:'numeric',month:'short'}).format(new Date(y,m-1,j)); };
+const quand = t => new Intl.DateTimeFormat('fr-BE',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(t));
+const lienDe = s => base + '?' + new URLSearchParams({g: s.gite_id, a: s.arrivee, d: s.depart, s: s.token}).toString();
+const sel = () => sejours && sejours.find(s => s.token === choisi);
+
+async function hote(a, corps){ return RP.api(a, null, Object.assign({pin: pin()}, corps || {})); }
+
+async function charger(){
+  if (!pin()) { $('pinInfo').innerHTML = '<span class="miss">Tape ton code hôte.</span>'; return; }
+  $('pinInfo').textContent = 'Chargement…';
+  try {
+    const t = await hote('hote_test');
+    if ($('pinMem').checked) store.set('rp-hote-pin', pin()); else store.del('rp-hote-pin');
+    if (t.wifi) { if (!$('wr').value) $('wr').value = t.wifi.reseau || ''; if (!$('wp').value) $('wp').value = t.wifi.motDePasse || ''; }
+    sejours = (await hote('sejours')).sejours;
+    $('pinInfo').innerHTML = '<span class="okc">✓ Code correct.</span>';
+  } catch (e) { $('pinInfo').innerHTML = '<span class="miss">' + E(e.message || 'Pas de connexion.') + '</span>'; return; }
+  rendreListe(); rendreMsgs();
 }
-function valeurs(){
-  const l = $('lang').value;
+
+function rendreListe(){
+  if (!sejours) return;
+  if (!sejours.length) { $('liste').innerHTML = '<p class="muted">Aucun séjour en cours ou à venir.</p>'; return; }
+  $('liste').innerHTML = sejours.map(s => {
+    const langue = s.langue && s.langue_le ? `<span class="tag t-ok">Langue : ${E(LANG_FR[s.langue])}</span><span class="muted">choisie le ${E(quand(s.langue_le))}</span>`
+      : s.langue ? `<span class="tag t-warn">Langue : ${E(LANG_FR[s.langue])} (pas encore confirmée)</span>` : '<span class="tag t-warn">Langue : pas encore choisie</span>';
+    const arr = s.arrivee_annoncee ? `<span class="tag t-ok">Arrivée annoncée${s.heure_arrivee?' vers '+E(s.heure_arrivee):''}</span><span class="muted">le ${E(quand(s.arrivee_annoncee))} · accès ouverts</span>`
+      : `<span class="tag t-warn">Arrivée pas encore annoncée</span>`;
+    const codes = s.code_portail && s.code_porte ? '<span class="tag t-ok">Codes remplis</span>' : '<span class="tag t-no">Codes à remplir</span>';
+    return `<article class="card sej ${s.token===choisi?'sel':''}">
+      <div class="t"><h3>Gîte ${E(s.gite_id)}${s.nom?' · '+E(s.nom):''}</h3><span class="muted">${E(jour(s.arrivee))} → ${E(jour(s.depart))}</span></div>
+      <div class="st">${langue}</div><div class="st">${arr}</div><div class="st">${codes}</div>
+      <div class="acts"><button class="btn small" data-msg="${E(s.token)}">Lien et messages</button>
+        <button class="btn small ghost" data-edit="${E(s.token)}">Modifier</button></div>
+      ${edite===s.token?`<div class="edit">
+        <div class="grid2">
+          <label class="f">Nom<input data-f="nom" maxlength="60" value="${E(s.nom||'')}"></label>
+          <label class="f">Heure prévue<input data-f="heure" type="time" value="${E(s.heure_arrivee||'')}"></label>
+          <label class="f">Code du portail<input data-f="code_portail" maxlength="40" autocomplete="off" value="${E(s.code_portail||'')}"></label>
+          <label class="f">Code de la porte<input data-f="code_porte" maxlength="40" autocomplete="off" value="${E(s.code_porte||'')}"></label>
+          <label class="f">Langue<select data-f="langue"><option value="">Pas choisie</option>${Object.keys(LANG_FR).map(k=>`<option value="${k}" ${s.langue===k?'selected':''}>${LANG_FR[k]}</option>`).join('')}</select></label>
+        </div>
+        <div class="acts"><button class="btn small" data-save="${E(s.token)}">Enregistrer</button>
+          ${s.arrivee_annoncee?'':`<button class="btn small ghost" data-open="${E(s.token)}">Ouvrir les accès maintenant</button>`}</div>
+        ${s.arrivee_annoncee?'':'<p class="muted">« Ouvrir les accès » : si le voyageur t\'a prévenu autrement (appel, SMS), il voit alors le Wi-Fi, les codes et l\'album.</p>'}
+        <p class="muted" data-einfo></p>
+      </div>`:''}
+    </article>`;
+  }).join('');
+}
+
+function valeurs(s, l){
   return {
-    'LIEN DU SÉJOUR': ($('a').value && $('d').value) ? lienSejour() : '',
-    'DATE/HEURE D’ARRIVÉE': RP.dateHeure(l, $('a').value, $('h').value),
-    'CODE DU PORTAIL': $('cp').value.trim(),
-    'CODE DE LA PORTE': $('cd').value.trim()
+    'LIEN DU SÉJOUR': lienDe(s),
+    'DATE/HEURE D’ARRIVÉE': RP.dateHeure(l, s.arrivee, s.heure_arrivee || ''),
+    'CODE DU PORTAIL': s.code_portail || '',
+    'CODE DE LA PORTE': s.code_porte || ''
   };
 }
 function texte(m, v, l){
+  if (m.multi) return RP.texteMulti(m, v['LIEN DU SÉJOUR']);
   return m.champs.reduce((t, c) => t.split('[' + c + ']').join(v[c] || '[' + c + ']'), m[l]);
 }
 function waLink(t){
   const n = $('tel').value.replace(/[^\d]/g, '').replace(/^00/, '');
   return 'https://wa.me/' + n + '?text=' + encodeURIComponent(t);
 }
-const NOMS = {'LIEN DU SÉJOUR':'les dates d’arrivée et de départ', 'DATE/HEURE D’ARRIVÉE':'la date d’arrivée', 'CODE DU PORTAIL':'le code du portail', 'CODE DE LA PORTE':'le code de la porte'};
+function mailLink(t){
+  return 'mailto:' + encodeURIComponent($('mail').value.trim()) + '?subject=' + encodeURIComponent('Le Rempart · Ciney') + '&body=' + encodeURIComponent(t);
+}
+const NOMS = {'CODE DU PORTAIL':'le code du portail', 'CODE DE LA PORTE':'le code de la porte'};
 
-function render(){
-  infoJeton();
-  const l = $('lang').value, v = valeurs(), ok = $('a').value && $('d').value;
-  if (ok && $('d').value < $('a').value) {
-    $('lien').innerHTML = '<p class="miss">La date de départ est avant la date d’arrivée.</p>';
-  } else {
-    const url = lienSejour();
-    $('lien').innerHTML = ok
-      ? `<div class="link" id="lienTxt">${E(url)}</div><div class="acts"><button class="btn small" data-copy="lien">Copier le lien</button><a class="btn small ghost" href="${E(url)}" target="_blank" rel="noopener">Ouvrir le guide</a></div><div class="qrbox">${RP.qrSvg(url)}</div>`
-      : '<p class="miss">Indique les dates d’arrivée et de départ.</p>';
-  }
+function rendreMsgs(){
+  const s = sel();
+  if (!s) { $('lienBox').innerHTML = ''; $('msgs').innerHTML = ''; $('msgOpts').hidden = true; $('msgInfo').textContent = 'Choisis un séjour dans la liste (bouton « Lien et messages »).'; return; }
+  if (!langueTouchee) $('lang').value = s.langue || 'fr';
+  const l = $('lang').value, v = valeurs(s, l), url = lienDe(s);
+  $('msgOpts').hidden = false;
+  $('msgInfo').innerHTML = `Gîte ${E(s.gite_id)}${s.nom?' · '+E(s.nom):''}, du ${E(jour(s.arrivee))} au ${E(jour(s.depart))}. `
+    + (s.langue ? `Le voyageur a choisi le <b>${E(LANG_FR[s.langue])}</b> : les messages 2 à 7 sont dans cette langue.` : 'Le voyageur n’a pas encore choisi sa langue : envoie d’abord le message 1, il est en 5 langues.');
+  $('lienBox').innerHTML = `<div class="card" style="gap:10px"><div class="eyebrow">Lien du séjour</div><div class="link">${E(url)}</div>
+    <div class="acts"><button class="btn small" data-copy="lien">Copier le lien</button><a class="btn small ghost" href="${E(url)}" target="_blank" rel="noopener">Ouvrir le guide</a></div>
+    <div class="qrbox">${RP.qrSvg(url)}</div><p class="muted">Ce lien est pour ce groupe seulement. Il s’arrête le lendemain du départ.</p></div>`;
   $('msgs').innerHTML = RP.messages.map((m, i) => {
     const manque = m.champs.filter(c => !v[c]);
     const t = texte(m, v, l);
     return `<article class="card msg"><div class="hd"><h3>${E(m.titre)}</h3><span class="muted">${E(m.quand)}</span></div>
-      ${m.brouillon?'<span class="tag t-warn" style="align-self:flex-start">Brouillon : remplacer par le texte de Sacha</span>':''}
+      ${m.brouillon?'<span class="tag t-warn" style="align-self:flex-start">Brouillon : à valider par Sacha</span>':''}
       ${m.code?'<span class="tag t-no" style="align-self:flex-start">Contient un code : envoyer seulement à ce voyageur</span>':''}
       <pre>${E(t)}</pre>
-      ${manque.length?`<p class="miss">À remplir : ${manque.map(c=>NOMS[c]).join(', ')}.</p>`:''}
+      ${manque.length?`<p class="miss">À remplir (bouton « Modifier ») : ${manque.map(c=>NOMS[c]||c).join(', ')}.</p>`:''}
       <div class="acts"><button class="btn small" data-copy="${i}" ${manque.length?'disabled':''}>Copier</button>
-      <a class="btn small ghost" ${manque.length?'aria-disabled="true" style="pointer-events:none;opacity:.5"':`href="${E(waLink(t))}" target="_blank" rel="noopener"`}>Ouvrir dans WhatsApp</a></div>
+      ${manque.length?'':`<a class="btn small ghost" href="${E(waLink(t))}" target="_blank" rel="noopener">Ouvrir dans WhatsApp</a>
+      <a class="btn small ghost" href="${E(mailLink(t))}">Ouvrir dans l’e-mail</a>`}</div>
     </article>`;
   }).join('');
 }
@@ -149,34 +224,57 @@ async function copier(txt, btn){
   setTimeout(() => { btn.textContent = avant; }, 1800);
 }
 
-function infoJeton(){
-  const ok = jeton && jetonPour === $('a').value + '_' + $('d').value;
-  $('creerInfo').innerHTML = ok ? '<b style="color:var(--ok)">✓ Lien partagé créé : liste commune et album privé pour ce séjour.</b>'
-    : (jeton ? '<span class="miss">Les dates ont changé : crée un nouveau lien partagé.</span>' : 'Sans ce bouton, le lien marche quand même, mais sans album et avec une liste sur chaque téléphone.');
-}
+$('ouvrir').addEventListener('click', charger);
+$('actu').addEventListener('click', charger);
+$('pinMem').addEventListener('change', () => { if (!$('pinMem').checked) store.del('rp-hote-pin'); });
+
 $('creer').addEventListener('click', async () => {
-  const a = $('a').value, d = $('d').value, pin = $('pin').value.trim(), b = $('creer');
-  if (!a || !d || d < a) { $('creerInfo').innerHTML = '<span class="miss">Indique d’abord les bonnes dates.</span>'; return; }
-  if (!$('gite').value) { $('creerInfo').innerHTML = '<span class="miss">Choisis d’abord le gîte (1, 2 ou 3).</span>'; return; }
-  if (!pin) { $('creerInfo').innerHTML = '<span class="miss">Tape le code hôte.</span>'; return; }
+  const a = $('a').value, d = $('d').value, b = $('creer');
+  if (!pin()) { $('creerInfo').innerHTML = '<span class="miss">Tape d’abord ton code hôte (étape 1).</span>'; return; }
+  if (!$('gite').value) { $('creerInfo').innerHTML = '<span class="miss">Choisis le gîte (1, 2 ou 3).</span>'; return; }
+  if (!a || !d || d < a) { $('creerInfo').innerHTML = '<span class="miss">Vérifie les dates d’arrivée et de départ.</span>'; return; }
   b.disabled = true; b.textContent = 'Création…';
   try {
-    const j = await RP.api('sejour', null, {pin, langue: $('lang').value, arrivee: a, depart: d, gite: $('gite').value});
-    jeton = j.token; jetonPour = a + '_' + d;
-    if ($('pinMem').checked) store.set('rp-hote-pin', pin); else store.del('rp-hote-pin');
-    render();
+    const j = await hote('sejour', {gite: $('gite').value, nom: $('nom').value, arrivee: a, depart: d, heure: $('h').value, code_portail: $('cp').value, code_porte: $('cd').value});
+    ['nom','cp','cd','a','d'].forEach(k => $(k).value = ''); $('gite').value = '';
+    choisi = j.token; langueTouchee = false;
+    $('creerInfo').innerHTML = '<span class="okc">✓ Séjour créé. Le lien et les messages sont à l’étape 4.</span>';
+    await charger();
+    $('msgZone').scrollIntoView({behavior:'smooth'});
   } catch (e) { $('creerInfo').innerHTML = '<span class="miss">' + E(e.message || 'Pas de connexion.') + '</span>'; }
-  b.disabled = false; b.textContent = 'Créer le lien avec liste partagée et album';
+  b.disabled = false; b.textContent = 'Créer le séjour';
 });
-$('pinMem').addEventListener('change', () => { if (!$('pinMem').checked) store.del('rp-hote-pin'); });
-document.addEventListener('input', render);
-document.addEventListener('change', render);
+
+$('wifiOk').addEventListener('click', async () => {
+  if (!pin()) { $('wifiInfo').innerHTML = '<span class="miss">Tape d’abord ton code hôte (étape 1).</span>'; return; }
+  try { await hote('wifi_regler', {reseau: $('wr').value, motDePasse: $('wp').value}); $('wifiInfo').innerHTML = '<span class="okc">✓ Wi-Fi enregistré.</span>'; }
+  catch (e) { $('wifiInfo').innerHTML = '<span class="miss">' + E(e.message || 'Pas de connexion.') + '</span>'; }
+});
+
+async function majSejour(token, corps, box){
+  const info = box && box.querySelector('[data-einfo]');
+  try { await hote('sejour_maj', Object.assign({token}, corps)); if (corps.langue !== undefined) langueTouchee = false; edite = null; await charger(); }
+  catch (e) { if (info) info.innerHTML = '<span class="miss">' + E(e.message || 'Pas de connexion.') + '</span>'; }
+}
+
 document.addEventListener('click', e => {
-  const b = e.target.closest('[data-copy]'); if (!b || b.disabled) return;
-  if (b.dataset.copy === 'lien') return copier(lienSejour(), b);
-  const m = RP.messages[+b.dataset.copy]; copier(texte(m, valeurs(), $('lang').value), b);
+  const b = e.target.closest('[data-msg],[data-edit],[data-save],[data-open],[data-copy]'); if (!b || b.disabled) return;
+  if (b.dataset.msg) { choisi = b.dataset.msg; langueTouchee = false; rendreListe(); rendreMsgs(); $('msgZone').scrollIntoView({behavior:'smooth'}); return; }
+  if (b.dataset.edit) { edite = edite === b.dataset.edit ? null : b.dataset.edit; rendreListe(); return; }
+  if (b.dataset.save) {
+    const box = b.closest('.sej'), corps = {};
+    box.querySelectorAll('[data-f]').forEach(i => corps[i.dataset.f] = i.value);
+    const avant = sejours.find(x => x.token === b.dataset.save); if (avant && corps.langue === (avant.langue || '')) delete corps.langue;
+    majSejour(b.dataset.save, corps, box); return;
+  }
+  if (b.dataset.open) { majSejour(b.dataset.open, {debloquer: true}, b.closest('.sej')); return; }
+  if (b.dataset.copy === 'lien') { const s = sel(); if (s) copier(lienDe(s), b); return; }
+  const s = sel(), m = RP.messages[+b.dataset.copy]; if (s && m) copier(texte(m, valeurs(s, $('lang').value), $('lang').value), b);
 });
-render();
+$('lang').addEventListener('change', () => { langueTouchee = true; rendreMsgs(); });
+$('tel').addEventListener('input', rendreMsgs);
+$('mail').addEventListener('input', rendreMsgs);
+if (pin()) charger();
 })();
 </script>
 </body>

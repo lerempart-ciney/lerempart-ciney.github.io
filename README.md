@@ -39,6 +39,14 @@ Les messages du parcours sont dans `assets/messages.js`.
 - L'album est privé (jamais publié). Le lien s'arrête le lendemain du départ. Chaque nuit à 3 h 15 (UTC), le serveur efface les séjours finis depuis 2 jours : liste et photos.
 - Code du serveur : `supabase/functions/rempart/index.ts`. Le code hôte est le secret `HOTE_PIN` dans Supabase (jamais dans ce dépôt).
 
+## Langue et accès bloqués jusqu'à l'arrivée (22/11/2026)
+
+- Frédéric crée le séjour dans `hote.html` dès la réservation (gîte, dates, codes) et envoie le message 1, en 5 langues, avec le lien.
+- À la première ouverture du lien, le voyageur choisit sa langue. Ce premier choix est enregistré et visible dans « Mes séjours » (`hote.html`). Pas de notification automatique (choix de Sacha).
+- Avant l'annonce d'arrivée, le voyageur voit tout le guide, la liste de courses et les vidéos, mais pas le Wi-Fi, les codes d'accès ni l'album.
+- Le bouton « Prévenir Frédéric de mon arrivée » (possible dès la veille de l'arrivée) ouvre ces accès. Frédéric peut aussi les ouvrir lui-même (« Modifier » puis « Ouvrir les accès maintenant »).
+- Les codes sont gardés dans la base avec le séjour (jamais dans ce dépôt) et effacés 2 jours après le départ. Le Wi-Fi est réglé dans `hote.html` (table `v_config`), pas dans `assets/data.js`.
+
 ## Mise en ligne
 
 GitHub → Settings → Pages → « Deploy from a branch » → `main` / `(root)`.

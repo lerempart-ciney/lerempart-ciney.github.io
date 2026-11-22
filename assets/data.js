@@ -10,6 +10,7 @@ RP.config = {
   email: 'acls@live.be',
   adresse: 'Avenue de Namur 6, 5590 Ciney',
   // Wi-Fi : laisser vide tant que ce n'est pas connu. S'affiche dans l'appli et sur la TV.
+  /* Ne pas remplir : le dépôt est public. Le Wi-Fi est réglé dans la page hôte et donné au voyageur après l'annonce de son arrivée. */
   wifi: { reseau: '', motDePasse: '', securite: 'WPA' },
   // Date à laquelle les adresses du livret ont été vérifiées (AAAA-MM-JJ). Vide = non affichée.
   livretVerifieLe: '',
@@ -110,6 +111,18 @@ RP.t = {
  stay:{fr:'Votre séjour',en:'Your stay',nl:'Jullie verblijf',de:'Ihr Aufenthalt',es:'Vuestra estancia'},
  network:{fr:'Réseau',en:'Network',nl:'Netwerk',de:'Netzwerk',es:'Red'},
  pass:{fr:'Mot de passe',en:'Password',nl:'Wachtwoord',de:'Passwort',es:'Contraseña'},
+ lockTitle:{fr:'Disponible à votre arrivée',en:'Available when you arrive',nl:'Beschikbaar bij jullie aankomst',de:'Verfügbar bei Ihrer Ankunft',es:'Disponible a vuestra llegada'},
+ lockTxt:{fr:"Le Wi-Fi, les codes d'accès et l'album photo s'ouvrent quand vous prévenez Frédéric de votre arrivée, avec le bouton ci-dessous.",en:'The Wi-Fi, the access codes and the photo album unlock when you let Frédéric know you are arriving, with the button below.',nl:'De wifi, de toegangscodes en het fotoalbum worden zichtbaar zodra jullie Frédéric jullie aankomst laten weten, met de knop hieronder.',de:'WLAN, Zugangscodes und Fotoalbum werden freigeschaltet, sobald Sie Frédéric Ihre Ankunft mitteilen, mit der Schaltfläche unten.',es:'El wifi, los códigos de acceso y el álbum de fotos se desbloquean cuando avisáis a Frédéric de vuestra llegada, con el botón de abajo.'},
+ lockFrom:{fr:'Vous pourrez prévenir Frédéric à partir du {d}.',en:'You can let Frédéric know from {d}.',nl:'Jullie kunnen Frédéric verwittigen vanaf {d}.',de:'Sie können Frédéric ab dem {d} Bescheid geben.',es:'Podréis avisar a Frédéric a partir del {d}.'},
+ accessTitle:{fr:'Vos accès',en:'Your access',nl:'Jullie toegang',de:'Ihr Zugang',es:'Vuestros accesos'},
+ gate:{fr:'Code du portail',en:'Gate code',nl:'Code van de poort',de:'Code für das Tor',es:'Código del portón'},
+ door:{fr:'Code de la porte',en:'Door code',nl:'Deurcode',de:'Türcode',es:'Código de la puerta'},
+ keepCodes:{fr:'Merci de garder ces codes pour votre groupe uniquement.',en:'Please keep these codes within your group.',nl:'Hou deze codes alsjeblieft binnen jullie groep.',de:'Bitte geben Sie diese Codes nur innerhalb Ihrer Gruppe weiter.',es:'Por favor, no compartáis estos códigos fuera de vuestro grupo.'},
+ noCodes:{fr:'Frédéric vous donne les codes sur place.',en:'Frédéric will give you the codes on site.',nl:'Frédéric geeft jullie de codes ter plaatse.',de:'Frédéric gibt Ihnen die Codes vor Ort.',es:'Frédéric os dará los códigos allí mismo.'},
+ wifiSoon:{fr:'Frédéric vous donne le Wi-Fi sur place.',en:'Frédéric will give you the Wi-Fi details on site.',nl:'Frédéric geeft jullie de wifi-gegevens ter plaatse.',de:'Frédéric gibt Ihnen die WLAN-Daten vor Ort.',es:'Frédéric os dará los datos del wifi allí mismo.'},
+ arrDone:{fr:'Arrivée annoncée ✓',en:'Arrival announced ✓',nl:'Aankomst doorgegeven ✓',de:'Ankunft mitgeteilt ✓',es:'Llegada avisada ✓'},
+ albumLocked:{fr:"L'album s'ouvre quand vous prévenez Frédéric de votre arrivée (onglet Accueil).",en:'The album opens when you let Frédéric know you are arriving (Home tab).',nl:'Het album opent zodra jullie Frédéric jullie aankomst laten weten (tabblad Welkom).',de:'Das Album öffnet sich, sobald Sie Frédéric Ihre Ankunft mitteilen (Reiter Start).',es:'El álbum se abre cuando avisáis a Frédéric de vuestra llegada (pestaña Inicio).'},
+ guideOnly:{fr:"Le Wi-Fi et les codes d'accès sont dans votre lien personnel, envoyé par Frédéric.",en:'The Wi-Fi and access codes are in your personal link, sent by Frédéric.',nl:'De wifi en de toegangscodes staan in jullie persoonlijke link, verstuurd door Frédéric.',de:'WLAN und Zugangscodes finden Sie in Ihrem persönlichen Link von Frédéric.',es:'El wifi y los códigos de acceso están en vuestro enlace personal, enviado por Frédéric.'},
  codes:{fr:"Frédéric vous envoie les codes d'accès par message.",en:'Frédéric sends you the access codes by message.',nl:'Frédéric stuurt jullie de toegangscodes via een bericht.',de:'Frédéric schickt Ihnen die Zugangscodes per Nachricht.',es:'Frédéric os enviará los códigos de acceso por mensaje.'},
  arrBtn:{fr:'Prévenir Frédéric de mon arrivée',en:'Let Frédéric know when we arrive',nl:'Aankomst doorgeven aan Frédéric',de:'Frédéric meine Ankunft mitteilen',es:'Avisar a Frédéric de nuestra llegada'},
  arrHint:{fr:'Merci de prévenir au moins 2 heures avant votre arrivée.',en:'Please let him know at least 2 hours before you arrive.',nl:'Laat het ten minste 2 uur voor jullie aankomst weten.',de:'Bitte geben Sie mindestens 2 Stunden vor Ihrer Ankunft Bescheid.',es:'Avisad al menos 2 horas antes de llegar.'},
@@ -285,8 +298,8 @@ RP.qrSvg = text => {
   try { const q = qrcode(0, 'M'); q.addData(text); q.make(); return q.createSvgTag({cellSize:4, margin:1, scalable:true}); }
   catch (e) { return ''; }
 };
-RP.wifiQr = () => {
-  const w = RP.config.wifi; if (!w.reseau) return '';
+RP.wifiQr = (w) => {
+  w = w || RP.config.wifi; if (!w || !w.reseau) return '';
   const e = s => s.replace(/([\\;,:"])/g, '\\$1');
   return RP.qrSvg('WIFI:T:' + (w.securite || 'WPA') + ';S:' + e(w.reseau) + ';P:' + e(w.motDePasse) + ';;');
 };
