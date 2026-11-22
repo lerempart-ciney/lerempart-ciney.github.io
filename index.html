@@ -281,7 +281,10 @@ function vAlbum(){
       <button class="del" data-del="${p.id}">${E(L(suppr===p.id?'delSure':'delPhoto'))}</button>
       <input class="cap" data-cap="${p.id}" maxlength="140" value="${E(p.legende||'')}" placeholder="${E(L('capPh'))}" aria-label="${E(L('capPh'))}"></figure>`).join('')}</div>`:`<p class="muted">${E(L('albumEmpty'))}</p>`}
     ${ph&&ph.length?`<section class="card souv"><div class="eyebrow">★ ${E(L('souvenir'))}</div><p class="muted" style="margin:0">${E(L('souvenirTxt'))}</p>
-      ${souv?`<img src="${souv.url}" alt="${E(L('souvenirTitle'))}"><a class="btn" href="${souv.url}" download="souvenir-le-rempart.jpg">${E(L('save'))}</a>${navigator.canShare&&navigator.canShare({files:[souv.file]})?`<button class="btn ghost" data-act="souvShare">${E(L('shareImg'))}</button>`:''}`
+      ${souv?`<div class="pages">${souv.pages.map((pg,i)=>`<a href="${pg.url}" target="_blank" rel="noopener"><img src="${pg.url}" alt="${E(L('souvenirTitle'))} ${i+1}/${souv.pages.length}"></a>`).join('')}</div>
+        <p class="muted" style="margin:0">${E(L('pagesN').replace('{n}', souv.pages.length))}</p>
+        <a class="btn" href="${souv.pdf}" download="album-le-rempart.pdf">${E(L('savePdf'))}</a>
+        ${navigator.canShare&&navigator.canShare({files:souv.pages.map(p=>p.file)})?`<button class="btn ghost" data-act="souvShare">${E(L('shareImg'))}</button>`:''}`
         :`<button class="btn" data-act="souv" ${souvEnCours?'disabled':''}>${E(souvEnCours?L('making'):L('souvenir'))}</button>`}
       ${souvErr?`<p class="miss">${E(souvErr)}</p>`:''}
       ${fin?`<p class="muted" style="margin:0">${E(L('souvenirBefore').replace('{d}', fmt(fin,{day:'numeric',month:'long'})))}</p>`:''}</section>`:''}
@@ -303,72 +306,100 @@ function lignes(x, txt, maxW, maxL){
   if (out.length > maxL) { out.length = maxL; out[maxL-1] = out[maxL-1].replace(/\s*\S*$/, '') + '…'; }
   return out;
 }
-/* Mise en page « magazine » : couverture avec une photo du domaine, grille épurée, citation, signature. */
-const COUV = ['assets/rempart-facade.jpg', 'assets/rempart-jardin.jpg'];
-function grille(n, X, Y, W, H, g){
+/* Album souvenir : couverture (la cour du Rempart), puis pages de photos des voyageurs. Tout est créé sur le téléphone. */
+const COUV = 'assets/rempart-cour.jpg', PW = 1080, PH = 1350, MAXP = 40;
+function oublierSouv(){ if (!souv) return; souv.pages.forEach(p => URL.revokeObjectURL(p.url)); URL.revokeObjectURL(souv.pdf); souv = null; }
+function espace(x, txt, X, Y, px){ x.save(); if ('letterSpacing' in x) { x.letterSpacing = px + 'px'; x.fillText(txt, X, Y); } else x.fillText(txt.split('').join(String.fromCharCode(8202)), X, Y); x.restore(); }
+/* Cases d'une page (1 à 4 photos), avec 2 variantes pour alterner d'une page à l'autre. */
+function grille(n, X, Y, W, H, g, v){
   const c = (x, y, w, h) => [X + x, Y + y, w, h], h2 = (H - g) / 2, w2 = (W - g) / 2;
   if (n === 1) return [c(0, 0, W, H)];
-  if (n === 2) return [c(0, 0, w2, H), c(w2 + g, 0, w2, H)];
-  if (n === 3) { const wl = W * 0.6; return [c(0, 0, wl, H), c(wl + g, 0, W - wl - g, h2), c(wl + g, h2 + g, W - wl - g, h2)]; }
-  if (n === 4) return [c(0, 0, w2, h2), c(w2 + g, 0, w2, h2), c(0, h2 + g, w2, h2), c(w2 + g, h2 + g, w2, h2)];
-  const w4 = (w2 - g) / 2;
-  return [c(0, 0, w2, H), c(w2 + g, 0, w4, h2), c(w2 + g + w4 + g, 0, w4, h2), c(w2 + g, h2 + g, w4, h2), c(w2 + g + w4 + g, h2 + g, w4, h2)];
+  if (n === 2) return v ? [c(0, 0, W, H * .58), c(0, H * .58 + g, W, H * .42 - g)] : [c(0, 0, w2, H), c(w2 + g, 0, w2, H)];
+  if (n === 3) { const hb = H * .56; return v ? [c(0, 0, w2, H - hb - g), c(w2 + g, 0, w2, H - hb - g), c(0, H - hb, W, hb)]
+                                                 : [c(0, 0, W, hb), c(0, hb + g, w2, H - hb - g), c(w2 + g, hb + g, w2, H - hb - g)]; }
+  const hh = H * .6; return v ? [c(0, 0, w2, h2), c(w2 + g, 0, w2, h2), c(0, h2 + g, w2, h2), c(w2 + g, h2 + g, w2, h2)]
+    : [c(0, 0, W * .62, hh), c(W * .62 + g, 0, W * .38 - g, hh), c(0, hh + g, W * .38, H - hh - g), c(W * .38 + g, hh + g, W * .62 - g, H - hh - g)];
 }
-function espace(x, txt, px){ x.save(); try { x.letterSpacing = px + 'px'; } catch (e) {} const r = x.measureText(txt).width; x.restore(); return r; }
-function texteEspace(x, txt, X, Y, px){ x.save(); if ('letterSpacing' in x) { x.letterSpacing = px + 'px'; x.fillText(txt, X, Y); } else x.fillText(txt.split('').join(String.fromCharCode(8202)), X, Y); x.restore(); }
+/* Répartit n photos en pages de 1 à 4, sans page trop vide. */
+function decouper(n){ const k = Math.ceil(n / 4), out = []; for (let i = 0; i < k; i++) out.push(Math.floor(n / k) + (i < n % k ? 1 : 0)); return out; }
+function nouvellePage(){ const c = document.createElement('canvas'); c.width = PW; c.height = PH; return c; }
+const enBlob = c => new Promise((ok, ko) => c.toBlob(b => b ? ok(b) : ko(new Error('toBlob')), 'image/jpeg', 0.9));
+/* PDF minimal : une image JPEG par page (format 4:5). */
+async function pdfDepuis(blobs){
+  const enc = new TextEncoder(), parts = [], offs = []; let pos = 0;
+  const add = d => { const u = typeof d === 'string' ? enc.encode(d) : d; parts.push(u); pos += u.length; };
+  const obj = (id, d) => { offs[id] = pos; add(id + ' 0 obj\n'); (Array.isArray(d) ? d : [d]).forEach(add); add('\nendobj\n'); };
+  const n = blobs.length, w = 540, h = 675;
+  add('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
+  obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
+  obj(2, '<< /Type /Pages /Count ' + n + ' /Kids [' + blobs.map((_, i) => (3 + i*3) + ' 0 R').join(' ') + '] >>');
+  for (let i = 0; i < n; i++) {
+    const id = 3 + i*3, img = new Uint8Array(await blobs[i].arrayBuffer()), cs = 'q ' + w + ' 0 0 ' + h + ' 0 0 cm /Im0 Do Q';
+    obj(id, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + w + ' ' + h + '] /Resources << /XObject << /Im0 ' + (id+2) + ' 0 R >> >> /Contents ' + (id+1) + ' 0 R >>');
+    obj(id+1, ['<< /Length ' + cs.length + ' >>\nstream\n', cs, '\nendstream']);
+    obj(id+2, ['<< /Type /XObject /Subtype /Image /Width ' + PW + ' /Height ' + PH + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + img.length + ' >>\nstream\n', img, '\nendstream']);
+  }
+  const nb = 3 + n*3, xref = pos;
+  add('xref\n0 ' + nb + '\n0000000000 65535 f \n' + offs.slice(1, nb).map(o => String(o).padStart(10, '0') + ' 00000 n \n').join(''));
+  add('trailer\n<< /Size ' + nb + ' /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF');
+  return new Blob(parts, {type: 'application/pdf'});
+}
 async function creerSouvenir(){
   souvEnCours = true; souvErr = ''; render(true);
   try {
-    await Promise.all([document.fonts.load('96px "Young Serif"'), document.fonts.load('600 30px Figtree'), document.fonts.load('italic 400 30px Figtree')]).catch(()=>{});
-    const toutes = album.photos.filter(p => p.url);
-    const choix = toutes.filter(p => p.legende).concat(toutes.filter(p => !p.legende)).slice(0, 5)
-      .sort((a, b) => toutes.indexOf(a) - toutes.indexOf(b));
-    const [couv, ...imgs] = await Promise.all([chargerImg(COUV[RP.jourAn(arrivee || new Date()) % COUV.length])].concat(choix.map(p => chargerImg(p.url))));
-    const W = 1080, H = 1350, M = 64, c = document.createElement('canvas'); c.width = W; c.height = H;
-    const x = c.getContext('2d'), INK = '#1b211d', MUTE = '#7c857f', GOLD = '#b48a3c';
-    x.fillStyle = '#f7f5f0'; x.fillRect(0, 0, W, H);
-    // Couverture : photo du domaine, voile dégradé, titre.
-    const HC = 500; couvrir(x, couv, 0, 0, W, HC);
-    let g = x.createLinearGradient(0, 0, 0, HC); g.addColorStop(0, 'rgba(10,14,12,.15)'); g.addColorStop(.45, 'rgba(10,14,12,.05)'); g.addColorStop(1, 'rgba(10,14,12,.72)');
-    x.fillStyle = g; x.fillRect(0, 0, W, HC);
-    x.textAlign = 'left'; x.fillStyle = 'rgba(255,255,255,.9)'; x.font = '600 20px Figtree, sans-serif';
-    texteEspace(x, 'CINEY · BELGIQUE', M, 74, 5);
-    x.textAlign = 'right'; texteEspace(x, (G ? 'GÎTE ' + G : 'LE REMPART'), W - M, 74, 5);
-    x.textAlign = 'left'; x.fillStyle = '#fff'; x.font = '112px "Young Serif", Georgia, serif'; x.fillText('Le Rempart', M - 4, HC - 92);
-    x.font = '400 30px Figtree, sans-serif'; x.fillStyle = 'rgba(255,255,255,.88)';
-    const sous = L('ourStay') + (arrivee && depart ? '  ·  ' + fmt(arrivee,{day:'numeric',month:'long'}) + ' – ' + fmt(depart,{day:'numeric',month:'long',year:'numeric'}) : '');
-    x.fillText(sous, M, HC - 44);
-    // Citation (le premier petit mot), puis grille des photos.
-    const cit = choix.find(p => p.legende);
-    let Y = HC + 48, bas = 1222;
-    if (cit) {
-      x.font = 'italic 400 34px "Young Serif", Georgia, serif'; x.fillStyle = INK;
-      const ls = lignes(x, '« ' + cit.legende + ' »', W - 2*M, 2);
-      ls.forEach((t, k) => x.fillText(t, M, Y + 30 + k * 46)); Y += 30 + ls.length * 46 + 14;
-    }
-    const cases = grille(imgs.length, M, Y, W - 2*M, bas - Y, 12);
-    imgs.forEach((im, i) => {
-      const [X, Yc, w, h] = cases[i]; x.save(); arrondi(x, X, Yc, w, h, 4); x.clip(); couvrir(x, im, X, Yc, w, h);
-      const leg = choix[i].legende;
-      if (leg && choix[i] !== cit) {
-        x.font = '500 ' + (w > 400 ? 24 : 19) + 'px Figtree, sans-serif';
-        const ls = lignes(x, leg, w - 36, 2), lh = w > 400 ? 30 : 24;
-        g = x.createLinearGradient(0, Yc + h - lh * ls.length - 70, 0, Yc + h); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.6)');
-        x.fillStyle = g; x.fillRect(X, Yc + h - lh * ls.length - 70, w, lh * ls.length + 70);
-        x.fillStyle = '#fff'; ls.forEach((t, k) => x.fillText(t, X + 18, Yc + h - 18 - (ls.length - 1 - k) * lh));
+    await Promise.all([document.fonts.load('120px "Young Serif"'), document.fonts.load('600 30px Figtree'), document.fonts.load('italic 400 30px "Young Serif"')]).catch(()=>{});
+    const photos = album.photos.filter(p => p.url).slice(0, MAXP);
+    const [cour, ...imgs] = await Promise.all([chargerImg(COUV)].concat(photos.map(p => chargerImg(p.url))));
+    const INK = '#1b211d', MUTE = '#7c857f', GOLD = '#b48a3c', M = 64, pages = [];
+    const dates = arrivee && depart ? fmt(arrivee,{day:'numeric',month:'long'}) + ' – ' + fmt(depart,{day:'numeric',month:'long',year:'numeric'}) : '';
+    // Page 1 : couverture.
+    let c = nouvellePage(), x = c.getContext('2d');
+    couvrir(x, cour, 0, 0, PW, PH);
+    let g = x.createLinearGradient(0, 0, 0, 700); g.addColorStop(0, 'rgba(247,245,240,.55)'); g.addColorStop(1, 'rgba(247,245,240,0)');
+    x.fillStyle = g; x.fillRect(0, 0, PW, 700);
+    x.textAlign = 'center'; x.fillStyle = GOLD; x.font = '700 22px Figtree, sans-serif'; espace(x, 'CINEY · BELGIQUE' + (G ? ' · GÎTE ' + G : ''), PW/2, 150, 6);
+    x.fillStyle = INK; x.font = '150px "Young Serif", Georgia, serif'; x.fillText('Le Rempart', PW/2, 300);
+    x.fillStyle = '#3d4741'; x.font = '400 32px Figtree, sans-serif'; x.fillText(L('ourStay') + (dates ? '  ·  ' + dates : ''), PW/2, 362);
+    const cit = photos.find(p => p.legende);
+    if (cit) { x.font = 'italic 400 34px "Young Serif", Georgia, serif'; x.fillStyle = INK;
+      lignes(x, '« ' + cit.legende + ' »', PW - 2*M - 80, 2).forEach((t, k) => x.fillText(t, PW/2, 440 + k * 46)); }
+    g = x.createLinearGradient(0, PH - 220, 0, PH); g.addColorStop(0, 'rgba(10,14,12,0)'); g.addColorStop(1, 'rgba(10,14,12,.55)');
+    x.fillStyle = g; x.fillRect(0, PH - 220, PW, 220);
+    x.fillStyle = '#fff'; x.font = '600 20px Figtree, sans-serif'; espace(x, L('souvenirFoot').toUpperCase() + '  ·  ' + photos.length + ' PHOTOS', PW/2, PH - 56, 5);
+    pages.push(c);
+    // Pages suivantes : uniquement les photos des voyageurs.
+    const tailles = decouper(imgs.length), total = tailles.length + 1; let i0 = 0;
+    tailles.forEach((n, pi) => {
+      c = nouvellePage(); x = c.getContext('2d');
+      x.fillStyle = '#f7f5f0'; x.fillRect(0, 0, PW, PH);
+      x.textAlign = 'left'; x.fillStyle = INK; x.font = '700 18px Figtree, sans-serif'; espace(x, 'LE REMPART', M, 82, 5);
+      x.textAlign = 'right'; x.fillStyle = MUTE; x.font = '400 18px Figtree, sans-serif'; x.fillText((pi + 2) + ' / ' + total, PW - M, 82);
+      x.fillStyle = '#d9d4c8'; x.fillRect(M, 104, PW - 2*M, 1);
+      const cases = grille(n, M, 136, PW - 2*M, PH - 136 - 120, 14, pi % 2);
+      for (let k = 0; k < n; k++) {
+        const [X, Y, w, h] = cases[k], im = imgs[i0 + k], leg = photos[i0 + k].legende;
+        x.save(); arrondi(x, X, Y, w, h, 3); x.clip(); couvrir(x, im, X, Y, w, h);
+        if (leg) {
+          x.font = 'italic 400 ' + (w > 500 ? 28 : 22) + 'px "Young Serif", Georgia, serif';
+          const ls = lignes(x, leg, w - 44, 2), lh = w > 500 ? 36 : 29;
+          g = x.createLinearGradient(0, Y + h - lh * ls.length - 80, 0, Y + h); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.62)');
+          x.fillStyle = g; x.fillRect(X, Y + h - lh * ls.length - 80, w, lh * ls.length + 80);
+          x.fillStyle = '#fff'; x.textAlign = 'left'; ls.forEach((t, j) => x.fillText(t, X + 22, Y + h - 22 - (ls.length - 1 - j) * lh));
+        }
+        x.restore();
       }
-      x.restore();
+      i0 += n;
+      x.fillStyle = '#d9d4c8'; x.fillRect(M, PH - 92, PW - 2*M, 1);
+      x.strokeStyle = GOLD; x.lineWidth = 1.5; x.beginPath(); x.arc(M + 18, PH - 50, 18, 0, Math.PI * 2); x.stroke();
+      x.fillStyle = GOLD; x.textAlign = 'center'; x.font = '20px "Young Serif", Georgia, serif'; x.fillText('R', M + 18, PH - 43);
+      x.textAlign = 'left'; x.fillStyle = MUTE; x.font = '400 18px Figtree, sans-serif'; x.fillText(L('souvenirSign'), M + 50, PH - 44);
+      x.textAlign = 'right'; x.font = 'italic 400 18px Figtree, sans-serif'; x.fillText(dates, PW - M, PH - 44);
+      pages.push(c);
     });
-    // Signature : filet, monogramme, nom.
-    x.fillStyle = '#d9d4c8'; x.fillRect(M, 1258, W - 2*M, 1);
-    x.strokeStyle = GOLD; x.lineWidth = 1.5; x.beginPath(); x.arc(M + 22, 1300, 22, 0, Math.PI * 2); x.stroke();
-    x.fillStyle = GOLD; x.font = '24px "Young Serif", Georgia, serif'; x.textAlign = 'center'; x.fillText('R', M + 22, 1309);
-    x.textAlign = 'left'; x.fillStyle = INK; x.font = '700 19px Figtree, sans-serif'; texteEspace(x, 'LE REMPART', M + 62, 1296, 4);
-    x.fillStyle = MUTE; x.font = '400 19px Figtree, sans-serif'; x.fillText(L('souvenirSign').replace(/^Le Rempart · /, ''), M + 62, 1320);
-    x.textAlign = 'right'; x.fillStyle = MUTE; x.font = 'italic 400 19px Figtree, sans-serif'; x.fillText(L('souvenirFoot'), W - M, 1310);
-    const blob = await new Promise((ok, ko) => c.toBlob(b => b ? ok(b) : ko(new Error('toBlob')), 'image/jpeg', 0.92));
-    if (souv) URL.revokeObjectURL(souv.url);
-    souv = { url: URL.createObjectURL(blob), file: new File([blob], 'souvenir-le-rempart.jpg', {type:'image/jpeg'}) };
+    const blobs = await Promise.all(pages.map(enBlob)), pdf = await pdfDepuis(blobs);
+    oublierSouv();
+    souv = { pages: blobs.map((b, i) => ({ url: URL.createObjectURL(b), file: new File([b], 'le-rempart-' + String(i + 1).padStart(2, '0') + '.jpg', {type:'image/jpeg'}) })),
+             pdf: URL.createObjectURL(pdf) };
   } catch (e) { souvErr = L('souvenirErr'); }
   souvEnCours = false; render(true);
 }
@@ -394,7 +425,7 @@ function reduire(f){
 async function envoyer(fichiers){
   albumErr = ''; envoi = fichiers.length; render(true);
   for (const f of fichiers) {
-    try { const fd = new FormData(); fd.append('photo', await reduire(f)); album = await RP.api('album', S, fd); if (souv) { URL.revokeObjectURL(souv.url); souv = null; } }
+    try { const fd = new FormData(); fd.append('photo', await reduire(f)); album = await RP.api('album', S, fd); oublierSouv(); }
     catch (e) { albumErr = L('photoErr') + (e.message && !/fetch/i.test(e.message) ? ' (' + e.message + ')' : ''); }
     envoi--; render(true);
   }
@@ -426,7 +457,7 @@ document.addEventListener('click', e => {
   if (b.dataset.del){
     const id = +b.dataset.del;
     if (suppr !== id){ suppr = id; render(true); return; }
-    suppr = null; if (souv) { URL.revokeObjectURL(souv.url); souv = null; } RP.api('album_suppr', S, {id}).then(chargerAlbum, () => { horsLigne = true; render(true); }); return;
+    suppr = null; oublierSouv(); RP.api('album_suppr', S, {id}).then(chargerAlbum, () => { horsLigne = true; render(true); }); return;
   }
   if (b.dataset.lang){ lang = b.dataset.lang; store.set('rp-lang', lang); tab = video ? 3 : 0; render(); return; }
   if (b.dataset.tab){ tab = +b.dataset.tab; render(); if (tab === 4) chargerListe(); if (tab === 5) chargerAlbum(); return; }
@@ -437,7 +468,7 @@ document.addEventListener('click', e => {
   if (b.dataset.act === 'ics'){ ics(); return; }
   if (b.dataset.act === 'invite'){ partagerLien(); return; }
   if (b.dataset.act === 'souv'){ creerSouvenir(); return; }
-  if (b.dataset.act === 'souvShare'){ navigator.share({files:[souv.file], title:L('souvenirTitle')}).catch(()=>{}); return; }
+  if (b.dataset.act === 'souvShare'){ navigator.share({files:souv.pages.map(p=>p.file), title:L('souvenirTitle')}).catch(()=>{}); return; }
   if (b.dataset.act === 'clear'){ if (enPartage()) opListe({op:'vider'}); else { saveListe(listeLocale().filter(i=>!i.d)); render(true); } return; }
 });
 document.addEventListener('input', e => { if (e.target.id === 'arrT') majArrivee(); });
@@ -446,7 +477,7 @@ document.addEventListener('change', e => {
   if (e.target.dataset && e.target.dataset.cap){
     const id = +e.target.dataset.cap, v = e.target.value.trim().slice(0, 140), p = album && album.photos.find(q => q.id === id);
     if (p) p.legende = v;
-    if (souv) { URL.revokeObjectURL(souv.url); souv = null; render(true); }
+    if (souv) { oublierSouv(); render(true); }
     RP.api('album_legende', S, {id, legende: v}).catch(() => { horsLigne = true; render(true); }); return;
   }
   if (e.target.dataset && e.target.dataset.i !== undefined){

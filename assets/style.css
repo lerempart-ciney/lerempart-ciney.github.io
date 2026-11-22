@@ -96,7 +96,7 @@ a{color:var(--sage)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
 /* Album du séjour */
-.albhero{position:relative;min-height:190px;border-radius:18px;overflow:hidden;display:flex;align-items:flex-end;padding:18px;background:#2a332d url(rempart-jardin.jpg) center 60%/cover}
+.albhero{position:relative;min-height:190px;border-radius:18px;overflow:hidden;display:flex;align-items:flex-end;padding:18px;background:#2a332d url(rempart-cour.jpg) center 78%/cover}
 .albhero::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,14,12,.05),rgba(10,14,12,.7))}
 .albhero > div{position:relative}
 .albhero .eyebrow{color:#f0d9a6}
@@ -108,5 +108,7 @@ label.btn{cursor:pointer;display:flex;align-items:center;justify-content:center;
 .gal img{display:block;width:100%;aspect-ratio:1;object-fit:cover}
 .gal .cap{display:block;width:100%;box-sizing:border-box;border:0;border-top:1px solid var(--line);padding:8px 10px;font:inherit;font-size:.85rem;background:var(--card,#fff);color:var(--ink)}
 .souv{display:flex;flex-direction:column;gap:10px}
-.souv img{width:100%;border-radius:12px;display:block;box-shadow:0 2px 12px rgba(0,0,0,.12)}
+.pages{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:4px}
+.pages a{flex:0 0 72%;scroll-snap-align:start}
+.souv img{width:100%;border-radius:8px;display:block;box-shadow:0 2px 12px rgba(0,0,0,.12)}
 .gal .del{position:absolute;right:6px;top:6px;border:0;border-radius:999px;padding:5px 10px;font-size:.75rem;font-weight:700;background:rgba(0,0,0,.6);color:#fff;cursor:pointer}
