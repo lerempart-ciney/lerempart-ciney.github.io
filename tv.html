@@ -61,13 +61,26 @@ h1,h2{font-family:var(--f-display);font-weight:400;margin:0}
 .dots i + i{margin-left:.6vw}
 .dots i{width:.7vw;height:.7vw;border-radius:50%;background:rgba(255,255,255,.25)}
 .dots i.on{background:var(--gold)}
+.jeux{display:grid;grid-template-columns:1fr 1fr;gap:1.2vw;margin-top:.8vw}
+.jeu{display:grid;grid-template-columns:6.4vw 1fr;gap:.9vw;align-items:center}
+.jeu .qr{width:6.4vw;height:6.4vw;padding:.35vw;border-radius:.6vw}
+.jeu b{font-size:1.45vw;line-height:1.2;display:block}
+/* Mode fond d'écran du menu TV (tv.html?g=N&menu=1) : bande du bas laissée libre pour les icônes du menu. */
+.tvs.menu{padding-bottom:calc(var(--bas) + 1vw);padding-top:2.2vw;gap:1.3vw 2.6vw}
+.menu .top h1{font-size:3.3vw}.menu .clock .t{font-size:4.4vw}.menu .wxh .deg{font-size:3.2vw}
+.menu .ideas h2{font-size:1.7vw}.menu .idea{padding:.7vw 1.2vw}.menu .idea b{font-size:1.6vw}
+.menu .side > * + *{margin-top:1vw}.menu .box{padding:.9vw 1.4vw}
+.menu .qrrow{grid-template-columns:1fr 6.4vw}.menu .qr{width:6.4vw;height:6.4vw;padding:.35vw}
+.menu .qrrow .l{font-size:1.3vw;line-height:1.4}
+.menu .foot{padding-top:.8vw;font-size:1.2vw}
+.tvs.menu::after{content:"";position:absolute;left:0;right:0;bottom:0;height:var(--bas);background:linear-gradient(to bottom,rgba(10,14,12,0),rgba(10,14,12,.75) 45%);pointer-events:none}
 @media (prefers-reduced-motion:reduce){.tvs{transition:none}}
 </style>
 </head>
 <body>
 <div class="tvs" id="tv"></div>
-<script src="assets/qrcode.js?v=20261123k"></script>
-<script src="assets/data.js?v=20261123k"></script>
+<script src="assets/qrcode.js?v=20261123l"></script>
+<script src="assets/data.js?v=20261123l"></script>
 <script>
 /* Paramètres : tv.html?l=fr (une langue) ou tv.html (les 5 langues à tour de rôle, 45 s chacune). */
 (function(){
@@ -78,11 +91,15 @@ const ordre = Object.keys(RP.langues);
 let lang = fixe || 'fr', meteo = null, jour = new Date().toDateString();
 const E = RP.esc, L = k => RP.t[k][lang];
 const appUrl = new URL('index.html', location.href).href;
+const menu = Q.get('menu') === '1'; // fond d'écran du menu : bande du bas libre (hauteur réglable : &bas=22, en % de l'écran)
+const bas = Math.min(40, Math.max(10, +Q.get('bas') || 22));
+if (menu) { const t = document.getElementById('tv'); t.classList.add('menu'); t.style.setProperty('--bas', bas + 'vh'); }
+const qrJeux = { quiz: RP.qrSvg(RP.safio.quiz.joueur), party: RP.qrSvg(RP.safio.party.joueur) };
 const fmt = (d,o) => new Intl.DateTimeFormat(RP.langues[lang], o).format(d);
 
 function render(){
   const d = new Date(), r = RP.ideePluie(d), w = RP.config.wifi, wq = RP.wifiQr(w);
-  const pj = RP.pepiteDuJour(d); const soir = d.getHours() >= 17 || d.getHours() < 2; const jeu = soir ? RP.jeuDuJour(d) : null;
+  const pj = RP.pepiteDuJour(d); const soir = d.getHours() >= 17 || d.getHours() < 2; const jeu = RP.jeuDuJour(d);
   const pain = RP.adresses.filter(p => p.cat === 'pain' && p.ferme && p.ferme.length < 7 && RP.ouvert(p, d)).sort((x, y) => x.min - y.min)[0];
   const typ = meteo ? meteo.type : null;
   document.documentElement.lang = lang;
@@ -92,12 +109,14 @@ function render(){
       <div class="clock"><div class="t">${E(fmt(d,{hour:'2-digit',minute:'2-digit'}))}</div><div class="d">${E(fmt(d,{weekday:'long',day:'numeric',month:'long'}))}</div></div></div></div>
     <div class="ideas"><h2>${E(L('three'))}</h2>
       ${RP.idees(d,lang).map(([k,p])=>p?`<div class="idea"><div class="m">${p.min}<small>${E(L('min'))}</small></div><div><div class="k">${E(k)}</div><b>${E(p.nom)}</b><span>${E(RP.sousTitre(p,lang)||p.adr)}</span></div></div>`:'').join('')}
-      ${r?`<div class="idea rain"><div class="m">☔</div><div><div class="k">${E(L('rain'))}</div><b>${E(r.nom)}</b><span>${r.min} ${E(L('min'))} · ${E(RP.sousTitre(r,lang))}</span></div></div>`:''}
+      ${r?`<div class="idea rain iopt"><div class="m">☔</div><div><div class="k">${E(L('rain'))}</div><b>${E(r.nom)}</b><span>${r.min} ${E(L('min'))} · ${E(RP.sousTitre(r,lang))}</span></div></div>`:''}
     </div>
     <div class="side">
       ${w.reseau?`<div class="box"><div class="eyebrow">${E(L('tvWifi'))}</div><div class="qrrow"><div class="l">${E(L('network'))} : <b>${E(w.reseau)}</b><br>${E(L('pass'))} : <b>${E(w.motDePasse)}</b><br><span class="small">${E(L('tvWifiScan'))}</span></div>${wq?`<div class="qr">${wq}</div>`:''}</div></div>`:''}
-      ${jeu?`<div class="box" style="background:rgba(120,170,255,.12)"><div class="eyebrow">🎲 ${E(L('playTitle'))}</div><div style="font-size:1.9vw;font-weight:700">${E(jeu.nom)} · ${E(RP.safio[jeu.app].nom)}</div><div class="small" style="font-size:1.25vw;line-height:1.4">${E(jeu.d[lang]||jeu.d.fr)}</div></div>`:''}
-      ${pj&&!jeu?`<div class="box" style="background:rgba(226,189,114,.12)"><div class="eyebrow">★ ${E(L('pepiteJour'))}</div><div style="font-size:1.9vw;font-weight:700">${E(pj.nom)}</div><div class="small" style="font-size:1.25vw;line-height:1.4">${E(pj.mot[lang]||pj.mot.fr)}</div></div>`:''}
+      <div class="box" style="background:rgba(120,170,255,.12)"><div class="eyebrow">🎲 ${E(L(soir?'playTitle':'playDay'))}</div>
+        <div style="font-size:1.35vw;line-height:1.35">${E(L('playGame'))} : <b>${E(jeu.nom)}</b> · ${E(RP.safio[jeu.app].nom)}</div>
+        <div class="jeux">${['quiz','party'].map(k=>`<div class="jeu"><div class="qr">${qrJeux[k]}</div><b>${E(RP.safio[k].nom)}</b></div>`).join('')}</div><div class="small" style="font-size:1.05vw">${E(L('playScan'))}</div></div>
+      ${pj?`<div class="box opt" style="background:rgba(226,189,114,.12)"><div class="eyebrow">★ ${E(L('pepiteJour'))}</div><div style="font-size:1.9vw;font-weight:700">${E(pj.nom)}</div><div class="small" style="font-size:1.25vw;line-height:1.4">${E(pj.mot[lang]||pj.mot.fr)}</div></div>`:''}
       ${pain&&!w.reseau?`<div class="box opt"><div class="eyebrow">${E(RP.t.cats.pain[lang])} · ${E(L('open'))}</div><div class="l" style="font-size:1.9vw;font-weight:700">${E(pain.nom)}</div><div class="small" style="font-size:1.3vw">${pain.min} ${E(L('min'))} · ${E(pain.adr)}</div></div>`:''}
       <div class="box"><div class="eyebrow">${E(L('tvApp'))}</div><div class="qrrow"><div class="l">${E(L('nav')[1])} · ${E(L('nav')[2])} · ${E(L('nav')[3])}<br><span class="small">${E(L('tvAppScan'))}</span></div><div class="qr">${RP.qrSvg(appUrl)}</div></div></div>
     </div>
@@ -107,7 +126,10 @@ function render(){
 /* Si la colonne de droite déborde (petit écran, texte long), on retire d'abord l'encadré facultatif. */
 function ajuster(){
   const side = document.querySelector('.side'); if (!side) return;
-  side.querySelectorAll('.opt').forEach(el => { if (side.scrollHeight > side.clientHeight + 1) el.style.display = 'none'; });
+  [...side.querySelectorAll('.opt')].reverse().forEach(el => { if (side.scrollHeight > side.clientHeight + 1) el.style.display = 'none'; });
+  const ideas = document.querySelector('.ideas');
+  if (ideas) { const l = [...ideas.querySelectorAll('.iopt')].concat([...ideas.querySelectorAll('.idea:not(.iopt)')].reverse()).slice(0, 3);
+    l.forEach(el => { if (ideas.scrollHeight > ideas.clientHeight + 1) el.style.display = 'none'; }); }
 }
 const renderBase = render;
 render = function(){ renderBase(); ajuster(); };

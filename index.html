@@ -10,15 +10,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="assets/style.css?v=20261123k">
+<link rel="stylesheet" href="assets/style.css?v=20261123l">
 </head>
 <body>
 <div class="app">
   <main class="view" id="view" aria-live="polite"></main>
   <nav class="tabs" id="tabs" hidden><div class="tabs-in" role="tablist" id="tabsIn"></div></nav>
 </div>
-<script src="assets/qrcode.js?v=20261123k"></script>
-<script src="assets/data.js?v=20261123k"></script>
+<script src="assets/qrcode.js?v=20261123l"></script>
+<script src="assets/data.js?v=20261123l"></script>
 <script>
 (function(){
 const C = RP.config, Q = new URLSearchParams(location.search);
@@ -134,7 +134,7 @@ async function annoncerArrivee(heure){
 function vAccueil(){
   return `${top()}
     <section class="card hello">
-      <div class="vbox"><video id="vAcc" src="${E(RP.videoAccueil[lang] || RP.videoAccueil.fr)}" poster="assets/accueil.jpg?v=20261123k" playsinline preload="auto" aria-label="Frédéric"></video><button class="son" data-act="son" type="button" aria-label="${E(L('sound'))}" hidden>🔊</button></div>
+      <div class="vbox"><video id="vAcc" src="${E(RP.videoAccueil[lang] || RP.videoAccueil.fr)}" poster="assets/accueil.jpg?v=20261123l" playsinline preload="auto" aria-label="Frédéric"></video><button class="son" data-act="son" type="button" aria-label="${E(L('sound'))}" hidden>🔊</button></div>
       <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><h1>${E(L('welcome'))}</h1><p>${E(L('intro'))}</p></div>
     </section>
     ${inviter()}
@@ -197,7 +197,7 @@ function jeuCard(d){
   return `<section class="card"><div class="eyebrow">🎲 ${E(L('playTitle'))}</div>
     <div class="idea"><div><div class="k">${E(L('playGame'))} · ${E(app.nom)}</div><b>${E(j.nom)}</b><span class="muted">${E(j.d[lang]||j.d.fr)}</span></div></div>
     <p style="margin:0">${E(L('playHow').replace('{app}', app.nom))}</p>
-    <p class="muted" style="margin:0">${E(L('playAlt').replace('{url}', app.url))} ${E(L('playLang'))}</p></section>`;
+    <p class="muted" style="margin:0">${E(L('playAlt').replace('{url}', app.url))}</p></section>`;
 }
 function vAujourdhui(){
   const d = now(), r = RP.ideePluie(d), pj = RP.pepiteDuJour(d);
