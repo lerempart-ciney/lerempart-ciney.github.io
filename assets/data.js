@@ -96,6 +96,14 @@ RP.adresses = [
  {cat:'sortie',nom:'Escape Game Namur',    min:30, adr:'Avenue Prince de Liège 96, Jambes',      ferme:[],    tel:'0487 45 52 51', desc:'escape', pluie:true},
  {cat:'sortie',nom:'Lynx Escape Game',     min:30, adr:'Avenue Reine Élisabeth 125, Andenne',    ferme:[],    tel:'0479 44 82 71', desc:'escape', pluie:true},
  {cat:'sortie',nom:'Bowling, laser game & billard', min:35, adr:'Chaussée de Perwez 251, Saint-Servais', ferme:[], tel:'081 73 10 11', desc:'laser', pluie:true},
+ {cat:'sortie',nom:'Play Arena',          min:5,  adr:'Rue Saint-Gilles, Ciney',               type:'Ouverture 2027'},
+ {cat:'snack', nom:"McDonald's",           min:5,  adr:'Rue Saint-Gilles, Ciney'},
+ {cat:'balade',nom:'Trot-e-Fun',           min:20, adr:'Rue de la Tassenière 67, Dinant',        tel:'0493 37 76 80', type:'Trottinettes électriques'},
+ {cat:'balade',nom:'ElectricA Travel',     min:20, adr:'Rue Saint-Martin 7, Dinant',             tel:'0473 87 73 92', type:'Vespa électriques'},
+ {cat:'commerce',nom:'La Boucherie du Centre', min:3, adr:'Rue du Centre 36, Ciney',            tel:'083 68 96 57', type:'Boucherie'},
+ {cat:'commerce',nom:'Boucherie des Frères Paul', min:3, adr:'Rue du Commerce 11, Ciney',        type:'Boucherie'},
+ {cat:'commerce',nom:'La Gaillarde',       min:5,  adr:'Saint-Gilles 59, Ciney',                 tel:'083 63 30 75'},
+ {cat:'commerce',nom:'Le bonheur est dans le pré', min:5, adr:'Saint-Gilles 57, Ciney',          tel:'083 21 75 25'},
  {cat:'chef',  nom:'Alexandre Régis', tel:'0477 57 68 57'},
  {cat:'chef',  nom:'Simon Denis',     tel:'0473 40 54 20'}
 ];
@@ -108,7 +116,8 @@ RP.supermarches = [
  {nom:'Intermarché',                  adr:'Rue du Commerce 79, Ciney', h:['09:00-18:00','08:30-19:00','08:30-19:00','08:30-19:00','08:30-19:00','08:30-20:00','08:30-19:00']},
  {nom:'Delhaize',                     adr:'Chemin de Crahiat 18A, Ciney', h:['08:30-12:30','08:30-19:00','08:30-19:00','08:30-19:00','08:30-19:00','08:30-20:00','08:30-19:00']},
  {nom:'Colruyt',                      adr:'Saint-Gilles 17, Ciney', h:[null,'08:30-20:00','08:30-20:00','08:30-20:00','08:30-20:00','08:30-21:00','08:30-20:00']},
- {nom:'Aldi',                         adr:'Avenue Schlogel 119, Ciney'}
+ {nom:'Aldi',                         adr:'Avenue Schlogel 119, Ciney'},
+ {nom:'Lidl',                         adr:'Chemin du Tersoit 18, Ciney'}
 ];
 
 /* ---------- 4. Textes de l'interface (5 langues) ---------- */
@@ -157,6 +166,15 @@ RP.t = {
  sos1:{fr:'Urgences (ambulance, pompiers)',en:'Emergencies (ambulance, fire)',nl:'Noodnummer (ambulance, brandweer)',de:'Notruf (Rettung, Feuerwehr)',es:'Urgencias (ambulancia, bomberos)'},
  sos2:{fr:'Médecin de garde',en:'Doctor on call',nl:'Huisarts van wacht',de:'Ärztlicher Bereitschaftsdienst',es:'Médico de guardia'},
  sos3:{fr:'Pharmacie de garde',en:'Pharmacy on duty',nl:'Apotheek van wacht',de:'Notdienst-Apotheke',es:'Farmacia de guardia'},
+ bike:{fr:'Un souci de vélo électrique ?',en:'E-bike trouble?',nl:'Problemen met een e-bike?',de:'Probleme mit dem E-Bike?',es:'¿Problemas con la bici eléctrica?'},
+ saunaCode:{fr:'Code du sauna',en:'Sauna code',nl:'Code van de sauna',de:'Sauna-Code',es:'Código de la sauna'},
+ sound:{fr:'Activer le son',en:'Turn on sound',nl:'Geluid aanzetten',de:'Ton einschalten',es:'Activar el sonido'},
+ poolTitle:{fr:'Piscine : responsabilités',en:'Pool: responsibilities',nl:'Zwembad: verantwoordelijkheid',de:'Schwimmbad: Verantwortung',es:'Piscina: responsabilidad'},
+ poolTxt:{fr:['Les enfants mineurs peuvent aller à la piscine uniquement sous la surveillance de leurs parents.','Les parents sont responsables de leurs enfants : en cas d’incident ou d’accident, la responsabilité est la leur.'],
+  en:['Children under 18 may use the pool only under their parents’ supervision.','Parents are responsible for their children: in the event of an incident or accident, the responsibility is theirs.'],
+  nl:['Minderjarige kinderen mogen alleen onder toezicht van hun ouders naar het zwembad.','Ouders zijn verantwoordelijk voor hun kinderen: bij een incident of ongeval ligt de verantwoordelijkheid bij hen.'],
+  de:['Minderjährige Kinder dürfen das Schwimmbad nur unter Aufsicht ihrer Eltern benutzen.','Die Eltern sind für ihre Kinder verantwortlich: Bei einem Zwischenfall oder Unfall liegt die Verantwortung bei ihnen.'],
+  es:['Los menores de edad solo pueden ir a la piscina bajo la vigilancia de sus padres.','Los padres son responsables de sus hijos: en caso de incidente o accidente, la responsabilidad es suya.']},
  tyre:{fr:'Un souci de pneu ?',en:'Tyre trouble?',nl:'Problemen met een band?',de:'Probleme mit einem Reifen?',es:'¿Problemas con un neumático?'},
  today:{fr:'Aujourd’hui au Rempart',en:'Today at Le Rempart',nl:'Vandaag in Le Rempart',de:'Heute im Le Rempart',es:'Hoy en Le Rempart'},
  weather:{fr:'Météo',en:'Weather',nl:'Weer',de:'Wetter',es:'Tiempo'},
@@ -253,6 +271,8 @@ RP.t = {
   gastro:{fr:'Tables gastronomiques',en:'Fine dining',nl:'Gastronomie',de:'Gehobene Küche',es:'Alta cocina'},
   visite:{fr:'À visiter',en:'To visit',nl:'Bezienswaardig',de:'Sehenswertes',es:'Para visitar'},
   sortie:{fr:'Activités',en:'Activities',nl:'Activiteiten',de:'Aktivitäten',es:'Actividades'},
+  balade:{fr:'Balades électriques',en:'Electric rides',nl:'Elektrische tochten',de:'Elektro-Touren',es:'Paseos eléctricos'},
+  commerce:{fr:'Commerces',en:'Shops',nl:'Winkels',de:'Geschäfte',es:'Tiendas'},
   chef:{fr:'Chefs à domicile',en:'Private chefs',nl:'Chef aan huis',de:'Koch ins Haus',es:'Chef a domicilio'}
  },
  desc:{
@@ -326,7 +346,11 @@ RP.ideePluie = date => {
 /* Types d'adresses à traduire (les autres, comme « Pizza » ou « Michelin ★ », sont compris partout). */
 RP.typesT = {
  'Friterie': {fr:'Friterie',en:'Chip shop',nl:'Frituur',de:'Pommesbude',es:'Freiduría'},
- 'Italien': {fr:'Italien',en:'Italian',nl:'Italiaans',de:'Italienisch',es:'Italiano'}
+ 'Italien': {fr:'Italien',en:'Italian',nl:'Italiaans',de:'Italienisch',es:'Italiano'},
+ 'Boucherie': {fr:'Boucherie',en:'Butcher',nl:'Slager',de:'Metzgerei',es:'Carnicería'},
+ 'Trottinettes électriques': {fr:'Trottinettes électriques',en:'Electric scooters',nl:'Elektrische steps',de:'E-Scooter',es:'Patinetes eléctricos'},
+ 'Vespa électriques': {fr:'Vespa électriques',en:'Electric Vespas',nl:"Elektrische Vespa's",de:'Elektro-Vespas',es:'Vespas eléctricas'},
+ 'Ouverture 2027': {fr:"Ouverture prévue en 2027 · derrière le McDonald's",en:"Opening planned in 2027 · behind McDonald's",nl:"Opening gepland in 2027 · achter McDonald's",de:"Eröffnung für 2027 geplant · hinter McDonald's",es:"Apertura prevista en 2027 · detrás del McDonald's"}
 };
 RP.sousTitre = (p, lang) => p.desc ? RP.t.desc[p.desc][lang] : (p.type ? (RP.typesT[p.type] ? RP.typesT[p.type][lang] : p.type) : '');
 RP.qrSvg = text => {

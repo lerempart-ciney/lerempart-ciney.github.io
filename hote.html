@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="assets/style.css?v=20261123b">
+<link rel="stylesheet" href="assets/style.css?v=20261123c">
 <style>
 .wrap{max-width:720px;margin:0 auto;padding:max(20px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 60px max(16px,env(safe-area-inset-left));display:flex;flex-direction:column;gap:16px}
 .step{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start}
@@ -71,6 +71,7 @@ label.f input,label.f select{border:1px solid var(--line);border-radius:10px;pad
     <div class="grid2">
       <label class="f">Code du portail<input id="cp" maxlength="40" autocomplete="off" spellcheck="false"></label>
       <label class="f">Code de la porte<input id="cd" maxlength="40" autocomplete="off" spellcheck="false"></label>
+      <label class="f">Code du sauna (gîte 1 seulement)<input id="cs" maxlength="40" autocomplete="off" spellcheck="false"></label>
     </div>
     <p class="muted">Les codes sont gardés avec ce séjour. Le voyageur les voit le jour de son arrivée, quand il te prévient (ou plus tôt si tu appuies sur « Envoyer les codes maintenant »). Ils sont effacés 2 jours après le départ. Tu peux les remplir plus tard.</p>
     <button class="btn small" id="creer" type="button" style="align-self:flex-start">Créer le séjour</button>
@@ -100,9 +101,9 @@ label.f input,label.f select{border:1px solid var(--line);border-radius:10px;pad
 
   <p class="muted">Écran TV : <a href="tv.html" target="_blank" rel="noopener">tv.html</a> (5 langues à tour de rôle) ou <a href="tv.html?l=fr" target="_blank" rel="noopener">tv.html?l=fr</a> (une seule langue). Ajoute <code>&amp;g=1</code>, <code>&amp;g=2</code> ou <code>&amp;g=3</code> pour afficher le numéro du gîte, par exemple <code>tv.html?g=2</code>. Étiquettes QR des appareils : <a href="qr.html" target="_blank" rel="noopener">qr.html</a>.</p>
 </div>
-<script src="assets/qrcode.js?v=20261123b"></script>
-<script src="assets/data.js?v=20261123b"></script>
-<script src="assets/messages.js?v=20261123b"></script>
+<script src="assets/qrcode.js?v=20261123c"></script>
+<script src="assets/data.js?v=20261123c"></script>
+<script src="assets/messages.js?v=20261123c"></script>
 <script>
 (function(){
 const $ = id => document.getElementById(id), E = RP.esc;
@@ -143,7 +144,8 @@ function rendreListe(){
     const arr = s.arrivee_annoncee ? `<span class="tag t-ok">🔓 Codes et Wi-Fi visibles dans l’appli</span><span class="muted">depuis le ${E(quand(s.arrivee_annoncee))}${s.heure_arrivee?' · arrivée vers '+E(s.heure_arrivee):''}</span>`
       : s.acces_retire ? `<span class="tag t-no">🔒 Codes retirés de l’appli par toi</span><span class="muted">le bouton d’arrivée ne les rouvre pas</span>`
       : `<span class="tag t-warn">🔒 Codes et Wi-Fi cachés</span><span class="muted">s’ouvrent quand le groupe annonce son arrivée (le ${E(jour(s.arrivee))})</span>`;
-    const codes = `<span class="tag ${s.code_portail?'t-ok':'t-no'}">Portail : ${s.code_portail?E(s.code_portail):'vide'}</span><span class="tag ${s.code_porte?'t-ok':'t-no'}">Porte : ${s.code_porte?E(s.code_porte):'vide'}</span>`;
+    const codes = `<span class="tag ${s.code_portail?'t-ok':'t-no'}">Portail : ${s.code_portail?E(s.code_portail):'vide'}</span><span class="tag ${s.code_porte?'t-ok':'t-no'}">Porte : ${s.code_porte?E(s.code_porte):'vide'}</span>`
+      + (s.gite_id === '1' ? `<span class="tag ${s.code_sauna?'t-ok':'t-no'}">Sauna : ${s.code_sauna?E(s.code_sauna):'vide'}</span>` : '');
     return `<article class="card sej ${s.token===choisi?'sel':''}">
       <div class="t"><h3>Gîte ${E(s.gite_id)}${s.nom?' · '+E(s.nom):''}</h3><span class="muted">${E(jour(s.arrivee))} → ${E(jour(s.depart))}</span></div>
       <div class="st">${langue}</div><div class="st">${arr}</div><div class="st">${codes}</div>
@@ -158,6 +160,7 @@ function rendreListe(){
           <label class="f">Heure prévue<input data-f="heure" type="time" value="${E(s.heure_arrivee||'')}"></label>
           <label class="f">Code du portail<input data-f="code_portail" maxlength="40" autocomplete="off" value="${E(s.code_portail||'')}"></label>
           <label class="f">Code de la porte<input data-f="code_porte" maxlength="40" autocomplete="off" value="${E(s.code_porte||'')}"></label>
+          ${s.gite_id==='1'?`<label class="f">Code du sauna<input data-f="code_sauna" maxlength="40" autocomplete="off" value="${E(s.code_sauna||'')}"></label>`:''}
           <label class="f">Langue<select data-f="langue"><option value="">Pas choisie</option>${Object.keys(LANG_FR).map(k=>`<option value="${k}" ${s.langue===k?'selected':''}>${LANG_FR[k]}</option>`).join('')}</select></label>
         </div>
         <div class="acts"><button class="btn small" data-save="${E(s.token)}">Enregistrer</button></div>
@@ -172,13 +175,19 @@ function valeurs(s, l){
     'LIEN DU SÉJOUR': lienDe(s),
     'DATE/HEURE D’ARRIVÉE': RP.dateHeure(l, s.arrivee, s.heure_arrivee || ''),
     'CODE DU PORTAIL': s.code_portail || '',
-    'CODE DE LA PORTE': s.code_porte || ''
+    'CODE DE LA PORTE': s.code_porte || '',
+    'CODE DU SAUNA': s.code_sauna || '',
+    'PISCINE': s.gite_id === '1' ? RP.lignePiscine[l] : ''
   };
 }
 /* l = une langue (fr, en, nl, de, es) : le message dans cette langue seulement.
    l = 'multi' : le message dans les 5 langues, l'une sous l'autre. */
 const LANGS = ['fr','en','nl','de','es'];
-function remplir(m, v, l){ return m.champs.reduce((t, c) => t.split('[' + c + ']').join(v[c] || '[' + c + ']'), m[l]); }
+function remplir(m, v, l){
+  const t = m.champs.reduce((t, c) => t.split('[' + c + ']').join(v[c] || '[' + c + ']'), m[l]);
+  /* Ligne de la piscine : seulement pour le gîte 1, sinon la ligne disparaît. */
+  return t.split('\n[PISCINE]').join(v['PISCINE'] ? '\n' + v['PISCINE'] : '');
+}
 function texte(m, s, l){
   if (l === 'multi') {
     if (m.multi) return RP.texteMulti(m, lienDe(s));
@@ -191,7 +200,7 @@ function waLink(t){
   const n = $('tel').value.replace(/[^\d]/g, '').replace(/^00/, '');
   return 'https://wa.me/' + n + '?text=' + encodeURIComponent(t);
 }
-const NOMS = {'CODE DU PORTAIL':'le code du portail', 'CODE DE LA PORTE':'le code de la porte'};
+const NOMS = {'CODE DU PORTAIL':'le code du portail', 'CODE DE LA PORTE':'le code de la porte', 'CODE DU SAUNA':'le code du sauna'};
 
 function rendreMsgs(){
   const s = sel();
@@ -207,6 +216,7 @@ function rendreMsgs(){
     <div class="acts"><button class="btn small" data-copy="lien">Copier le lien</button><a class="btn small ghost" href="${E(url)}" target="_blank" rel="noopener">Ouvrir le guide</a></div>
     <div class="qrbox">${RP.qrSvg(url)}</div><p class="muted">Ce lien est pour ce groupe seulement. Il s’arrête le lendemain du départ.</p></div>`;
   $('msgs').innerHTML = RP.messages.map((m, i) => {
+    if (m.gites && !m.gites.includes(s.gite_id)) return '';
     const manque = m.champs.filter(c => !v[c]);
     const t = texte(m, s, l);
     return `<article class="card msg"><div class="hd"><h3>${E(m.titre)}</h3><span class="muted">${E(m.quand)}</span></div>
@@ -242,8 +252,8 @@ $('creer').addEventListener('click', async () => {
   if (!a || !d || d < a) { $('creerInfo').innerHTML = '<span class="miss">Vérifie les dates d’arrivée et de départ.</span>'; return; }
   b.disabled = true; b.textContent = 'Création…';
   try {
-    const j = await hote('sejour', {gite: $('gite').value, nom: $('nom').value, arrivee: a, depart: d, heure: $('h').value, code_portail: $('cp').value, code_porte: $('cd').value});
-    ['nom','cp','cd','a','d'].forEach(k => $(k).value = ''); $('gite').value = '';
+    const j = await hote('sejour', {gite: $('gite').value, nom: $('nom').value, arrivee: a, depart: d, heure: $('h').value, code_portail: $('cp').value, code_porte: $('cd').value, code_sauna: $('cs').value});
+    ['nom','cp','cd','cs','a','d'].forEach(k => $(k).value = ''); $('gite').value = '';
     choisi = j.token; langueTouchee = false;
     $('creerInfo').innerHTML = '<span class="okc">✓ Séjour créé. Le lien et les messages sont à l’étape 4.</span>';
     await charger();

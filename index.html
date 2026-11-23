@@ -10,15 +10,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="assets/style.css?v=20261123b">
+<link rel="stylesheet" href="assets/style.css?v=20261123c">
 </head>
 <body>
 <div class="app">
   <main class="view" id="view" aria-live="polite"></main>
   <nav class="tabs" id="tabs" hidden><div class="tabs-in" role="tablist" id="tabsIn"></div></nav>
 </div>
-<script src="assets/qrcode.js?v=20261123b"></script>
-<script src="assets/data.js?v=20261123b"></script>
+<script src="assets/qrcode.js?v=20261123c"></script>
+<script src="assets/data.js?v=20261123c"></script>
 <script>
 (function(){
 const C = RP.config, Q = new URLSearchParams(location.search);
@@ -102,7 +102,8 @@ function acces(){
       ${qr?`<div class="wifi-qr">${qr}</div>`:''}`:`<p class="muted">${E(L('wifiSoon'))}</p>`}
     ${c.portail?`<div class="row"><span>${E(L('gate'))}</span><span class="nw"><b>${E(c.portail)}</b></span></div>`:''}
     ${c.porte?`<div class="row"><span>${E(L('door'))}</span><span class="nw"><b>${E(c.porte)}</b></span></div>`:''}
-    <p class="muted">${E(c.portail||c.porte?L('keepCodes'):L('noCodes'))}</p>`;
+    ${c.sauna?`<div class="row"><span>${E(L('saunaCode'))}</span><span class="nw"><b>${E(c.sauna)}</b></span></div>`:''}
+    <p class="muted">${E(c.portail||c.porte||c.sauna?L('keepCodes'):L('noCodes'))}</p>`;
 }
 /* Le bouton d'arrivée (et donc le Wi-Fi et les codes) n'est disponible qu'à partir du jour prévu de l'arrivée. */
 function tropTot(){
@@ -129,7 +130,7 @@ async function annoncerArrivee(heure){
 function vAccueil(){
   return `${top()}
     <section class="card hello">
-      <video src="${E(RP.videoAccueil[lang] || RP.videoAccueil.fr)}" poster="assets/accueil.jpg" controls playsinline preload="none" aria-label="Frédéric"></video>
+      <div class="vbox"><video id="vAcc" src="${E(RP.videoAccueil[lang] || RP.videoAccueil.fr)}" poster="assets/accueil.jpg" playsinline preload="auto" aria-label="Frédéric"></video><button class="son" data-act="son" type="button" aria-label="${E(L('sound'))}" hidden>🔊</button></div>
       <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><h1>${E(L('welcome'))}</h1><p>${E(L('intro'))}</p></div>
     </section>
     ${inviter()}
@@ -170,6 +171,8 @@ function vAccueil(){
       <div class="row"><span>${E(L('sos3'))}</span><a href="https://www.pharmacie.be" target="_blank" rel="noopener">pharmacie.be</a></div>
       <div class="row"><span>${E(L('tyre'))} Ludo Pneu</span><span class="nw">0478 50 31 33</span></div>
       <p class="muted">Allée des Artisans 7, Ciney · ${E(L('closedOn'))}${E(RP.dayName(lang,0))}</p>
+      <div class="row"><span>${E(L('bike'))} Evobikes</span><span class="nw">083 63 30 77</span></div>
+      <p class="muted">Rue du Petit Élevage 4, Ciney</p>
     </section>
     <p class="muted" style="text-align:center">${E(C.adresse)}<br>GPS : ${E(C.gps)}</p>`;
 }
@@ -214,7 +217,7 @@ function lieu(p){
 }
 
 function vAdresses(){
-  const cats = ['tout','pepites','pain','snack','resto','gastro','visite','sortie','chef'];
+  const cats = ['tout','pepites','pain','snack','resto','gastro','visite','sortie','balade','commerce','chef'];
   const groupes = cat==='tout' ? cats.slice(2) : [cat];
   return `${top()}
     <div><h1 style="font-size:1.6rem">${E(L('nav')[2])}</h1><p class="muted">${E(L('carLong'))}</p></div>
@@ -228,6 +231,7 @@ function vAide(){
   const src = video && (RP.videos[video][lang] || RP.videos[video].fr);
   return `${top()}
     <div><h1 style="font-size:1.6rem">${E(L('help'))}</h1><p class="muted">${E(L('helpTxt'))}</p></div>
+    ${RP.dansGite('piscine', G)?`<section class="card"><div class="eyebrow">${E(L('poolTitle'))}</div>${L('poolTxt').map(t=>`<p style="margin:0">${E(t)}</p>`).join('')}</section>`:''}
     ${video?`<section class="card player"><div class="eyebrow">${E(RP.t.eq[video][lang])}</div>${src?`<video src="${E(src)}" controls playsinline preload="metadata"></video>`:`<p class="muted">${E(L('soon'))}</p>`}</section>`:''}
     <div class="eq">${ks.map(k=>{const has=RP.videos[k][lang]||RP.videos[k].fr;return has
       ?`<button class="card" data-video="${k}" aria-current="${k===video}">${ico('play')}<b>${E(RP.t.eq[k][lang])}</b></button>`
@@ -485,8 +489,37 @@ function render(keepScroll){
   if (!lang) { v.innerHTML = vLangue(); tabs.hidden = true; return; }
   tabs.hidden = false;
   document.getElementById('tabsIn').innerHTML = L('nav').slice(0, VUES.length).map((n,i)=>`<button role="tab" aria-selected="${i===tab}" data-tab="${i}">${ico(TABICO[i])}<span>${E(n)}</span></button>`).join('');
+  const vieille = document.getElementById('vAcc');
   v.innerHTML = VUES[tab]();
+  /* La vidéo d'accueil continue sans recommencer quand la page se redessine. */
+  const neuve = document.getElementById('vAcc');
+  if (vieille && neuve && vieille.src === neuve.src) neuve.replaceWith(vieille);
   if (!keepScroll) window.scrollTo(0,0);
+  lancerAccueil();
+}
+/* Vidéo d'accueil : démarre seule, une fois, à l'ouverture. Si le téléphone refuse le son, elle démarre sans son
+   et le bouton 🔊 apparaît. Toucher la vidéo : son, pause ou reprise. */
+let accueilLance = false;
+function majSon(){
+  const vd = document.getElementById('vAcc'), b = document.querySelector('.son');
+  if (b && vd) b.hidden = !vd.muted;
+}
+function lancerAccueil(){
+  const vd = document.getElementById('vAcc');
+  if (!vd) return;
+  vd.onvolumechange = majSon;
+  if (accueilLance) { majSon(); return; }
+  accueilLance = true; vd.muted = false;
+  const p = vd.play();
+  if (p) p.catch(() => { vd.muted = true; majSon(); vd.play().catch(() => {}); });
+  majSon();
+}
+function toucherAccueil(){
+  const vd = document.getElementById('vAcc'); if (!vd) return;
+  if (vd.muted) { vd.muted = false; if (vd.paused) vd.play().catch(() => {}); }
+  else if (vd.paused || vd.ended) vd.play().catch(() => {});
+  else vd.pause();
+  majSon();
 }
 
 function majArrivee(){
@@ -498,6 +531,7 @@ function majArrivee(){
 
 document.addEventListener('click', e => {
   if (S && e.target.closest('#arrGo')) { annoncerArrivee((document.getElementById('arrT') || {}).value || ''); }
+  if (e.target.closest('#vAcc')) { toucherAccueil(); return; }
   const b = e.target.closest('[data-lang],[data-tab],[data-cat],[data-act],[data-video],[data-del]'); if (!b) return;
   if (b.dataset.del){
     const id = +b.dataset.del;
@@ -513,6 +547,7 @@ document.addEventListener('click', e => {
   if (b.dataset.tab){ tab = +b.dataset.tab; render(); if (tab === 4) chargerListe(); if (tab === 5 && (!etat || etat.debloque)) chargerAlbum(); return; }
   if (b.dataset.cat){ cat = b.dataset.cat; render(true); return; }
   if (b.dataset.video){ video = b.dataset.video; render(); return; }
+  if (b.dataset.act === 'son'){ toucherAccueil(); return; }
   if (b.dataset.act === 'lang'){ lang = null; render(); return; }
   if (b.dataset.act === 'arr'){ const box = document.getElementById('arrBox'); box.hidden = !box.hidden; b.setAttribute('aria-expanded', String(!box.hidden)); majArrivee(); return; }
   if (b.dataset.act === 'ics'){ ics(); return; }
