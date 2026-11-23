@@ -66,8 +66,8 @@ h1,h2{font-family:var(--f-display);font-weight:400;margin:0}
 </head>
 <body>
 <div class="tvs" id="tv"></div>
-<script src="assets/qrcode.js?v=20261123j"></script>
-<script src="assets/data.js?v=20261123j"></script>
+<script src="assets/qrcode.js?v=20261123k"></script>
+<script src="assets/data.js?v=20261123k"></script>
 <script>
 /* Paramètres : tv.html?l=fr (une langue) ou tv.html (les 5 langues à tour de rôle, 45 s chacune). */
 (function(){
@@ -82,7 +82,7 @@ const fmt = (d,o) => new Intl.DateTimeFormat(RP.langues[lang], o).format(d);
 
 function render(){
   const d = new Date(), r = RP.ideePluie(d), w = RP.config.wifi, wq = RP.wifiQr(w);
-  const pj = RP.pepiteDuJour(d);
+  const pj = RP.pepiteDuJour(d); const soir = d.getHours() >= 17 || d.getHours() < 2; const jeu = soir ? RP.jeuDuJour(d) : null;
   const pain = RP.adresses.filter(p => p.cat === 'pain' && p.ferme && p.ferme.length < 7 && RP.ouvert(p, d)).sort((x, y) => x.min - y.min)[0];
   const typ = meteo ? meteo.type : null;
   document.documentElement.lang = lang;
@@ -96,7 +96,8 @@ function render(){
     </div>
     <div class="side">
       ${w.reseau?`<div class="box"><div class="eyebrow">${E(L('tvWifi'))}</div><div class="qrrow"><div class="l">${E(L('network'))} : <b>${E(w.reseau)}</b><br>${E(L('pass'))} : <b>${E(w.motDePasse)}</b><br><span class="small">${E(L('tvWifiScan'))}</span></div>${wq?`<div class="qr">${wq}</div>`:''}</div></div>`:''}
-      ${pj?`<div class="box" style="background:rgba(226,189,114,.12)"><div class="eyebrow">★ ${E(L('pepiteJour'))}</div><div style="font-size:1.9vw;font-weight:700">${E(pj.nom)}</div><div class="small" style="font-size:1.25vw;line-height:1.4">${E(pj.mot[lang]||pj.mot.fr)}</div></div>`:''}
+      ${jeu?`<div class="box" style="background:rgba(120,170,255,.12)"><div class="eyebrow">🎲 ${E(L('playTitle'))}</div><div style="font-size:1.9vw;font-weight:700">${E(jeu.nom)} · ${E(RP.safio[jeu.app].nom)}</div><div class="small" style="font-size:1.25vw;line-height:1.4">${E(jeu.d[lang]||jeu.d.fr)}</div></div>`:''}
+      ${pj&&!jeu?`<div class="box" style="background:rgba(226,189,114,.12)"><div class="eyebrow">★ ${E(L('pepiteJour'))}</div><div style="font-size:1.9vw;font-weight:700">${E(pj.nom)}</div><div class="small" style="font-size:1.25vw;line-height:1.4">${E(pj.mot[lang]||pj.mot.fr)}</div></div>`:''}
       ${pain&&!w.reseau?`<div class="box opt"><div class="eyebrow">${E(RP.t.cats.pain[lang])} · ${E(L('open'))}</div><div class="l" style="font-size:1.9vw;font-weight:700">${E(pain.nom)}</div><div class="small" style="font-size:1.3vw">${pain.min} ${E(L('min'))} · ${E(pain.adr)}</div></div>`:''}
       <div class="box"><div class="eyebrow">${E(L('tvApp'))}</div><div class="qrrow"><div class="l">${E(L('nav')[1])} · ${E(L('nav')[2])} · ${E(L('nav')[3])}<br><span class="small">${E(L('tvAppScan'))}</span></div><div class="qr">${RP.qrSvg(appUrl)}</div></div></div>
     </div>

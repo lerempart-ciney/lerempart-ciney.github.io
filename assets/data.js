@@ -120,6 +120,22 @@ RP.supermarches = [
  {nom:'Lidl',                         adr:'Chemin du Tersoit 18, Ciney'}
 ];
 
+/* ---------- 3c. Jeux du soir (SAFIO, sur la TV) ----------
+   Les joueurs rejoignent avec leur téléphone en scannant le QR code affiché par l'écran TV de SAFIO.
+   app : 'quiz' ou 'party' (répartition à confirmer par Sacha). Un jeu proposé par jour, à tour de rôle. */
+RP.safio = { quiz: { nom: 'SAFIO Quiz', url: 'playsafio.com/quiz/tv' }, party: { nom: 'SAFIO Party', url: 'playsafio.com/party/tv' } };
+RP.jeux = [
+ {nom:'Quiz libre', app:'quiz', d:{fr:'Un quiz de culture générale : tout le monde répond en même temps sur son téléphone.',en:'A general knowledge quiz: everyone answers at the same time on their phone.',nl:'Een quiz over algemene kennis: iedereen antwoordt tegelijk op zijn telefoon.',de:'Ein Allgemeinwissen-Quiz: Alle antworten gleichzeitig auf ihrem Handy.',es:'Un quiz de cultura general: todos responden a la vez en su móvil.'}},
+ {nom:'Mytho !', app:'party', d:{fr:'Inventez une fausse réponse crédible et piégez les autres.',en:'Invent a believable fake answer and fool the others.',nl:'Verzin een geloofwaardig vals antwoord en zet de anderen op het verkeerde been.',de:'Erfinden Sie eine glaubwürdige falsche Antwort und legen Sie die anderen herein.',es:'Inventad una respuesta falsa creíble y engañad a los demás.'}},
+ {nom:'Éclair', app:'quiz', d:{fr:'Le plus rapide gagne : parfait pour réveiller tout le monde.',en:'The fastest wins: perfect to wake everyone up.',nl:'Wie het snelst is, wint: ideaal om iedereen wakker te schudden.',de:'Wer am schnellsten ist, gewinnt: ideal, um alle aufzuwecken.',es:'Gana el más rápido: perfecto para despertar a todos.'}},
+ {nom:'Petit Bac', app:'party', d:{fr:'Une lettre, six catégories : trouvez un mot pour chacune, vite !',en:'One letter, six categories: find a word for each, fast!',nl:'Eén letter, zes categorieën: vind snel een woord voor elke categorie!',de:'Ein Buchstabe, sechs Kategorien: Finden Sie schnell ein Wort für jede!',es:'Una letra, seis categorías: ¡encontrad una palabra para cada una, rápido!'}},
+ {nom:'Au plus près', app:'quiz', d:{fr:'Devinez le bon nombre : le plus proche gagne.',en:'Guess the right number: the closest wins.',nl:'Raad het juiste getal: wie er het dichtst bij zit, wint.',de:'Raten Sie die richtige Zahl: Wer am nächsten liegt, gewinnt.',es:'Adivinad el número correcto: gana el que más se acerque.'}},
+ {nom:'Même cerveau', app:'party', d:{fr:'Répondez comme les autres pour marquer des points.',en:'Answer like the others to score points.',nl:'Antwoord zoals de anderen om punten te scoren.',de:'Antworten Sie wie die anderen, um Punkte zu sammeln.',es:'Responded como los demás para sumar puntos.'}},
+ {nom:'Torpille', app:'quiz', d:{fr:'Une question, puis vous tirez : un quiz façon bataille navale.',en:'One question, then you fire: a quiz in battleship style.',nl:'Eén vraag, en dan vuren: een quiz in zeeslagstijl.',de:'Eine Frage, dann schießen Sie: ein Quiz im Stil von Schiffe versenken.',es:'Una pregunta y luego disparáis: un quiz al estilo de hundir la flota.'}},
+ {nom:'C’est toi !', app:'party', d:{fr:'Votez pour la personne du groupe qui correspond le mieux à la phrase.',en:'Vote for the person in the group who best fits the sentence.',nl:'Stem op de persoon uit de groep die het best bij de zin past.',de:'Stimmen Sie für die Person aus der Gruppe, auf die der Satz am besten passt.',es:'Votad por la persona del grupo que mejor encaja con la frase.'}}
+];
+RP.jeuDuJour = d => RP.jeux[(RP.jourAn(d) + 5) % RP.jeux.length];
+
 /* ---------- 4. Textes de l'interface (5 langues) ---------- */
 RP.langues = { fr:'fr-BE', en:'en-GB', nl:'nl-BE', de:'de-DE', es:'es-ES' };
 RP.nomsLangues = { fr:'Français', en:'English', nl:'Nederlands', de:'Deutsch', es:'Español' };
@@ -198,6 +214,11 @@ RP.t = {
  tyre:{fr:'Un souci de pneu ?',en:'Tyre trouble?',nl:'Problemen met een band?',de:'Probleme mit einem Reifen?',es:'¿Problemas con un neumático?'},
  today:{fr:'Aujourd’hui au Rempart',en:'Today at Le Rempart',nl:'Vandaag in Le Rempart',de:'Heute im Le Rempart',es:'Hoy en Le Rempart'},
  weather:{fr:'Météo',en:'Weather',nl:'Weer',de:'Wetter',es:'Tiempo'},
+ playTitle:{fr:'Ce soir, on joue ?',en:'Game night?',nl:'Vanavond een spelletje?',de:'Heute Abend ein Spiel?',es:'¿Jugamos esta noche?'},
+ playGame:{fr:'Le jeu du jour',en:'Game of the day',nl:'Spel van de dag',de:'Spiel des Tages',es:'Juego del día'},
+ playHow:{fr:'Sur la TV, ouvrez {app} dans le menu. Scannez ensuite le QR code affiché sur la TV avec vos téléphones : sans compte, chacun joue depuis son canapé.',en:'On the TV, open {app} from the menu. Then scan the QR code shown on the TV with your phones: no account needed, everyone plays from the sofa.',nl:'Open {app} in het menu van de tv. Scan daarna met jullie telefoons de QR-code op de tv: zonder account, iedereen speelt vanuit de zetel.',de:'Öffnen Sie {app} im Menü des Fernsehers. Scannen Sie dann den QR-Code auf dem Fernseher mit Ihren Handys: ohne Konto, alle spielen vom Sofa aus.',es:'En la tele, abrid {app} desde el menú. Después escanead con vuestros móviles el código QR que aparece en la tele: sin cuenta, cada uno juega desde el sofá.'},
+ playAlt:{fr:'Pas encore dans le menu ? Ouvrez le navigateur Internet de la TV et tapez {url}.',en:'Not in the menu yet? Open the TV’s internet browser and type {url}.',nl:'Nog niet in het menu? Open de internetbrowser van de tv en typ {url}.',de:'Noch nicht im Menü? Öffnen Sie den Internetbrowser des Fernsehers und geben Sie {url} ein.',es:'¿Todavía no está en el menú? Abrid el navegador de internet de la tele y escribid {url}.'},
+ playLang:{fr:'Les jeux sont en français, anglais ou espagnol (chacun choisit sa langue).',en:'The games are in French, English or Spanish (each player chooses).',nl:'De spellen zijn in het Frans, Engels of Spaans (iedereen kiest zelf).',de:'Die Spiele gibt es auf Französisch, Englisch oder Spanisch (jeder wählt selbst).',es:'Los juegos están en francés, inglés o español (cada uno elige).'},
  three:{fr:'Trois idées ouvertes aujourd’hui',en:'Three ideas open today',nl:'Drie ideeën, vandaag open',de:'Drei Ideen, heute geöffnet',es:'Tres ideas abiertas hoy'},
  rain:{fr:'S’il pleut',en:'If it rains',nl:'Als het regent',de:'Falls es regnet',es:'Si llueve'},
  src:{fr:'Selon notre livret d’accueil. Vérifiez les horaires avant de partir.',en:'Based on our welcome guide. Check opening hours before you go.',nl:'Volgens ons onthaalboekje. Controleer de openingsuren voor vertrek.',de:'Laut unserer Gästemappe. Bitte prüfen Sie die Öffnungszeiten vorab.',es:'Según nuestra guía de bienvenida. Comprobad el horario antes de ir.'},

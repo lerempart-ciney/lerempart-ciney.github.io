@@ -10,15 +10,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="assets/style.css?v=20261123j">
+<link rel="stylesheet" href="assets/style.css?v=20261123k">
 </head>
 <body>
 <div class="app">
   <main class="view" id="view" aria-live="polite"></main>
   <nav class="tabs" id="tabs" hidden><div class="tabs-in" role="tablist" id="tabsIn"></div></nav>
 </div>
-<script src="assets/qrcode.js?v=20261123j"></script>
-<script src="assets/data.js?v=20261123j"></script>
+<script src="assets/qrcode.js?v=20261123k"></script>
+<script src="assets/data.js?v=20261123k"></script>
 <script>
 (function(){
 const C = RP.config, Q = new URLSearchParams(location.search);
@@ -134,7 +134,7 @@ async function annoncerArrivee(heure){
 function vAccueil(){
   return `${top()}
     <section class="card hello">
-      <div class="vbox"><video id="vAcc" src="${E(RP.videoAccueil[lang] || RP.videoAccueil.fr)}" poster="assets/accueil.jpg?v=20261123j" playsinline preload="auto" aria-label="Frédéric"></video><button class="son" data-act="son" type="button" aria-label="${E(L('sound'))}" hidden>🔊</button></div>
+      <div class="vbox"><video id="vAcc" src="${E(RP.videoAccueil[lang] || RP.videoAccueil.fr)}" poster="assets/accueil.jpg?v=20261123k" playsinline preload="auto" aria-label="Frédéric"></video><button class="son" data-act="son" type="button" aria-label="${E(L('sound'))}" hidden>🔊</button></div>
       <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><h1>${E(L('welcome'))}</h1><p>${E(L('intro'))}</p></div>
     </section>
     ${inviter()}
@@ -191,6 +191,14 @@ function meteoCard(){
     <p class="muted">${E(RP.meteoSource)} · ${E(fmt(meteo.heure,{hour:'2-digit',minute:'2-digit'}))}</p></section>`;
 }
 
+/* Jeu du soir : un jeu SAFIO par jour, à lancer sur la TV du gîte. */
+function jeuCard(d){
+  const j = RP.jeuDuJour(d), app = RP.safio[j.app];
+  return `<section class="card"><div class="eyebrow">🎲 ${E(L('playTitle'))}</div>
+    <div class="idea"><div><div class="k">${E(L('playGame'))} · ${E(app.nom)}</div><b>${E(j.nom)}</b><span class="muted">${E(j.d[lang]||j.d.fr)}</span></div></div>
+    <p style="margin:0">${E(L('playHow').replace('{app}', app.nom))}</p>
+    <p class="muted" style="margin:0">${E(L('playAlt').replace('{url}', app.url))} ${E(L('playLang'))}</p></section>`;
+}
 function vAujourdhui(){
   const d = now(), r = RP.ideePluie(d), pj = RP.pepiteDuJour(d);
   return `${top()}
@@ -200,6 +208,7 @@ function vAujourdhui(){
       ${RP.idees(d,lang).map(([k,p])=>p?`<div class="idea"><div><div class="k">${E(k)}</div><b>${E(p.nom)}</b><span class="muted">${p.min} ${E(L('min'))} · ${E(RP.sousTitre(p,lang)||p.adr)}</span></div><a href="${RP.carte(p)}" target="_blank" rel="noopener" style="font-weight:600;font-size:.88rem">${E(L('route'))}</a></div>`:'').join('')}
     </section>
     ${pj?`<section class="card" style="background:var(--brass-soft);border:0"><div class="eyebrow">★ ${E(L('pepiteJour'))}</div><div class="idea"><div><b>${E(pj.nom)}</b><span class="muted">${E(pj.mot[lang]||pj.mot.fr)}</span></div><a href="${RP.carte(pj)}" target="_blank" rel="noopener" style="font-weight:600;font-size:.88rem">${E(L('route'))}</a></div></section>`:''}
+    ${jeuCard(d)}
     ${r?`<section class="card"><div class="eyebrow">☔ ${E(L('rain'))}</div><div class="idea"><div><b>${E(r.nom)}</b><span class="muted">${r.min} ${E(L('min'))} · ${E(RP.sousTitre(r,lang))} · ${E(r.adr)}</span></div><a href="${RP.carte(r)}" target="_blank" rel="noopener" style="font-weight:600;font-size:.88rem">${E(L('route'))}</a></div></section>`:''}
     <p class="muted">${E(L('src'))}${C.livretVerifieLe?' '+E(L('checked'))+' '+E(fmt(parseDay(C.livretVerifieLe),{day:'numeric',month:'long',year:'numeric'}))+'.':''}</p>`;
 }
