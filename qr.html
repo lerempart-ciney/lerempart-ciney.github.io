@@ -36,8 +36,8 @@ body{margin:0;font-family:"Figtree",system-ui,sans-serif;color:var(--ink);backgr
   <button class="btn" onclick="window.print()">Imprimer</button>
 </div>
 <div class="sheet" id="sheet"></div>
-<script src="assets/qrcode.js?v=20261122c"></script>
-<script src="assets/data.js?v=20261122c"></script>
+<script src="assets/qrcode.js?v=20261123a"></script>
+<script src="assets/data.js?v=20261123a"></script>
 <script>
 (function(){
 const E = RP.esc, base = new URL('index.html', location.href).href, ordre = Object.keys(RP.langues);
@@ -49,7 +49,7 @@ const carte = (titre, lignes, url, g) => `<section class="card"><div><div class=
 let h = carte(RP.t.tvApp.fr, ordre.filter(k=>k!=='fr').map(k=>[k, RP.t.tvApp[k]]), base);
 if (RP.config.wifi.reseau) h += `<section class="card"><div><div class="eyebrow">Le Rempart</div><h2>Wi-Fi</h2><ul class="langs"><li><b>SSID</b>${E(RP.config.wifi.reseau)}</li><li><b>PW</b>${E(RP.config.wifi.motDePasse)}</li></ul><div class="scan">${E(ordre.map(k=>RP.t.tvWifiScan[k]).join(' · '))}</div></div><div class="qr">${RP.wifiQr()}</div></section>`;
 Object.keys(RP.videos).forEach(k => {
-  h += carte(RP.t.eq[k].fr, ordre.filter(l=>l!=='fr').map(l=>[l, RP.t.eq[k][l] + ' · ' + aide[l]]), base + '?v=' + k + (RP.seulementGite[k] ? '&g=' + RP.seulementGite[k] : ''), RP.seulementGite[k]);
+  h += carte(RP.t.eq[k].fr, ordre.filter(l=>l!=='fr').map(l=>[l, RP.t.eq[k][l] + ' · ' + aide[l]]), base + '?v=' + k + (RP.seulementGite[k] && RP.seulementGite[k].length === 1 ? '&g=' + RP.seulementGite[k][0] : ''), RP.seulementGite[k] && RP.seulementGite[k].join(' et '));
 });
 document.getElementById('sheet').innerHTML = h;
 })();

@@ -25,11 +25,27 @@ RP.config = {
 /* ---------- 2. Vidéos d'aide (une par appareil et par langue) ----------
    Exemple quand une vidéo existe :  sauna: { fr: 'videos/sauna-fr.mp4', en: 'videos/sauna-en.mp4' }
    Lien du QR à coller près de l'appareil :  index.html?v=sauna  */
-RP.videos = { tv: {}, lave: {}, sauna: {}, four: {}, micro: {}, taque: {}, flipper: {}, kicker: {}, piscine: {} };
-/* Grosses activités présentes seulement dans un gîte (les autres appareils sont dans les 3 gîtes).
+RP.videos = {
+  acces: { fr: 'videos/acces-fr.mp4', nl: 'videos/acces-nl.mp4', en: 'videos/acces-en.mp4', de: 'videos/acces-de.mp4', es: 'videos/acces-es.mp4' },
+  feu: { fr: 'videos/feu-fr.mp4', nl: 'videos/feu-nl.mp4', en: 'videos/feu-en.mp4', de: 'videos/feu-de.mp4', es: 'videos/feu-es.mp4' },
+  piscine: { fr: 'videos/piscine-fr.mp4', nl: 'videos/piscine-nl.mp4', en: 'videos/piscine-en.mp4', de: 'videos/piscine-de.mp4', es: 'videos/piscine-es.mp4' },
+  sauna: { fr: 'videos/sauna-fr.mp4', nl: 'videos/sauna-nl.mp4', en: 'videos/sauna-en.mp4', de: 'videos/sauna-de.mp4', es: 'videos/sauna-es.mp4' },
+  flipper: { fr: 'videos/flipper-fr.mp4', nl: 'videos/flipper-nl.mp4', en: 'videos/flipper-en.mp4', de: 'videos/flipper-de.mp4', es: 'videos/flipper-es.mp4' },
+  lave: { fr: 'videos/lave-fr.mp4', nl: 'videos/lave-nl.mp4', en: 'videos/lave-en.mp4', de: 'videos/lave-de.mp4', es: 'videos/lave-es.mp4' },
+  four: { fr: 'videos/four-fr.mp4', nl: 'videos/four-nl.mp4', en: 'videos/four-en.mp4', de: 'videos/four-de.mp4', es: 'videos/four-es.mp4' },
+  micro: { fr: 'videos/micro-fr.mp4', nl: 'videos/micro-nl.mp4', en: 'videos/micro-en.mp4', de: 'videos/micro-de.mp4', es: 'videos/micro-es.mp4' },
+  vapeur: { fr: 'videos/vapeur-fr.mp4', nl: 'videos/vapeur-nl.mp4', en: 'videos/vapeur-en.mp4', de: 'videos/vapeur-de.mp4', es: 'videos/vapeur-es.mp4' },
+  cafe: { fr: 'videos/cafe-fr.mp4', nl: 'videos/cafe-nl.mp4', en: 'videos/cafe-en.mp4', de: 'videos/cafe-de.mp4', es: 'videos/cafe-es.mp4' },
+  cuisine23: { fr: 'videos/cuisine23-fr.mp4', nl: 'videos/cuisine23-nl.mp4', en: 'videos/cuisine23-en.mp4', de: 'videos/cuisine23-de.mp4', es: 'videos/cuisine23-es.mp4' },
+  tv: {}, taque: {}, kicker: {}
+};
+/* Vidéo de Frédéric sur la page d'accueil, une par langue. */
+RP.videoAccueil = { fr: 'videos/accueil-fr.mp4', nl: 'videos/accueil-nl.mp4', en: 'videos/accueil-en.mp4', de: 'videos/accueil-de.mp4', es: 'videos/accueil-es.mp4' };
+/* Appareils présents seulement dans certains gîtes (les autres sont dans les 3 gîtes).
    Le Wi-Fi est le même pour les 3 gîtes. */
-RP.seulementGite = { lave: '1', sauna: '1', flipper: '1', kicker: '1', piscine: '1' };
-RP.dansGite = (k, g) => !g || !RP.seulementGite[k] || RP.seulementGite[k] === g;
+RP.seulementGite = { lave: ['1'], sauna: ['1'], flipper: ['1'], kicker: ['1'], piscine: ['1'],
+  four: ['1'], micro: ['1'], vapeur: ['1'], cafe: ['1'], cuisine23: ['2', '3'] };
+RP.dansGite = (k, g) => !g || !RP.seulementGite[k] || RP.seulementGite[k].includes(g);
 
 /* ---------- 3. Adresses du livret d'accueil ----------
    ferme = jours de fermeture (0 = dimanche, 1 = lundi … 6 = samedi).
@@ -254,12 +270,17 @@ RP.t = {
   laser:{fr:'Bowling, laser game, billard',en:'Bowling, laser tag, pool',nl:'Bowling, lasergame, biljart',de:'Bowling, Lasertag, Billard',es:'Bolos, láser tag, billar'}
  },
  eq:{tv:{fr:'Télévision',en:'Television',nl:'Televisie',de:'Fernseher',es:'Televisión'},piscine:{fr:'Piscine',en:'Swimming pool',nl:'Zwembad',de:'Schwimmbad',es:'Piscina'},kicker:{fr:'Kicker',en:'Table football',nl:'Tafelvoetbal',de:'Tischkicker',es:'Futbolín'},
-  lave:{fr:'Machine à laver',en:'Washing machine',nl:'Wasmachine',de:'Waschmaschine',es:'Lavadora'},
+  lave:{fr:'Lave-linge et sèche-linge',en:'Washer and dryer',nl:'Wasmachine en droogkast',de:'Waschmaschine und Trockner',es:'Lavadora y secadora'},
   sauna:{fr:'Sauna',en:'Sauna',nl:'Sauna',de:'Sauna',es:'Sauna'},
   four:{fr:'Four',en:'Oven',nl:'Oven',de:'Backofen',es:'Horno'},
   micro:{fr:'Micro-ondes',en:'Microwave',nl:'Microgolfoven',de:'Mikrowelle',es:'Microondas'},
   taque:{fr:'Taque de cuisson',en:'Hob',nl:'Kookplaat',de:'Kochfeld',es:'Placa de cocina'},
-  flipper:{fr:'Flipper',en:'Pinball machine',nl:'Flipperkast',de:'Flipper',es:'Máquina de pinball'}}
+  flipper:{fr:'Flipper',en:'Pinball machine',nl:'Flipperkast',de:'Flipper',es:'Máquina de pinball'},
+  acces:{fr:'Entrer et sortir',en:'Getting in and out',nl:'Binnenkomen en buitengaan',de:'Ein- und Ausgang',es:'Entrar y salir'},
+  feu:{fr:'Feu de bois',en:'Wood fire',nl:'Houtvuur',de:'Kaminfeuer',es:'Fuego de leña'},
+  vapeur:{fr:'Four vapeur',en:'Steam oven',nl:'Stoomoven',de:'Dampfgarer',es:'Horno de vapor'},
+  cafe:{fr:'Machine à café',en:'Coffee machine',nl:'Koffiemachine',de:'Kaffeemaschine',es:'Cafetera'},
+  cuisine23:{fr:'Four, vapeur et micro-ondes',en:'Oven, steam oven and microwave',nl:'Oven, stoomoven en microgolfoven',de:'Backofen, Dampfgarer und Mikrowelle',es:'Horno, horno de vapor y microondas'}}
 };
 
 /* ---------- 5. Fonctions communes ---------- */

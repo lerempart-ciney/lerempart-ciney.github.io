@@ -10,15 +10,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="assets/style.css?v=20261122c">
+<link rel="stylesheet" href="assets/style.css?v=20261123a">
 </head>
 <body>
 <div class="app">
   <main class="view" id="view" aria-live="polite"></main>
   <nav class="tabs" id="tabs" hidden><div class="tabs-in" role="tablist" id="tabsIn"></div></nav>
 </div>
-<script src="assets/qrcode.js?v=20261122c"></script>
-<script src="assets/data.js?v=20261122c"></script>
+<script src="assets/qrcode.js?v=20261123a"></script>
+<script src="assets/data.js?v=20261123a"></script>
 <script>
 (function(){
 const C = RP.config, Q = new URLSearchParams(location.search);
@@ -43,7 +43,7 @@ const langKey = S ? 'rp-lang-' + S : 'rp-lang';
 let lang = RP.langues[Q.get('l')] ? Q.get('l') : (RP.langues[store.get(langKey)] ? store.get(langKey) : null);
 /* État du séjour donné par le serveur : langue, arrivée annoncée, et (après l'annonce) Wi-Fi et codes. */
 let etat = null, arrErr = '';
-let tab = 0, cat = 'tout', video = RP.videos[Q.get('v')] ? Q.get('v') : null;
+let tab = 0, cat = 'tout', video = RP.videos[Q.get('v')] && RP.dansGite(Q.get('v'), G) ? Q.get('v') : null;
 if (video) tab = 3;
 let meteo = null;
 const L = k => RP.t[k][lang];
@@ -129,7 +129,7 @@ async function annoncerArrivee(heure){
 function vAccueil(){
   return `${top()}
     <section class="card hello">
-      <video src="assets/accueil.mp4" poster="assets/accueil.jpg" controls playsinline preload="none" aria-label="Frédéric"></video>
+      <video src="${E(RP.videoAccueil[lang] || RP.videoAccueil.fr)}" poster="assets/accueil.jpg" controls playsinline preload="none" aria-label="Frédéric"></video>
       <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><h1>${E(L('welcome'))}</h1><p>${E(L('intro'))}</p></div>
     </section>
     ${inviter()}
