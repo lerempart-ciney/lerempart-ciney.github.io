@@ -10,15 +10,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="assets/style.css?v=20261123h">
+<link rel="stylesheet" href="assets/style.css?v=20261123i">
 </head>
 <body>
 <div class="app">
   <main class="view" id="view" aria-live="polite"></main>
   <nav class="tabs" id="tabs" hidden><div class="tabs-in" role="tablist" id="tabsIn"></div></nav>
 </div>
-<script src="assets/qrcode.js?v=20261123h"></script>
-<script src="assets/data.js?v=20261123h"></script>
+<script src="assets/qrcode.js?v=20261123i"></script>
+<script src="assets/data.js?v=20261123i"></script>
 <script>
 (function(){
 const C = RP.config, Q = new URLSearchParams(location.search);
@@ -134,7 +134,7 @@ async function annoncerArrivee(heure){
 function vAccueil(){
   return `${top()}
     <section class="card hello">
-      <div class="vbox"><video id="vAcc" src="${E(RP.videoAccueil[lang] || RP.videoAccueil.fr)}" poster="assets/accueil.jpg?v=20261123h" playsinline preload="auto" aria-label="Frédéric"></video><button class="son" data-act="son" type="button" aria-label="${E(L('sound'))}" hidden>🔊</button></div>
+      <div class="vbox"><video id="vAcc" src="${E(RP.videoAccueil[lang] || RP.videoAccueil.fr)}" poster="assets/accueil.jpg?v=20261123i" playsinline preload="auto" aria-label="Frédéric"></video><button class="son" data-act="son" type="button" aria-label="${E(L('sound'))}" hidden>🔊</button></div>
       <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><h1>${E(L('welcome'))}</h1><p>${E(L('intro'))}</p></div>
     </section>
     ${inviter()}
@@ -538,7 +538,7 @@ document.addEventListener('click', e => {
   if (e.target.closest('#vAcc')) { toucherAccueil(); return; }
   const b = e.target.closest('[data-lang],[data-tab],[data-cat],[data-act],[data-video],[data-del]'); if (!b) return;
   if (b.dataset.del){
-    const id = +b.dataset.del;
+    const id = b.dataset.del; /* identifiant texte (UUID) */
     if (suppr !== id){ suppr = id; render(true); return; }
     suppr = null; oublierSouv(); RP.api('album_suppr', S, {id}).then(chargerAlbum, () => { horsLigne = true; render(true); }); return;
   }
@@ -560,14 +560,28 @@ document.addEventListener('click', e => {
   if (b.dataset.act === 'souvShare'){ navigator.share({files:souv.pages.map(p=>p.file), title:L('souvenirTitle')}).catch(()=>{}); return; }
   if (b.dataset.act === 'clear'){ if (enPartage()) opListe({op:'vider'}); else { saveListe(listeLocale().filter(i=>!i.d)); render(true); } return; }
 });
-document.addEventListener('input', e => { if (e.target.id === 'arrT') majArrivee(); });
+/* Légendes de l'album : gardées tout de suite dans la page, puis enregistrées sur le serveur (1 s après la dernière lettre). */
+const legAttente = {};
+function enregistrerLegende(id, v){
+  clearTimeout(legAttente[id]); delete legAttente[id];
+  RP.api('album_legende', S, {id, legende: v}).catch(() => { horsLigne = true; render(true); });
+}
+document.addEventListener('input', e => {
+  if (e.target.id === 'arrT') majArrivee();
+  if (e.target.dataset && e.target.dataset.cap){
+    const id = e.target.dataset.cap, v = e.target.value.slice(0, 140), p = album && album.photos.find(q => q.id === id);
+    if (p) p.legende = v;
+    clearTimeout(legAttente[id]); legAttente[id] = setTimeout(() => enregistrerLegende(id, v.trim()), 1000);
+  }
+});
 document.addEventListener('change', e => {
   if (e.target.id === 'photoIn' && e.target.files.length){ envoyer(Array.from(e.target.files)); return; }
   if (e.target.dataset && e.target.dataset.cap){
-    const id = +e.target.dataset.cap, v = e.target.value.trim().slice(0, 140), p = album && album.photos.find(q => q.id === id);
+    const id = e.target.dataset.cap, v = e.target.value.trim().slice(0, 140), p = album && album.photos.find(q => q.id === id);
     if (p) p.legende = v;
+    enregistrerLegende(id, v);
     if (souv) { oublierSouv(); render(true); }
-    RP.api('album_legende', S, {id, legende: v}).catch(() => { horsLigne = true; render(true); }); return;
+    return;
   }
   if (e.target.dataset && e.target.dataset.i !== undefined){
     const l = liste(), it = l[+e.target.dataset.i];
