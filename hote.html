@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="assets/style.css?v=20261123g">
+<link rel="stylesheet" href="assets/style.css?v=20261123h">
 <style>
 .wrap{max-width:720px;margin:0 auto;padding:max(20px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 60px max(16px,env(safe-area-inset-left));display:flex;flex-direction:column;gap:16px}
 .step{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start}
@@ -53,7 +53,7 @@ label.f input,label.f select{border:1px solid var(--line);border-radius:10px;pad
   </div></div></section>
 
   <section style="display:flex;flex-direction:column;gap:12px">
-    <div class="step"><div class="num">2</div><div><h2 style="font-size:1.2rem">Séjours en cours et à venir</h2><p class="muted">La langue et l'arrivée se mettent à jour quand le voyageur utilise l'appli. Appuie sur « Actualiser » pour voir les nouveautés. À tout moment, tu peux changer les codes, les envoyer dans l’appli du groupe ou les retirer.</p></div></div>
+    <div class="step"><div class="num">2</div><div><h2 style="font-size:1.2rem">Séjours en cours et à venir</h2><p class="muted">La langue et l'arrivée se mettent à jour quand le voyageur utilise l'appli. La page se met à jour toute seule toutes les 20 secondes. À tout moment, tu peux changer les codes, les envoyer dans l’appli du groupe ou les retirer.</p></div></div>
     <button class="btn small ghost" id="actu" type="button" style="align-self:flex-start">Actualiser</button>
     <div id="liste" style="display:flex;flex-direction:column;gap:12px"><p class="muted">Tape ton code hôte, puis « Ouvrir mes séjours ».</p></div>
   </section>
@@ -101,9 +101,9 @@ label.f input,label.f select{border:1px solid var(--line);border-radius:10px;pad
 
   <p class="muted">Écran TV : <a href="tv.html" target="_blank" rel="noopener">tv.html</a> (5 langues à tour de rôle) ou <a href="tv.html?l=fr" target="_blank" rel="noopener">tv.html?l=fr</a> (une seule langue). Ajoute <code>&amp;g=1</code>, <code>&amp;g=2</code> ou <code>&amp;g=3</code> pour afficher le numéro du gîte, par exemple <code>tv.html?g=2</code>. Étiquettes QR des appareils : <a href="qr.html" target="_blank" rel="noopener">qr.html</a>.</p>
 </div>
-<script src="assets/qrcode.js?v=20261123g"></script>
-<script src="assets/data.js?v=20261123g"></script>
-<script src="assets/messages.js?v=20261123g"></script>
+<script src="assets/qrcode.js?v=20261123h"></script>
+<script src="assets/data.js?v=20261123h"></script>
+<script src="assets/messages.js?v=20261123h"></script>
 <script>
 (function(){
 const $ = id => document.getElementById(id), E = RP.esc;
@@ -243,6 +243,15 @@ async function copier(txt, btn){
 
 $('ouvrir').addEventListener('click', charger);
 $('actu').addEventListener('click', charger);
+/* Mise à jour automatique : la langue choisie et l'annonce d'arrivée du voyageur apparaissent seules
+   (toutes les 20 s quand la page est ouverte, et dès que papa revient sur la page). Pas pendant une modification. */
+async function rafraichir(){
+  if (!sejours || !pin() || document.hidden || edite) return;
+  if (document.activeElement && document.activeElement.closest && document.activeElement.closest('#liste')) return;
+  try { sejours = (await hote('sejours')).sejours; rendreListe(); if (sel()) rendreMsgs(); } catch (e) {}
+}
+setInterval(rafraichir, 20000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) rafraichir(); });
 $('pinMem').addEventListener('change', () => { if (!$('pinMem').checked) store.del('rp-hote-pin'); });
 
 $('creer').addEventListener('click', async () => {
