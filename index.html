@@ -10,15 +10,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="assets/style.css?v=20261123i">
+<link rel="stylesheet" href="assets/style.css?v=20261123j">
 </head>
 <body>
 <div class="app">
   <main class="view" id="view" aria-live="polite"></main>
   <nav class="tabs" id="tabs" hidden><div class="tabs-in" role="tablist" id="tabsIn"></div></nav>
 </div>
-<script src="assets/qrcode.js?v=20261123i"></script>
-<script src="assets/data.js?v=20261123i"></script>
+<script src="assets/qrcode.js?v=20261123j"></script>
+<script src="assets/data.js?v=20261123j"></script>
 <script>
 (function(){
 const C = RP.config, Q = new URLSearchParams(location.search);
@@ -134,7 +134,7 @@ async function annoncerArrivee(heure){
 function vAccueil(){
   return `${top()}
     <section class="card hello">
-      <div class="vbox"><video id="vAcc" src="${E(RP.videoAccueil[lang] || RP.videoAccueil.fr)}" poster="assets/accueil.jpg?v=20261123i" playsinline preload="auto" aria-label="Frédéric"></video><button class="son" data-act="son" type="button" aria-label="${E(L('sound'))}" hidden>🔊</button></div>
+      <div class="vbox"><video id="vAcc" src="${E(RP.videoAccueil[lang] || RP.videoAccueil.fr)}" poster="assets/accueil.jpg?v=20261123j" playsinline preload="auto" aria-label="Frédéric"></video><button class="son" data-act="son" type="button" aria-label="${E(L('sound'))}" hidden>🔊</button></div>
       <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><h1>${E(L('welcome'))}</h1><p>${E(L('intro'))}</p></div>
     </section>
     ${inviter()}
@@ -333,6 +333,8 @@ function vAlbum(){
       <button class="del" data-del="${p.id}">${E(L(suppr===p.id?'delSure':'delPhoto'))}</button>
       <input class="cap" data-cap="${p.id}" maxlength="140" value="${E(p.legende||'')}" placeholder="${E(L('capPh'))}" aria-label="${E(L('capPh'))}"></figure>`).join('')}</div>`:`<p class="muted">${E(L('albumEmpty'))}</p>`}
     ${ph&&ph.length?`<section class="card souv"><div class="eyebrow">★ ${E(L('souvenir'))}</div><p class="muted" style="margin:0">${E(L('souvenirTxt'))}</p>
+      <label class="f">${E(L('albTitre'))}<input id="albTitre" maxlength="80" value="${E(album.titre||'')}" placeholder="${E(L('albTitrePh'))}"></label>
+      <p class="muted" style="margin:0">${E(L('albTitreTxt'))}</p>
       ${souv?`<div class="pages">${souv.pages.map((pg,i)=>`<a href="${pg.url}" target="_blank" rel="noopener"><img src="${pg.url}" alt="${E(L('souvenirTitle'))} ${i+1}/${souv.pages.length}"></a>`).join('')}</div>
         <p class="muted" style="margin:0">${E(L('pagesN').replace('{n}', souv.pages.length))}</p>
         <a class="btn" href="${souv.pdf}" download="album-le-rempart.pdf">${E(L('savePdf'))}</a>
@@ -412,12 +414,13 @@ async function creerSouvenir(){
     x.textAlign = 'center'; x.fillStyle = GOLD; x.font = '700 22px Figtree, sans-serif'; espace(x, 'CINEY · BELGIQUE' + (G ? ' · GÎTE ' + G : ''), PW/2, 150, 6);
     x.fillStyle = INK; x.font = '150px "Young Serif", Georgia, serif'; x.fillText('Le Rempart', PW/2, 300);
     x.fillStyle = '#3d4741'; x.font = '400 32px Figtree, sans-serif'; x.fillText(L('ourStay') + (dates ? '  ·  ' + dates : ''), PW/2, 362);
-    const cit = photos.find(p => p.legende);
-    if (cit) { x.font = 'italic 400 34px "Young Serif", Georgia, serif'; x.fillStyle = INK;
-      lignes(x, '« ' + cit.legende + ' »', PW - 2*M - 80, 2).forEach((t, k) => x.fillText(t, PW/2, 440 + k * 46)); }
+    /* Sous-titre de la couverture : le titre choisi par le groupe (rien s'il est vide). */
+    const titre = (album.titre || '').trim();
+    if (titre) { x.font = 'italic 400 38px "Young Serif", Georgia, serif'; x.fillStyle = INK;
+      lignes(x, titre, PW - 2*M - 80, 2).forEach((t, k) => x.fillText(t, PW/2, 440 + k * 50)); }
     g = x.createLinearGradient(0, PH - 220, 0, PH); g.addColorStop(0, 'rgba(10,14,12,0)'); g.addColorStop(1, 'rgba(10,14,12,.55)');
     x.fillStyle = g; x.fillRect(0, PH - 220, PW, 220);
-    x.fillStyle = '#fff'; x.font = '600 20px Figtree, sans-serif'; espace(x, L('souvenirFoot').toUpperCase() + '  ·  ' + photos.length + ' PHOTOS', PW/2, PH - 56, 5);
+    x.fillStyle = '#fff'; x.font = '600 20px Figtree, sans-serif'; espace(x, L('souvenirFoot').toUpperCase() + '  ·  ' + photos.length + (photos.length === 1 ? ' PHOTO' : ' PHOTOS'), PW/2, PH - 56, 5);
     pages.push(c);
     // Pages suivantes : uniquement les photos des voyageurs.
     const tailles = decouper(imgs.length), total = tailles.length + 1; let i0 = 0;
@@ -568,6 +571,12 @@ function enregistrerLegende(id, v){
 }
 document.addEventListener('input', e => {
   if (e.target.id === 'arrT') majArrivee();
+  if (e.target.id === 'albTitre' && album){
+    album.titre = e.target.value.slice(0, 80);
+    clearTimeout(legAttente.titre); legAttente.titre = setTimeout(() => {
+      delete legAttente.titre; RP.api('album_titre', S, {titre: album.titre.trim()}).catch(() => { horsLigne = true; render(true); });
+    }, 1000);
+  }
   if (e.target.dataset && e.target.dataset.cap){
     const id = e.target.dataset.cap, v = e.target.value.slice(0, 140), p = album && album.photos.find(q => q.id === id);
     if (p) p.legende = v;
@@ -575,6 +584,7 @@ document.addEventListener('input', e => {
   }
 });
 document.addEventListener('change', e => {
+  if (e.target.id === 'albTitre'){ if (souv) { oublierSouv(); render(true); } return; }
   if (e.target.id === 'photoIn' && e.target.files.length){ envoyer(Array.from(e.target.files)); return; }
   if (e.target.dataset && e.target.dataset.cap){
     const id = e.target.dataset.cap, v = e.target.value.trim().slice(0, 140), p = album && album.photos.find(q => q.id === id);
