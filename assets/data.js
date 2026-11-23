@@ -37,13 +37,13 @@ RP.videos = {
   vapeur: { fr: 'videos/vapeur-fr.mp4', nl: 'videos/vapeur-nl.mp4', en: 'videos/vapeur-en.mp4', de: 'videos/vapeur-de.mp4', es: 'videos/vapeur-es.mp4' },
   cafe: { fr: 'videos/cafe-fr.mp4', nl: 'videos/cafe-nl.mp4', en: 'videos/cafe-en.mp4', de: 'videos/cafe-de.mp4', es: 'videos/cafe-es.mp4' },
   cuisine23: { fr: 'videos/cuisine23-fr.mp4', nl: 'videos/cuisine23-nl.mp4', en: 'videos/cuisine23-en.mp4', de: 'videos/cuisine23-de.mp4', es: 'videos/cuisine23-es.mp4' },
-  tv: {}, taque: {}, kicker: {}
+  homecinema: {}
 };
 /* Vidéo de Frédéric sur la page d'accueil, une par langue. */
 RP.videoAccueil = { fr: 'videos/accueil-fr.mp4', nl: 'videos/accueil-nl.mp4', en: 'videos/accueil-en.mp4', de: 'videos/accueil-de.mp4', es: 'videos/accueil-es.mp4' };
 /* Appareils présents seulement dans certains gîtes (les autres sont dans les 3 gîtes).
    Le Wi-Fi est le même pour les 3 gîtes. */
-RP.seulementGite = { lave: ['1'], sauna: ['1'], flipper: ['1'], kicker: ['1'], piscine: ['1'],
+RP.seulementGite = { lave: ['1'], sauna: ['1'], flipper: ['1'], kicker: ['1'], homecinema: ['1'], piscine: ['1'],
   four: ['1'], micro: ['1'], vapeur: ['1'], cafe: ['1'], cuisine23: ['2', '3'] };
 RP.dansGite = (k, g) => !g || !RP.seulementGite[k] || RP.seulementGite[k].includes(g);
 
@@ -276,6 +276,7 @@ RP.t = {
   micro:{fr:'Micro-ondes',en:'Microwave',nl:'Microgolfoven',de:'Mikrowelle',es:'Microondas'},
   taque:{fr:'Taque de cuisson',en:'Hob',nl:'Kookplaat',de:'Kochfeld',es:'Placa de cocina'},
   flipper:{fr:'Flipper',en:'Pinball machine',nl:'Flipperkast',de:'Flipper',es:'Máquina de pinball'},
+  homecinema:{fr:'Home cinéma',en:'Home cinema',nl:'Thuisbioscoop',de:'Heimkino',es:'Cine en casa'},
   acces:{fr:'Entrer et sortir',en:'Getting in and out',nl:'Binnenkomen en buitengaan',de:'Ein- und Ausgang',es:'Entrar y salir'},
   feu:{fr:'Feu de bois',en:'Wood fire',nl:'Houtvuur',de:'Kaminfeuer',es:'Fuego de leña'},
   vapeur:{fr:'Four vapeur',en:'Steam oven',nl:'Stoomoven',de:'Dampfgarer',es:'Horno de vapor'},
