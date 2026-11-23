@@ -404,6 +404,7 @@ RP.meteo = async () => {
 RP.meteoSource = 'Météo : MET Norway (CC BY 4.0)';
 RP.meteoTxt = {
   clair:{fr:'Ensoleillé',en:'Sunny',nl:'Zonnig',de:'Sonnig',es:'Soleado'},
+  nuitclaire:{fr:'Ciel dégagé',en:'Clear sky',nl:'Heldere hemel',de:'Klarer Himmel',es:'Cielo despejado'},
   nuage:{fr:'Nuageux',en:'Cloudy',nl:'Bewolkt',de:'Bewölkt',es:'Nublado'},
   brouillard:{fr:'Brouillard',en:'Fog',nl:'Mist',de:'Nebel',es:'Niebla'},
   pluie:{fr:'Pluie',en:'Rain',nl:'Regen',de:'Regen',es:'Lluvia'},
@@ -412,4 +413,4 @@ RP.meteoTxt = {
 };
 /* Code MET Norway (ex. 'lightrainshowers_day') → type d'affichage. */
 RP.meteoType = s => /thunder/.test(s) ? 'orage' : /snow|sleet/.test(s) ? 'neige' : /rain/.test(s) ? 'pluie'
-  : /fog/.test(s) ? 'brouillard' : /clearsky|fair/.test(s) ? 'clair' : 'nuage';
+  : /fog/.test(s) ? 'brouillard' : /(clearsky|fair)_night/.test(s) ? 'nuitclaire' : /clearsky|fair/.test(s) ? 'clair' : 'nuage';
