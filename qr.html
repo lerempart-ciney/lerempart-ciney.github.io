@@ -25,6 +25,8 @@ body{margin:0;font-family:"Figtree",system-ui,sans-serif;color:var(--ink);backgr
 .langs b{display:inline-block;width:2.2em;color:var(--muted);font-size:.8rem}
 .scan{margin-top:10px;font-size:.9rem;color:var(--muted)}
 .qr svg{width:100%;height:auto;display:block}
+.gites{display:flex;gap:8px;margin-top:6px}.chip{border:1px solid #b9c2b6;background:#fff;border-radius:999px;padding:8px 14px;font-weight:700;cursor:pointer;font:inherit;font-weight:700}.chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.card.casse{border-color:var(--brass)}
 @media (max-width:560px){.card{grid-template-columns:1fr}.qr{max-width:220px}}
 @media print{body{background:#fff}.bar{display:none}.sheet{padding:0;max-width:none;gap:10mm}.card{height:128mm;box-sizing:border-box;border-color:#999}}
 </style>
@@ -32,26 +34,43 @@ body{margin:0;font-family:"Figtree",system-ui,sans-serif;color:var(--ink);backgr
 <body>
 <div class="bar">
   <h1>QR à imprimer</h1>
-  <p>Une étiquette par appareil, plus celle du guide du séjour. Imprime, plastifie et colle chaque étiquette près de l'appareil. Le voyageur scanne avec l'appareil photo de son téléphone : la bonne vidéo s'ouvre dans sa langue.</p>
+  <p>Choisis le gîte, puis imprime. Chaque étiquette va près de l'appareil (ou à l'entrée pour la casse). Le voyageur scanne avec l'appareil photo de son téléphone : la bonne page s'ouvre dans sa langue. Si son lien de séjour est déjà ouvert sur ce téléphone, il arrive dans son séjour (boutique et casse de son gîte).</p>
+  <div class="gites" id="gites" role="group" aria-label="Gîte"></div>
   <button class="btn" onclick="window.print()">Imprimer</button>
 </div>
 <div class="sheet" id="sheet"></div>
-<script src="assets/qrcode.js?v=20261123l"></script>
-<script src="assets/data.js?v=20261123l"></script>
+<script src="assets/qrcode.js?v=20261128a"></script>
+<script src="assets/data.js?v=20261128a"></script>
 <script>
 (function(){
 const E = RP.esc, base = new URL('index.html', location.href).href, ordre = Object.keys(RP.langues);
 const aide = {fr:'Besoin d’aide ?',en:'Need help?',nl:'Hulp nodig?',de:'Brauchen Sie Hilfe?',es:'¿Necesitáis ayuda?'};
 const scan = 'Scannez · Scan · Scan · Scannen · Escanead';
-const carte = (titre, lignes, url, g) => `<section class="card"><div><div class="eyebrow">Le Rempart${g?' · Gîte '+g:''}</div><h2>${E(titre)}</h2>
+let g = new URLSearchParams(location.search).get('g');
+if (!['1','2','3'].includes(g)) g = '1';
+const carte = (titre, lignes, url, gite, cls) => `<section class="card ${cls||''}"><div><div class="eyebrow">Le Rempart${gite?' · Gîte '+gite:''}</div><h2>${E(titre)}</h2>
   <ul class="langs">${lignes.map(([k,t])=>`<li><b>${k.toUpperCase()}</b>${E(t)}</li>`).join('')}</ul>
   <div class="scan">${E(scan)}</div></div><div class="qr">${RP.qrSvg(url)}</div></section>`;
-let h = carte(RP.t.tvApp.fr, ordre.filter(k=>k!=='fr').map(k=>[k, RP.t.tvApp[k]]), base);
-if (RP.config.wifi.reseau) h += `<section class="card"><div><div class="eyebrow">Le Rempart</div><h2>Wi-Fi</h2><ul class="langs"><li><b>SSID</b>${E(RP.config.wifi.reseau)}</li><li><b>PW</b>${E(RP.config.wifi.motDePasse)}</li></ul><div class="scan">${E(ordre.map(k=>RP.t.tvWifiScan[k]).join(' · '))}</div></div><div class="qr">${RP.wifiQr()}</div></section>`;
-Object.keys(RP.videos).forEach(k => {
-  h += carte(RP.t.eq[k].fr, ordre.filter(l=>l!=='fr').map(l=>[l, RP.t.eq[k][l] + ' · ' + aide[l]]), base + '?v=' + k + (RP.seulementGite[k] && RP.seulementGite[k].length === 1 ? '&g=' + RP.seulementGite[k][0] : ''), RP.seulementGite[k] && RP.seulementGite[k].join(' et '));
+const autres = k => ordre.filter(l => l !== 'fr').map(l => [l, RP.t[k][l]]);
+function dessiner(){
+  document.getElementById('gites').innerHTML = ['1','2','3'].map(n => `<button class="chip" aria-pressed="${n===g}" data-g="${n}">Gîte ${n}</button>`).join('');
+  let h = carte(RP.t.tvApp.fr, autres('tvApp'), base + '?g=' + g, g);
+  /* Signalement de casse : arrive dans l'inventaire du gîte (ou par WhatsApp sans lien de séjour). */
+  h += carte(RP.t.brkTitle.fr, autres('brkTitle'), base + '?p=casse&g=' + g, g, 'casse');
+  /* Boutique déco : seulement la déco de ce gîte. */
+  h += carte(RP.t.shopTitle.fr, autres('shopTitle'), base + '?p=boutique&g=' + g, g);
+  if (RP.config.wifi.reseau) h += `<section class="card"><div><div class="eyebrow">Le Rempart</div><h2>Wi-Fi</h2><ul class="langs"><li><b>SSID</b>${E(RP.config.wifi.reseau)}</li><li><b>PW</b>${E(RP.config.wifi.motDePasse)}</li></ul><div class="scan">${E(ordre.map(k=>RP.t.tvWifiScan[k]).join(' · '))}</div></div><div class="qr">${RP.wifiQr()}</div></section>`;
+  /* Une étiquette par vidéo présente dans ce gîte (les vidéos pas encore tournées sont ignorées). */
+  Object.keys(RP.videos).filter(k => RP.dansGite(k, g) && Object.keys(RP.videos[k]).length).forEach(k => {
+    h += carte(RP.t.eq[k].fr, ordre.filter(l=>l!=='fr').map(l=>[l, RP.t.eq[k][l] + ' · ' + aide[l]]), base + '?v=' + k + '&g=' + g, g);
+  });
+  document.getElementById('sheet').innerHTML = h;
+}
+document.getElementById('gites').addEventListener('click', e => {
+  const b = e.target.closest('[data-g]'); if (!b) return;
+  g = b.dataset.g; history.replaceState(null, '', '?g=' + g); dessiner();
 });
-document.getElementById('sheet').innerHTML = h;
+dessiner();
 })();
 </script>
 </body>

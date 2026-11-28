@@ -10,15 +10,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="assets/style.css?v=20261123l">
+<link rel="stylesheet" href="assets/style.css?v=20261128a">
 </head>
 <body>
 <div class="app">
   <main class="view" id="view" aria-live="polite"></main>
   <nav class="tabs" id="tabs" hidden><div class="tabs-in" role="tablist" id="tabsIn"></div></nav>
 </div>
-<script src="assets/qrcode.js?v=20261123l"></script>
-<script src="assets/data.js?v=20261123l"></script>
+<script src="assets/qrcode.js?v=20261128a"></script>
+<script src="assets/data.js?v=20261128a"></script>
 <script>
 (function(){
 const C = RP.config, Q = new URLSearchParams(location.search);
@@ -28,6 +28,20 @@ const store = {
   del(k){ try { localStorage.removeItem(k); } catch(e){} }
 };
 const parseDay = s => { if(!/^\d{4}-\d{2}-\d{2}$/.test(s||'')) return null; const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); };
+/* Les QR collés dans le gîte (vidéos, casse, boutique) n'ont pas de jeton de séjour.
+   Si ce téléphone a déjà ouvert un lien de séjour encore valable, on rouvre ce lien avec la bonne page. */
+const DERNIER = 'rp-sejour', JETON = /^[A-Za-z0-9_-]{16,64}$/;
+if (JETON.test(Q.get('s') || '')) {
+  const k = new URLSearchParams(location.search); k.delete('v'); k.delete('p'); store.set(DERNIER, k.toString());
+} else if (Q.get('v') || Q.get('p')) {
+  const k = new URLSearchParams(store.get(DERNIER) || ''), fin = parseDay(k.get('d'));
+  if (fin) fin.setDate(fin.getDate() + 2);
+  if (JETON.test(k.get('s') || '') && fin && new Date() < fin) {
+    ['v','p'].forEach(x => { if (Q.get(x)) k.set(x, Q.get(x)); });
+    location.replace('index.html?' + k.toString());
+    return;
+  }
+}
 const arrivee = parseDay(Q.get('a')), depart = parseDay(Q.get('d'));
 /* Numéro du gîte dans Le Rempart (1, 2 ou 3), donné par le lien du séjour. */
 const G = ['1','2','3'].includes(Q.get('g')) ? Q.get('g') : null;
@@ -43,6 +57,10 @@ const langKey = S ? 'rp-lang-' + S : 'rp-lang';
 let lang = RP.langues[Q.get('l')] ? Q.get('l') : (RP.langues[store.get(langKey)] ? store.get(langKey) : null);
 /* État du séjour donné par le serveur : langue, arrivée annoncée, et (après l'annonce) Wi-Fi et codes. */
 let etat = null, arrErr = '';
+/* Pages ouvertes depuis l'accueil ou un QR : boutique déco du gîte, signalement de casse. */
+let page = ['boutique','casse'].includes(Q.get('p')) ? Q.get('p') : null, shop = null, shopErr = '';
+const casseVide = () => ({objet:null, v:{moment:'sejour', quantite:'1'}, photo:null, envoi:false, fait:false, err:'', wa:''});
+let casse = casseVide();
 let tab = 0, cat = 'tout', video = RP.videos[Q.get('v')] && RP.dansGite(Q.get('v'), G) ? Q.get('v') : null;
 if (video) tab = 3;
 let meteo = null;
@@ -134,7 +152,7 @@ async function annoncerArrivee(heure){
 function vAccueil(){
   return `${top()}
     <section class="card hello">
-      <div class="vbox"><video id="vAcc" src="${E(RP.videoAccueil[lang] || RP.videoAccueil.fr)}" poster="assets/accueil.jpg?v=20261123l" playsinline preload="auto" aria-label="Sam"></video><button class="son" data-act="son" type="button" aria-label="${E(L('sound'))}" hidden>🔊</button></div>
+      <div class="vbox"><video id="vAcc" src="${E(RP.videoAccueil[lang] || RP.videoAccueil.fr)}" poster="assets/accueil.jpg?v=20261128a" playsinline preload="auto" aria-label="Sam"></video><button class="son" data-act="son" type="button" aria-label="${E(L('sound'))}" hidden>🔊</button></div>
       <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><h1>${E(L('welcome'))}</h1><p>${E(L('intro'))}</p></div>
     </section>
     ${inviter()}
@@ -161,6 +179,12 @@ function vAccueil(){
         ${arrivee?`<button class="btn ghost" data-act="ics">${E(L('remind'))}</button><p class="muted">${E(L('remindNote'))}</p>`:''}
       </div>
     </section>
+    ${S?`<section class="card shopcard"><div class="eyebrow">${E(lieuNom)}</div>
+      <h2 style="font-size:1.25rem">${E(L('shopTitle'))}</h2><p class="muted" style="margin:0">${E(L('shopTeaser'))}</p>
+      <button class="btn ghost" data-act="shop">${E(L('shopOpen'))}</button></section>`:''}
+    <section class="card"><div class="eyebrow">${E(L('brkTitle'))}</div>
+      <p class="muted" style="margin:0">${E(L('brkTeaser'))}</p>
+      <button class="btn ghost" data-act="casse">${E(L('brkTitle'))}</button></section>
     <section class="card" id="frederic">
       <div class="eyebrow">Contact · Sam</div>
       <h2 style="font-size:1.25rem">${E(L('askTitle'))}</h2>
@@ -495,6 +519,93 @@ async function envoyer(fichiers){
   }
 }
 
+/* ---------- Boutique déco : seulement la déco du gîte du séjour (le serveur choisit le gîte d'après le jeton) ---------- */
+async function chargerBoutique(){
+  if (!S) return;
+  shopErr = '';
+  try { shop = await RP.api('boutique', S); } catch (e) { shopErr = L('shopErr'); }
+  if (page) majCasse();
+}
+const prix = n => new Intl.NumberFormat(RP.langues[lang], {style:'currency', currency:'EUR'}).format(n);
+const retour = () => `<button class="backbtn" data-act="back">← ${E(L('back'))}</button>`;
+function produit(o){
+  const r = [o.ref ? '#' + o.ref : '', o.prix != null ? prix(o.prix) : ''].filter(Boolean).join(' · ');
+  const msg = (G ? '[Gîte ' + G + '] ' : '') + L('shopMsg').replace('{n}', o.nom).replace('{r}', r ? ' (' + r + ')' : '');
+  return `<article class="prod">
+    ${o.photo ? `<img src="${E(o.photo)}" alt="${E(o.nom)}" loading="lazy">` : '<div class="ph"></div>'}
+    <div class="pin"><h3>${E(o.nom)}</h3>
+      ${o.localisation ? `<p class="muted">${E(L('shopWhere'))} · ${E(o.localisation)}</p>` : ''}
+      <div class="price">${o.prix != null ? E(prix(o.prix)) : `<span class="muted">${E(L('shopAsk'))}</span>`}</div>
+      <a class="btn small" href="${wa(msg)}" target="_blank" rel="noopener">${E(L('shopWant'))}</a>
+      <button class="linkbtn" data-brk="${E(o.id)}">${E(L('brkThis'))}</button></div></article>`;
+}
+function vBoutique(){
+  let corps;
+  if (!S) corps = `<div class="lock"><p class="muted" style="margin:0">${E(L('shopLink'))}</p></div>`;
+  else if (shopErr) corps = `<p class="miss">${E(shopErr)}</p>`;
+  else if (!shop) corps = `<p class="muted">${E(L('shopLoading'))}</p>`;
+  else if (!shop.objets.length) corps = `<section class="card"><p class="muted" style="margin:0">${E(L('shopNone'))}</p></section>`;
+  else corps = shop.pieces.concat([{id:null, nom:''}]).map(p => {
+    const os = shop.objets.filter(o => p.id ? o.piece_id === p.id : !shop.pieces.some(q => q.id === o.piece_id));
+    return os.length ? `<section class="shoproom">${p.nom ? `<div class="eyebrow">${E(p.nom)}</div>` : ''}<div class="prods">${os.map(produit).join('')}</div></section>` : '';
+  }).join('');
+  return `${top()}${retour()}
+    <div class="albhero"><div><div class="eyebrow">${E(lieuNom)}</div><h1>${E(L('shopTitle'))}</h1></div></div>
+    <p class="muted">${E(L('shopIntro'))}</p>${corps}`;
+}
+/* ---------- Signalement de casse : arrive dans l'inventaire (à vérifier par l'équipe) ---------- */
+function vCasse(){
+  const c = casse, v = c.v, o = c.objet && shop ? shop.objets.find(x => x.id === c.objet) : null;
+  const avant = S && arrivee && now() < arrivee;
+  const tete = `${top()}${retour()}<div><h1 style="font-size:1.6rem">${E(L('brkTitle'))}</h1><p class="muted">${E(L('brkIntro'))}</p></div>`;
+  if (c.fait) return `${tete}<section class="card"><span class="tag t-ok" style="align-self:flex-start">✓</span>
+    <h2 style="font-size:1.25rem">${E(L('brkDone'))}</h2><p class="muted" style="margin:0">${E(L('brkDoneTxt'))}</p>
+    <a class="btn" href="${wa(c.wa)}" target="_blank" rel="noopener">${E(L('brkWaBtn'))}</a>
+    <button class="btn ghost" data-act="casseAgain">${E(L('brkAgain'))}</button></section>`;
+  if (avant) return `${tete}<section class="card"><div class="lock"><p class="muted" style="margin:0">${E(L('brkEarly'))}</p></div></section>`;
+  const pieces = S && shop ? shop.pieces : [];
+  return `${tete}
+    <form class="card form" id="casseForm">
+      ${S ? '' : `<p class="muted" style="margin:0">${E(L('brkNoLink'))}</p>`}
+      ${o ? `<div class="chosen">${o.photo ? `<img src="${E(o.photo)}" alt="">` : ''}<div><div class="eyebrow">${E(L('brkItem'))}</div><b>${E(o.nom)}</b></div></div>
+        <input type="hidden" name="objet" value="${E(o.id)}">` : ''}
+      ${pieces.length && !o ? `<label class="f">${E(L('brkRoom'))}<select name="piece"><option value="">${E(L('brkRoomAny'))}</option>
+        ${pieces.map(p => `<option value="${E(p.id)}" ${v.piece === p.id ? 'selected' : ''}>${E(p.nom)}</option>`).join('')}</select></label>` : ''}
+      ${o ? '' : `<label class="f">${E(L('brkWhat'))}<input name="quoi" maxlength="80" value="${E(v.quoi || '')}" placeholder="${E(L('brkWhatPh'))}"></label>`}
+      <label class="f">${E(L('brkQty'))}<input name="quantite" type="number" min="1" max="99" inputmode="numeric" value="${E(v.quantite || '1')}" style="max-width:110px"></label>
+      <fieldset class="f"><legend>${E(L('brkWhen'))}</legend>
+        <label class="radio"><input type="radio" name="moment" value="sejour" ${v.moment !== 'arrivee' ? 'checked' : ''}> ${E(L('brkWhenStay'))}</label>
+        <label class="radio"><input type="radio" name="moment" value="arrivee" ${v.moment === 'arrivee' ? 'checked' : ''}> ${E(L('brkWhenArr'))}</label></fieldset>
+      <label class="f">${E(L('brkCom'))}<textarea name="commentaire" rows="3" maxlength="500">${E(v.commentaire || '')}</textarea></label>
+      ${S ? `<label class="btn ghost">${ico('photo','width="20" height="20"')} <span id="casPhotoTxt">${E(c.photo ? L('brkPhotoOk') : L('brkPhoto'))}</span>
+        <input type="file" id="casPhoto" accept="image/*" hidden></label>` : ''}
+      ${c.err ? `<p class="miss">${E(c.err)}</p>` : ''}
+      <button class="btn" ${c.envoi ? 'disabled' : ''}>${E(c.envoi ? L('brkSending') : (S ? L('brkSend') : L('arrSend')))}</button>
+    </form>`;
+}
+function lireCasse(f){ const fd = new FormData(f); casse.v = {}; fd.forEach((x, k) => { if (typeof x === 'string') casse.v[k] = x; }); }
+/* Redessine la page sans perdre ce qui est déjà tapé. */
+function majCasse(){ const f = document.getElementById('casseForm'); if (f) lireCasse(f); render(true); }
+async function envoyerCasse(f){
+  lireCasse(f);
+  const c = casse, v = c.v, o = c.objet && shop ? shop.objets.find(x => x.id === c.objet) : null;
+  const quoi = [o ? o.nom : '', (v.quoi || '').trim()].filter(Boolean).join(' · ');
+  if (!quoi) { c.err = L('brkNeed'); render(true); return; }
+  const piece = shop && v.piece ? (shop.pieces.find(p => p.id === v.piece) || {}).nom : '';
+  c.wa = (G ? '[Gîte ' + G + '] ' : '') + L('brkWaMsg') + quoi + (+v.quantite > 1 ? ' ×' + v.quantite : '') + (piece ? ' (' + piece + ')' : '')
+    + (v.moment === 'arrivee' ? ' · ' + L('brkWhenArr') : '') + ((v.commentaire || '').trim() ? '\n' + v.commentaire.trim() : '');
+  if (!S) { window.open(wa(c.wa), '_blank', 'noopener'); return; }
+  c.err = ''; c.envoi = true; render(true);
+  try {
+    const fd = new FormData(); Object.keys(v).forEach(k => fd.append(k, v[k]));
+    if (c.photo) fd.append('photo', await reduire(c.photo));
+    await RP.api('casse', S, fd);
+    c.fait = true;
+  } catch (e) { c.err = L(e.status === 409 ? 'brkEarly' : 'brkErr'); }
+  c.envoi = false; render(true);
+}
+const PAGES = {boutique: vBoutique, casse: vCasse};
+
 const VUES = [vAccueil, vAujourdhui, vAdresses, vAide, vCourses].concat(S ? [vAlbum] : []);
 const TABICO = ['home','sun','pin','play','cart','photo'];
 
@@ -506,7 +617,7 @@ function render(keepScroll){
   tabs.hidden = false;
   document.getElementById('tabsIn').innerHTML = L('nav').slice(0, VUES.length).map((n,i)=>`<button role="tab" aria-selected="${i===tab}" data-tab="${i}">${ico(TABICO[i])}<span>${E(n)}</span></button>`).join('');
   const vieille = document.getElementById('vAcc');
-  v.innerHTML = VUES[tab]();
+  v.innerHTML = page ? PAGES[page]() : VUES[tab]();
   /* La vidéo d'accueil continue sans recommencer quand la page se redessine. */
   const neuve = document.getElementById('vAcc');
   if (vieille && neuve && vieille.src === neuve.src) neuve.replaceWith(vieille);
@@ -548,7 +659,12 @@ function majArrivee(){
 document.addEventListener('click', e => {
   if (S && e.target.closest('#arrGo')) { annoncerArrivee((document.getElementById('arrT') || {}).value || ''); }
   if (e.target.closest('#vAcc')) { toucherAccueil(); return; }
-  const b = e.target.closest('[data-lang],[data-tab],[data-cat],[data-act],[data-video],[data-del]'); if (!b) return;
+  const b = e.target.closest('[data-lang],[data-tab],[data-cat],[data-act],[data-video],[data-del],[data-brk]'); if (!b) return;
+  if (b.dataset.brk){ casse = casseVide(); casse.objet = b.dataset.brk; page = 'casse'; render(); return; }
+  if (b.dataset.act === 'shop'){ page = 'boutique'; render(); if (!shop) chargerBoutique(); return; }
+  if (b.dataset.act === 'casse'){ casse = casseVide(); page = 'casse'; render(); if (!shop) chargerBoutique(); return; }
+  if (b.dataset.act === 'casseAgain'){ casse = casseVide(); render(); return; }
+  if (b.dataset.act === 'back'){ page = null; render(); return; }
   if (b.dataset.del){
     const id = b.dataset.del; /* identifiant texte (UUID) */
     if (suppr !== id){ suppr = id; render(true); return; }
@@ -560,7 +676,7 @@ document.addEventListener('click', e => {
     if (S && etat && !etat.langue) { etat.langue = lang; RP.api('langue', S, {langue: lang}).catch(() => {}); }
     return;
   }
-  if (b.dataset.tab){ tab = +b.dataset.tab; render(); if (tab === 4) chargerListe(); if (tab === 5 && (!etat || etat.debloque)) chargerAlbum(); return; }
+  if (b.dataset.tab){ tab = +b.dataset.tab; page = null; render(); if (tab === 4) chargerListe(); if (tab === 5 && (!etat || etat.debloque)) chargerAlbum(); return; }
   if (b.dataset.cat){ cat = b.dataset.cat; render(true); return; }
   if (b.dataset.video){ video = b.dataset.video; render(); return; }
   if (b.dataset.act === 'son'){ toucherAccueil(); return; }
@@ -594,6 +710,7 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('change', e => {
   if (e.target.id === 'albTitre'){ if (souv) { oublierSouv(); render(true); } return; }
+  if (e.target.id === 'casPhoto'){ casse.photo = e.target.files[0] || null; const t = document.getElementById('casPhotoTxt'); if (t) t.textContent = L(casse.photo ? 'brkPhotoOk' : 'brkPhoto'); return; }
   if (e.target.id === 'photoIn' && e.target.files.length){ envoyer(Array.from(e.target.files)); return; }
   if (e.target.dataset && e.target.dataset.cap){
     const id = e.target.dataset.cap, v = e.target.value.trim().slice(0, 140), p = album && album.photos.find(q => q.id === id);
@@ -609,6 +726,7 @@ document.addEventListener('change', e => {
   }
 });
 document.addEventListener('submit', e => {
+  if (e.target.id === 'casseForm') { e.preventDefault(); if (!casse.envoi) envoyerCasse(e.target); return; }
   if (e.target.id !== 'addForm') return; e.preventDefault();
   const i = document.getElementById('addInput'), v = i.value.trim(); if (!v) return;
   if (enPartage()) { i.value = ''; opListe({op:'ajout', nom:v.slice(0,80)}); return; }
@@ -617,6 +735,7 @@ document.addEventListener('submit', e => {
 });
 
 render();
+if (page && S) chargerBoutique();
 RP.meteo().then(m => { if (m){ meteo = m; if (tab === 1) render(true); } });
 /* Liste partagée : mise à jour toutes les 20 s quand l'onglet Courses est ouvert. */
 if (S && !termine()) {
