@@ -1,0 +1,24 @@
+{
+ "_note": "Réglages du site. Les champs marqués PROVISOIRE ont été donnés par Sacha le 28/11/2026 en attendant les informations définitives.",
+ "nom": "Le Rempart",
+ "sous_titre": "Trois gîtes · Ciney",
+ "adresse": "Avenue de Namur 6, 5590 Ciney, Belgique",
+ "rue": "Avenue de Namur 6", "cp": "5590", "ville": "Ciney", "pays": "BE",
+ "lat": 50.298357, "lon": 5.101378,
+ "whatsapp": "+32 475 72 88 67", "whatsapp_num": "32475728867",
+ "email": "lerempartciney@gmail.com",
+ "url_base": "https://lerempart-ciney.github.io/site",
+ "indexable": false,
+ "appli_voyageurs": "https://lerempart-ciney.github.io/",
+ "pratique": {
+  "arrivee": "À partir de 15 h",
+  "depart": "Avant 11 h (PROVISOIRE)",
+  "caution": "2 500 € (PROVISOIRE)",
+  "animaux": "Non admis",
+  "stationnement": "Parking pour chaque groupe, avec bornes de recharge pour voitures électriques",
+  "tabac": "Non-fumeur à l'intérieur",
+  "domaine_entier": "Les trois gîtes peuvent se louer ensemble, jusqu'à 28 personnes"
+ },
+ "liens_reservation": {"1": "", "2": "", "3": "", "domaine": ""},
+ "exploitant": {"nom": "Le Rempart", "bce": "", "tva": ""}
+}

@@ -1,0 +1,618 @@
+{
+ "verifie_le": "2026-11-28",
+ "note": "Coordonnées : OpenStreetMap (Nominatim). Distance et durée en voiture : OSRM (OpenStreetMap), sans trafic, depuis le GPS de l'entrée du domaine. Rayon : 50 km à vol d'oiseau. Horaires et tarifs : jamais recopiés, voir le site du lieu.",
+ "categories": {
+  "patrimoine": "Patrimoine et culture",
+  "nature": "Nature et découverte",
+  "gastronomie": "Gastronomie",
+  "bienetre": "Bien-être",
+  "loisirs": "Activités et loisirs"
+ },
+ "lieux": [
+  {
+   "id": "spontin",
+   "nom": "Château de Spontin",
+   "cats": [
+    "patrimoine"
+   ],
+   "commune": "Spontin (Yvoir)",
+   "adresse": "Chaussée de Dinant 8, 5530 Spontin",
+   "lat": 50.3232161,
+   "lon": 5.007496,
+   "km": 10,
+   "min": 11,
+   "site": "https://www.chateaudespontin.be",
+   "texte": "Un château fort entouré d'eau, au bord du Bocq, transformé au fil des siècles. Le plus proche des châteaux de la vallée.",
+   "info": "Vérifiez sur son site les jours de visite."
+  },
+  {
+   "id": "chevetogne",
+   "nom": "Domaine provincial de Chevetogne",
+   "cats": [
+    "nature",
+    "loisirs"
+   ],
+   "commune": "Chevetogne (Ciney)",
+   "adresse": "Domaine provincial, 5590 Chevetogne",
+   "lat": 50.2291618,
+   "lon": 5.1444225,
+   "km": 15.3,
+   "min": 22,
+   "site": "https://www.domainedechevetogne.be",
+   "texte": "Un grand domaine provincial sur la commune même de Ciney : jardins, étangs, bois et plaines de jeux. Une journée entière pour les familles.",
+   "info": "Ouverture et activités selon la saison : voir le site."
+  },
+  {
+   "id": "veves",
+   "nom": "Château de Vêves",
+   "cats": [
+    "patrimoine"
+   ],
+   "commune": "Celles (Houyet)",
+   "adresse": "Rue du Pîrli, 5561 Celles",
+   "lat": 50.220727,
+   "lon": 4.982633,
+   "km": 14.3,
+   "min": 15,
+   "site": "https://www.chateau-de-veves.be",
+   "texte": "Un château aux tours coiffées de poivrières, sur un éperon au-dessus du village de Celles. À combiner avec une promenade dans le village.",
+   "info": "Visites saisonnières : voir le site."
+  },
+  {
+   "id": "crupet",
+   "nom": "Crupet",
+   "cats": [
+    "patrimoine"
+   ],
+   "commune": "Crupet (Assesse)",
+   "adresse": "Rue Basse, 5332 Crupet",
+   "lat": 50.3499485,
+   "lon": 4.9599146,
+   "km": 19.9,
+   "min": 18,
+   "site": "",
+   "texte": "Un village de pierre autour d'un donjon entouré d'eau. Le donjon est privé et se regarde depuis le chemin.",
+   "info": "Promenade libre dans le village."
+  },
+  {
+   "id": "bocq",
+   "nom": "Brasserie du Bocq",
+   "cats": [
+    "gastronomie"
+   ],
+   "commune": "Purnode (Yvoir)",
+   "adresse": "Rue de la Brasserie 4, 5530 Purnode",
+   "lat": 50.3112826,
+   "lon": 4.9442636,
+   "km": 15.6,
+   "min": 17,
+   "site": "https://www.bocq.be",
+   "texte": "Une brasserie familiale installée dans la vallée du Bocq. Un arrêt naturel entre deux châteaux.",
+   "info": "Visites guidées selon le calendrier du site."
+  },
+  {
+   "id": "dinant",
+   "nom": "Dinant, la citadelle et la collégiale",
+   "cats": [
+    "patrimoine"
+   ],
+   "commune": "Dinant",
+   "adresse": "Rue Sous-les-Roches 1, 5500 Dinant",
+   "lat": 50.2618691,
+   "lon": 4.9127568,
+   "km": 19.2,
+   "min": 17,
+   "site": "https://www.citadellededinant.be",
+   "texte": "La collégiale au bulbe et la citadelle accrochée au rocher, au-dessus de la Meuse. Le centre se parcourt à pied, le long du fleuve.",
+   "info": "Office du tourisme : dinant-tourisme.com."
+  },
+  {
+   "id": "bayard",
+   "nom": "Rocher Bayard",
+   "cats": [
+    "nature"
+   ],
+   "commune": "Dinant",
+   "adresse": "Rue Arthur Defoin, 5500 Dinant",
+   "lat": 50.2446266,
+   "lon": 4.9211193,
+   "km": 16.8,
+   "min": 14,
+   "site": "https://www.dinant-tourisme.com",
+   "texte": "Une aiguille de rocher détachée de la falaise, au bord de la Meuse, à l'entrée sud de Dinant.",
+   "info": "Accès libre, au bord de la route."
+  },
+  {
+   "id": "leffe",
+   "nom": "Abbaye Notre-Dame de Leffe",
+   "cats": [
+    "patrimoine",
+    "gastronomie"
+   ],
+   "commune": "Dinant",
+   "adresse": "Rue du Moulin, 5500 Dinant",
+   "lat": 50.2689741,
+   "lon": 4.9077894,
+   "km": 20.5,
+   "min": 19,
+   "site": "https://www.abbaye-de-leffe.be",
+   "texte": "L'abbaye qui a donné son nom à la bière, au bord de la Meuse, juste au nord de Dinant.",
+   "info": "Voir le site pour les visites."
+  },
+  {
+   "id": "bouvignes",
+   "nom": "Bouvignes et la Maison du patrimoine médiéval mosan",
+   "cats": [
+    "patrimoine"
+   ],
+   "commune": "Bouvignes-sur-Meuse (Dinant)",
+   "adresse": "Place du Bailliage 16, 5500 Bouvignes",
+   "lat": 50.272675,
+   "lon": 4.8981088,
+   "km": 20.7,
+   "min": 18,
+   "site": "https://www.mpmm.be",
+   "texte": "Un ancien bourg médiéval face à Dinant, avec un musée consacré au Moyen Âge en vallée de la Meuse.",
+   "info": "Horaires du musée : voir le site."
+  },
+  {
+   "id": "poilvache",
+   "nom": "Ruines de Poilvache",
+   "cats": [
+    "patrimoine",
+    "nature"
+   ],
+   "commune": "Évrehailles (Yvoir)",
+   "adresse": "Chemin de Poilvache, 5530 Yvoir",
+   "lat": 50.3171084,
+   "lon": 4.9138928,
+   "km": 17.7,
+   "min": 19,
+   "site": "",
+   "texte": "Les ruines d'une forteresse médiévale sur un plateau au-dessus de la Meuse. Une vue large sur la vallée.",
+   "info": "Site à vérifier avant la visite."
+  },
+  {
+   "id": "walzin",
+   "nom": "Château de Walzin",
+   "cats": [
+    "patrimoine",
+    "nature"
+   ],
+   "commune": "Dréhance (Dinant)",
+   "adresse": "Rue de Walzin 6, 5500 Dinant",
+   "lat": 50.2195455,
+   "lon": 4.9233201,
+   "km": 17.8,
+   "min": 21,
+   "site": "",
+   "texte": "Un château posé sur une falaise au-dessus de la Lesse. Il est privé : on l'admire depuis la rivière, en kayak, ou depuis les sentiers.",
+   "info": "Ne se visite pas."
+  },
+  {
+   "id": "kayak",
+   "nom": "Descente de la Lesse en kayak",
+   "cats": [
+    "loisirs",
+    "nature"
+   ],
+   "commune": "Houyet – Anseremme",
+   "adresse": "Gare de Gendron, 5561 Celles (départ courant)",
+   "lat": 50.2107388,
+   "lon": 4.9651284,
+   "km": 16,
+   "min": 16,
+   "site": "https://www.dinant-tourisme.com",
+   "texte": "La Lesse entre Houyet et Anseremme, au pied des falaises et sous le château de Walzin. L'activité la plus demandée de la région en été.",
+   "info": "Saison, loueurs et réservations : voir l'office du tourisme."
+  },
+  {
+   "id": "furfooz",
+   "nom": "Parc de Furfooz",
+   "cats": [
+    "nature"
+   ],
+   "commune": "Furfooz (Dinant)",
+   "adresse": "Rue du Camp Romain 79, 5500 Furfooz",
+   "lat": 50.2158245,
+   "lon": 4.9561186,
+   "km": 16.9,
+   "min": 17,
+   "site": "",
+   "texte": "Une réserve naturelle sur un promontoire au-dessus de la Lesse, avec ses grottes et ses vestiges anciens.",
+   "info": "Ouverture saisonnière, à vérifier."
+  },
+  {
+   "id": "trot",
+   "nom": "Trot-e-Fun",
+   "cats": [
+    "loisirs"
+   ],
+   "commune": "Anseremme (Dinant)",
+   "adresse": "Rue de la Tassenière 67, 5500 Dinant",
+   "lat": 50.235579,
+   "lon": 4.895523,
+   "km": 19.6,
+   "min": 19,
+   "site": "",
+   "texte": "Des balades guidées en trottinette électrique tout-terrain sur les hauteurs de Dinant.",
+   "info": "Réservation : 0493 37 76 80 (adresse du livret du domaine)."
+  },
+  {
+   "id": "freyr",
+   "nom": "Château de Freÿr et ses jardins",
+   "cats": [
+    "patrimoine",
+    "nature"
+   ],
+   "commune": "Hastière",
+   "adresse": "N96, 5540 Hastière",
+   "lat": 50.2262669,
+   "lon": 4.8886561,
+   "km": 25,
+   "min": 22,
+   "site": "https://www.freyr.be",
+   "texte": "Un château au bord de la Meuse et ses jardins à la française, dessinés en terrasses face aux rochers.",
+   "info": "Ouvert en saison : voir le site."
+  },
+  {
+   "id": "annevoie",
+   "nom": "Jardins d'Annevoie",
+   "cats": [
+    "patrimoine",
+    "nature"
+   ],
+   "commune": "Anhée",
+   "adresse": "Annevoie-Rouillon, 5537 Anhée",
+   "lat": 50.3449754,
+   "lon": 4.8447045,
+   "km": 25.5,
+   "min": 29,
+   "site": "https://www.annevoie.be",
+   "texte": "Des jardins d'eau du XVIIIe siècle : bassins, cascades et jets d'eau, alimentés par la seule pente du terrain.",
+   "info": "D'avril à novembre selon le site."
+  },
+  {
+   "id": "montaigle",
+   "nom": "Ruines de Montaigle",
+   "cats": [
+    "patrimoine",
+    "nature"
+   ],
+   "commune": "Falaën (Onhaye)",
+   "adresse": "Falaën, 5522 Onhaye",
+   "lat": 50.2932486,
+   "lon": 4.8157375,
+   "km": 30.9,
+   "min": 31,
+   "site": "https://www.montaigle.be",
+   "texte": "Les ruines d'un château sur un éperon rocheux, dans la vallée de la Molignée.",
+   "info": "Voir le site pour l'accès."
+  },
+  {
+   "id": "maredsous",
+   "nom": "Abbaye de Maredsous",
+   "cats": [
+    "patrimoine",
+    "gastronomie"
+   ],
+   "commune": "Denée (Anhée)",
+   "adresse": "Rue de Maredsous 11, 5537 Denée",
+   "lat": 50.302136,
+   "lon": 4.7662839,
+   "km": 34.7,
+   "min": 36,
+   "site": "https://www.maredsous.be",
+   "texte": "Une abbaye bénédictine du XIXe siècle, dans les bois de la Molignée. On y vient pour l'église, la promenade et les produits de l'abbaye.",
+   "info": "Voir le site."
+  },
+  {
+   "id": "rochefort",
+   "nom": "Château comtal de Rochefort",
+   "cats": [
+    "patrimoine"
+   ],
+   "commune": "Rochefort",
+   "adresse": "Rue Jacquet, 5580 Rochefort",
+   "lat": 50.1549501,
+   "lon": 5.2206757,
+   "km": 23.1,
+   "min": 24,
+   "site": "",
+   "texte": "Les ruines du château des comtes de Rochefort, au-dessus de la ville.",
+   "info": "Ouverture à vérifier auprès de la ville."
+  },
+  {
+   "id": "saintremy",
+   "nom": "Abbaye Notre-Dame de Saint-Remy",
+   "cats": [
+    "patrimoine",
+    "gastronomie"
+   ],
+   "commune": "Rochefort",
+   "adresse": "Rue de l'Abbaye Saint-Rémy 1, 5580 Rochefort",
+   "lat": 50.1779984,
+   "lon": 5.2203882,
+   "km": 21.7,
+   "min": 22,
+   "site": "https://www.trappistes-rochefort.com",
+   "texte": "L'abbaye trappiste où l'on brasse la Rochefort. Les moines y vivent en clôture : on la découvre de l'extérieur.",
+   "info": "L'abbaye ne se visite pas."
+  },
+  {
+   "id": "lorette",
+   "nom": "Grotte de Lorette",
+   "cats": [
+    "nature"
+   ],
+   "commune": "Rochefort",
+   "adresse": "Rue Alphonse Collignon, 5580 Rochefort",
+   "lat": 50.1549441,
+   "lon": 5.2273806,
+   "km": 23.1,
+   "min": 24,
+   "site": "",
+   "texte": "Une grotte sous la ville de Rochefort, plus intime que celles de Han.",
+   "info": "Ouverture à vérifier."
+  },
+  {
+   "id": "han",
+   "nom": "Domaine des Grottes de Han",
+   "cats": [
+    "nature",
+    "loisirs"
+   ],
+   "commune": "Han-sur-Lesse (Rochefort)",
+   "adresse": "Han-sur-Lesse, 5580 Rochefort",
+   "lat": 50.1182597,
+   "lon": 5.1989058,
+   "km": 37.3,
+   "min": 33,
+   "site": "https://www.grotte-de-han.be",
+   "texte": "Les grottes creusées par la Lesse et le parc animalier voisin. La sortie classique de la région, à prévoir sur une demi-journée au moins.",
+   "info": "Réservation et horaires : voir le site."
+  },
+  {
+   "id": "marche",
+   "nom": "Marche-en-Famenne",
+   "cats": [
+    "patrimoine"
+   ],
+   "commune": "Marche-en-Famenne",
+   "adresse": "6900 Marche-en-Famenne",
+   "lat": 50.2270943,
+   "lon": 5.3419568,
+   "km": 22.6,
+   "min": 18,
+   "site": "https://www.marche.be",
+   "texte": "Une petite ville de Famenne, ses rues piétonnes et ses tables.",
+   "info": ""
+  },
+  {
+   "id": "karting",
+   "nom": "Karting et arcade (WEX)",
+   "cats": [
+    "loisirs"
+   ],
+   "commune": "Marche-en-Famenne",
+   "adresse": "Rue des Deux Provinces 1, 6900 Marche-en-Famenne",
+   "lat": 50.246942,
+   "lon": 5.337352,
+   "km": 22.3,
+   "min": 18,
+   "site": "",
+   "texte": "Karting et jeux d'arcade, une bonne idée par temps de pluie.",
+   "info": "084 77 02 22 (adresse du livret du domaine)."
+  },
+  {
+   "id": "durbuy",
+   "nom": "Durbuy et le parc des Topiaires",
+   "cats": [
+    "patrimoine",
+    "nature"
+   ],
+   "commune": "Durbuy",
+   "adresse": "6940 Durbuy",
+   "lat": 50.3526181,
+   "lon": 5.4529373,
+   "km": 32.4,
+   "min": 33,
+   "site": "https://www.durbuy.be",
+   "texte": "Une petite cité médiévale au bord de l'Ourthe, et son jardin de buis taillés en sculptures.",
+   "info": "Parc des Topiaires : topiaires.be."
+  },
+  {
+   "id": "namur",
+   "nom": "Citadelle de Namur",
+   "cats": [
+    "patrimoine"
+   ],
+   "commune": "Namur",
+   "adresse": "Route Merveilleuse, 5000 Namur",
+   "lat": 50.459349,
+   "lon": 4.8614296,
+   "km": 28.3,
+   "min": 26,
+   "site": "https://citadelle.namur.be",
+   "texte": "La citadelle au confluent de la Sambre et de la Meuse, ses souterrains et sa vue sur la capitale wallonne.",
+   "info": "Voir le site."
+  },
+  {
+   "id": "rops",
+   "nom": "Musée Félicien Rops",
+   "cats": [
+    "patrimoine"
+   ],
+   "commune": "Namur",
+   "adresse": "Rue Fumal 12, 5000 Namur",
+   "lat": 50.4630059,
+   "lon": 4.8625866,
+   "km": 28.5,
+   "min": 26,
+   "site": "https://www.museerops.be",
+   "texte": "Le musée consacré au graveur namurois Félicien Rops, dans une maison du vieux Namur.",
+   "info": "Horaires : voir le site."
+  },
+  {
+   "id": "floreffe",
+   "nom": "Abbaye de Floreffe",
+   "cats": [
+    "patrimoine",
+    "gastronomie"
+   ],
+   "commune": "Floreffe",
+   "adresse": "Rue du Séminaire, 5150 Floreffe",
+   "lat": 50.4327538,
+   "lon": 4.7577799,
+   "km": 38.5,
+   "min": 36,
+   "site": "https://www.abbaye-de-floreffe.be",
+   "texte": "Une ancienne abbaye de prémontrés au-dessus de la Sambre, avec son moulin-brasserie.",
+   "info": "Voir le site."
+  },
+  {
+   "id": "rectoverso",
+   "nom": "Recto Verso",
+   "cats": [
+    "gastronomie"
+   ],
+   "commune": "Ciney",
+   "adresse": "Avenue de Namur 29, 5590 Ciney",
+   "lat": 50.299234,
+   "lon": 5.101026,
+   "km": 0.1,
+   "min": 1,
+   "site": "",
+   "texte": "Une table gastronomique à quelques pas du domaine, sur la même avenue.",
+   "info": "083 33 00 47 · fermé lundi et mardi (livret du domaine)."
+  },
+  {
+   "id": "grange",
+   "nom": "La Grange d'Hamois",
+   "cats": [
+    "gastronomie"
+   ],
+   "commune": "Emptinne (Hamois)",
+   "adresse": "Chaussée d'Andenne 10A, 5363 Emptinne",
+   "lat": 50.337547,
+   "lon": 5.103946,
+   "km": 4.5,
+   "min": 5,
+   "site": "",
+   "texte": "Une table gastronomique à cinq minutes au nord du domaine.",
+   "info": "083 22 05 49 · fermé dimanche et lundi (livret du domaine)."
+  },
+  {
+   "id": "gresaisons",
+   "nom": "Au Gré des Saisons",
+   "cats": [
+    "gastronomie"
+   ],
+   "commune": "Achet (Hamois)",
+   "adresse": "Rue d'Achet 70, 5362 Achet",
+   "lat": 50.332683,
+   "lon": 5.174685,
+   "km": 9.1,
+   "min": 11,
+   "site": "",
+   "texte": "Une cuisine de saison dans un village du Condroz.",
+   "info": "083 65 75 65 · fermé lundi et mardi (livret du domaine)."
+  },
+  {
+   "id": "blaise",
+   "nom": "Bistro Blaise",
+   "cats": [
+    "gastronomie"
+   ],
+   "commune": "Marche-en-Famenne",
+   "adresse": "Rue Porte Haute 5, 6900 Marche-en-Famenne",
+   "lat": 50.226406,
+   "lon": 5.344953,
+   "km": 22.9,
+   "min": 18,
+   "site": "",
+   "texte": "Une table gastronomique au cœur de Marche.",
+   "info": "0470 89 57 12 · fermé dimanche et lundi (livret du domaine)."
+  },
+  {
+   "id": "gardemanger",
+   "nom": "Garde Manger",
+   "cats": [
+    "gastronomie"
+   ],
+   "commune": "Faulx-les-Tombes (Gesves)",
+   "adresse": "Chaussée de Gramptinne 37, 5340 Faulx-les-Tombes",
+   "lat": 50.438486,
+   "lon": 5.008204,
+   "km": 24.4,
+   "min": 20,
+   "site": "",
+   "texte": "Une table gastronomique entre Condroz et vallée du Samson.",
+   "info": "083 44 66 31 · fermé mardi et mercredi (livret du domaine)."
+  },
+  {
+   "id": "monalisa",
+   "nom": "Mona Lisa",
+   "cats": [
+    "gastronomie"
+   ],
+   "commune": "Yvoir",
+   "adresse": "Rue Colonel Tachet des Combes 19, 5530 Yvoir",
+   "lat": 50.327165,
+   "lon": 4.878262,
+   "km": 20.7,
+   "min": 22,
+   "site": "",
+   "texte": "Une table au bord de la Meuse, à Yvoir.",
+   "info": "082 71 30 19 · fermé dimanche et lundi (livret du domaine)."
+  },
+  {
+   "id": "roseraie",
+   "nom": "La Roseraie",
+   "cats": [
+    "gastronomie"
+   ],
+   "commune": "Modave",
+   "adresse": "Route de Limet 80, 4577 Modave",
+   "lat": 50.454117,
+   "lon": 5.286425,
+   "km": 23.5,
+   "min": 25,
+   "site": "",
+   "texte": "Une table gastronomique au nord du Condroz, vers la vallée du Hoyoux.",
+   "info": "085 41 13 60 · fermé lundi, mardi et mercredi (livret du domaine)."
+  },
+  {
+   "id": "eauvive",
+   "nom": "L'Eau Vive",
+   "cats": [
+    "gastronomie"
+   ],
+   "commune": "Arbre (Profondeville)",
+   "adresse": "Route de Floreffe 37, 5170 Arbre",
+   "lat": 50.363717,
+   "lon": 4.8457,
+   "km": 27.1,
+   "min": 27,
+   "site": "",
+   "texte": "Une grande table gastronomique au bord de l'eau, à Arbre.",
+   "info": "081 41 11 51 · fermé mardi et mercredi (livret du domaine)."
+  },
+  {
+   "id": "padel",
+   "nom": "Ciney Padel Club",
+   "cats": [
+    "loisirs"
+   ],
+   "commune": "Ciney",
+   "adresse": "Quai de l'Industrie 29, 5590 Ciney",
+   "lat": 50.294429,
+   "lon": 5.091098,
+   "km": 1.6,
+   "min": 2,
+   "site": "",
+   "texte": "Des terrains de padel à deux minutes du domaine.",
+   "info": "083 21 27 53 (livret du domaine)."
+  }
+ ]
+}

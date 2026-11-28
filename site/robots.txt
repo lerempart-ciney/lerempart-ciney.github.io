@@ -1,0 +1,3 @@
+User-agent: *
+Disallow: /
+Sitemap: https://lerempart-ciney.github.io/site/sitemap.xml
