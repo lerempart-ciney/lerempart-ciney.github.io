@@ -2,8 +2,10 @@
 // Les visiteurs n'ont aucun accès direct à la base : tout passe par ici.
 // Routes (paramètre ?a=) : meteo, purge,
 //   hôte (code HOTE_PIN) : hote_test, sejour, sejours, sejour_maj, wifi_regler,
-//   voyageur (jeton s) : etat, langue, arrivee, liste, album, album_legende, album_suppr.
-// Le Wi-Fi, les codes d'accès et l'album ne sont donnés qu'après l'annonce de l'arrivée.
+//   voyageur (jeton s) : etat, langue, arrivee, liste, album, album_titre, album_legende, album_suppr,
+//                        boutique (déco à vendre du gîte du séjour), casse (signalement → inventaire).
+// Le Wi-Fi, les codes d'accès (portail, porte, sauna) et l'album ne sont donnés qu'après l'annonce de l'arrivée.
+// Le gîte vient toujours du séjour (jeton), jamais de l'adresse : un voyageur du gîte 1 ne voit que le gîte 1.
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
 const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
@@ -21,7 +23,11 @@ const erreur = (m: string, s = 400) => json({ erreur: m }, s);
 // Coordonnées de Ciney (centre), arrondies : la météo est celle de la commune.
 const LAT = 50.29, LON = 5.1;
 const UA = "le-rempart-guide/1.0 https://lerempart-ciney.github.io/";
-const MAX_ARTICLES = 200, MAX_PHOTOS = 300;
+const MAX_ARTICLES = 200, MAX_PHOTOS = 300, MAX_CASSES = 20;
+
+// Numéro du gîte (site voyageurs) → identifiant du gîte dans l'appli inventaire (table inv_docs).
+const INV_GITE: Record<string, string> = { "1": "y1kloy31rjo0cj19bot4", "2": "2d0pe52c9nwnui86t7d6", "3": "fcmv7epgr5buisewizq5" };
+const INV_BUCKET = "inventaire";
 
 const aujourdhui = () =>
   new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Brussels" }).format(new Date()); // AAAA-MM-JJ
@@ -51,13 +57,19 @@ function pinOk(b: any) {
   return !!pin && String(b?.pin ?? "") === pin;
 }
 
-// Le voyageur peut annoncer son arrivée seulement à partir du jour prévu de l'arrivée.
-const peutAnnoncer = (s: any) => aujourdhui() >= s.arrivee;
+// Le voyageur peut annoncer son arrivée seulement à partir de 13 h (heure belge) le jour prévu de l'arrivée.
+const HEURE_OUVERTURE = 13;
+const heureBxl = () =>
+  Number(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Brussels", hour: "2-digit", hourCycle: "h23" }).format(new Date()));
+const peutAnnoncer = (s: any) => aujourdhui() > s.arrivee || (aujourdhui() === s.arrivee && heureBxl() >= HEURE_OUVERTURE);
 
 function nouveauToken() {
   const b = new Uint8Array(18); crypto.getRandomValues(b);
   return btoa(String.fromCharCode(...b)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
+// Identifiants au format de l'appli inventaire : documents (20 caractères a-z0-9) et photos (32 hex).
+const idDoc = () => { const a = new Uint8Array(20); crypto.getRandomValues(a); return [...a].map((x) => "abcdefghijklmnopqrstuvwxyz0123456789"[x % 36]).join(""); };
+const idPhoto = () => { const a = new Uint8Array(16); crypto.getRandomValues(a); return [...a].map((x) => x.toString(16).padStart(2, "0")).join(""); };
 
 async function meteo() {
   const { data: cache } = await db.from("v_meteo").select("*").eq("id", 1).maybeSingle();
@@ -98,6 +110,30 @@ async function purge() {
   return { sejours: finis?.length ?? 0, photos };
 }
 
+// Pièces et déco à vendre du gîte, lues dans l'inventaire. Photos : liens signés valables 2 h.
+async function inventaireGite(num: string) {
+  const gid = INV_GITE[num];
+  const [{ data: pcs }, { data: objs }] = await Promise.all([
+    db.from("inv_docs").select("id, data").eq("col", "pieces").eq("data->>gite_id", gid),
+    db.from("inv_docs").select("id, data").eq("col", "objets").eq("data->>gite_id", gid).eq("data->>statut", "a_vendre"),
+  ]);
+  const pieces = (pcs ?? []).map((p) => ({ id: p.id, nom: String(p.data.nom ?? ""), ordre: +p.data.ordre || 99 }))
+    .sort((a, b) => a.ordre - b.ordre || a.nom.localeCompare(b.nom));
+  const ordre = new Map(pieces.map((p, i) => [p.id, i]));
+  const vente = (objs ?? []).filter((o) => (+o.data.quantite || 0) > 0)
+    .sort((a, b) => (ordre.get(a.data.piece_id) ?? 99) - (ordre.get(b.data.piece_id) ?? 99) || String(a.data.nom).localeCompare(String(b.data.nom)));
+  const ids = [...new Set(vente.map((o) => o.data.photo_objet || o.data.photo_lieu).filter(Boolean))] as string[];
+  const signes = ids.length ? (await db.storage.from(INV_BUCKET).createSignedUrls(ids, 7200)).data ?? [] : [];
+  const url = new Map(signes.map((s: any) => [s.path, s.signedUrl]));
+  const objets = vente.map((o) => ({
+    id: o.id, nom: String(o.data.nom ?? ""), prix: typeof o.data.prix === "number" ? o.data.prix : null,
+    ref: o.data.ref ?? null, quantite: +o.data.quantite || 1, piece_id: o.data.piece_id ?? null,
+    description: o.data.description ?? null, localisation: o.data.localisation ?? null,
+    photo: url.get(o.data.photo_objet || o.data.photo_lieu) ?? null,
+  }));
+  return { pieces: pieces.map(({ id, nom }) => ({ id, nom })), objets };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   const url = new URL(req.url), a = url.searchParams.get("a") ?? "";
@@ -127,6 +163,8 @@ Deno.serve(async (req) => {
         const { error } = await db.from("v_sejours").insert({
           token, gite_id: String(b.gite), langue: b.langue || null, arrivee: b.arrivee, depart: b.depart,
           nom: court(b.nom, 60), code_portail: court(b.code_portail, 40), code_porte: court(b.code_porte, 40),
+          // Le sauna existe seulement dans le gîte 1.
+          code_sauna: String(b.gite) === "1" ? court(b.code_sauna, 40) : null,
           heure_arrivee: /^\d{2}:\d{2}$/.test(b.heure ?? "") ? b.heure : null,
         });
         if (error) return erreur(error.message, 500);
@@ -135,14 +173,19 @@ Deno.serve(async (req) => {
 
       if (a === "sejours") {
         const { data } = await db.from("v_sejours")
-          .select("token, gite_id, nom, langue, langue_le, arrivee, depart, heure_arrivee, arrivee_annoncee, acces_retire, code_portail, code_porte")
+          .select("token, gite_id, nom, langue, langue_le, arrivee, depart, heure_arrivee, arrivee_annoncee, acces_retire, code_portail, code_porte, code_sauna")
           .gte("depart", plusJours(aujourdhui(), -1)).eq("demo", false).order("arrivee");
         return json({ sejours: data ?? [] });
       }
 
       if (a === "sejour_maj") {
         const maj: Record<string, unknown> = {};
-        for (const k of ["nom", "code_portail", "code_porte"]) if (k in b) maj[k] = court(b[k], k === "nom" ? 60 : 40);
+        for (const k of ["nom", "code_portail", "code_porte", "code_sauna"]) if (k in b) maj[k] = court(b[k], k === "nom" ? 60 : 40);
+        if ("code_sauna" in maj) {
+          // Le sauna existe seulement dans le gîte 1 : jamais de code sauna enregistré pour les gîtes 2 et 3.
+          const { data: x } = await db.from("v_sejours").select("gite_id").eq("token", String(b.token ?? "")).maybeSingle();
+          if (x?.gite_id !== "1") maj.code_sauna = null;
+        }
         if ("heure" in b) maj.heure_arrivee = /^\d{2}:\d{2}$/.test(b.heure ?? "") ? b.heure : null;
         if ("langue" in b) { maj.langue = LANGUES[b.langue] ? b.langue : null; maj.langue_le = maj.langue ? new Date().toISOString() : null; }
         // Frédéric ouvre (true) ou referme (false) l'accès au Wi-Fi, aux codes et à l'album, à tout moment.
@@ -180,7 +223,7 @@ Deno.serve(async (req) => {
         // Séjour de démonstration (présentation) : jamais le vrai Wi-Fi.
         r.wifi = sejour.demo ? { reseau: "Exemple-WiFi", motDePasse: "exemple" }
           : { reseau: await config("wifi_reseau"), motDePasse: await config("wifi_mdp") };
-        r.codes = { portail: sejour.code_portail, porte: sejour.code_porte };
+        r.codes = { portail: sejour.code_portail, porte: sejour.code_porte, sauna: sejour.gite_id === "1" ? sejour.code_sauna : null };
       }
       return json(r);
     }
@@ -195,7 +238,7 @@ Deno.serve(async (req) => {
     }
 
     if (a === "arrivee" && req.method === "POST") {
-      if (!peutAnnoncer(sejour)) return erreur("Trop tôt : l'arrivée s'annonce le jour prévu de l'arrivée.", 409);
+      if (!peutAnnoncer(sejour)) return erreur("Trop tôt : l'arrivée s'annonce à partir de 13 h le jour prévu de l'arrivée.", 409);
       const heure = /^\d{2}:\d{2}$/.test(corps?.heure ?? "") ? corps.heure : null;
       // Si Frédéric a retiré les codes, le bouton note l'heure mais ne les rouvre pas.
       await db.from("v_sejours").update({
@@ -222,6 +265,64 @@ Deno.serve(async (req) => {
       }
       const { data } = await db.from("v_liste").select("id, nom, fait").eq("sejour", sejour.token).order("id");
       return json({ articles: data ?? [] });
+    }
+
+    // ---------- Boutique déco du gîte du séjour (seulement ce gîte) ----------
+    if (a === "boutique") {
+      return json({ gite: sejour.gite_id, ...(await inventaireGite(sejour.gite_id)) });
+    }
+
+    // ---------- Signalement de casse : arrive dans l'inventaire (anomalie « client », à confirmer) ----------
+    if (a === "casse" && req.method === "POST") {
+      if (aujourdhui() < sejour.arrivee) return erreur("Le signalement s'ouvre le jour de votre arrivée.", 409);
+      const f = await req.formData();
+      const txt = (k: string, n: number) => String(f.get(k) ?? "").trim().slice(0, n);
+      const gid = INV_GITE[sejour.gite_id];
+      const ref = sejour.token.slice(0, 10);
+      const { count } = await db.from("inv_docs").select("id", { count: "exact", head: true })
+        .eq("col", "anomalies").eq("data->>sejour_ref", ref);
+      if ((count ?? 0) >= MAX_CASSES) return erreur("Trop de signalements pour ce séjour : écrivez à Frédéric sur WhatsApp.", 429);
+      // La pièce et l'objet doivent appartenir au gîte du séjour.
+      const pieceId = txt("piece", 40), objetId = txt("objet", 40);
+      let piece: any = null, objet: any = null;
+      if (pieceId) {
+        const { data } = await db.from("inv_docs").select("id, data").eq("col", "pieces").eq("id", pieceId).maybeSingle();
+        if (data?.data?.gite_id === gid) piece = data;
+      }
+      if (objetId) {
+        const { data } = await db.from("inv_docs").select("id, data").eq("col", "objets").eq("id", objetId).maybeSingle();
+        if (data?.data?.gite_id === gid) objet = data;
+      }
+      const quoi = txt("quoi", 80), com = txt("commentaire", 500);
+      const moment = f.get("moment") === "arrivee" ? "arrivee" : "sejour";
+      if (!objet && !quoi) return erreur("Dites-nous ce qui est cassé.");
+      // Séjour de démonstration : rien n'est écrit dans l'inventaire.
+      if (sejour.demo) return json({ ok: true, demo: true });
+      let photo: string | null = null;
+      const fichier = f.get("photo");
+      if (fichier instanceof File && fichier.size) {
+        if (!/^image\//.test(fichier.type)) return erreur("Ce fichier n'est pas une image.");
+        if (fichier.size > 8 * 1024 * 1024) return erreur("Photo trop lourde (8 Mo max).");
+        const pid = idPhoto();
+        const up = await db.storage.from(INV_BUCKET).upload(pid, fichier, { contentType: fichier.type, upsert: false });
+        if (up.error) return erreur(up.error.message, 500);
+        photo = pid;
+      }
+      const qte = Math.min(99, Math.max(1, Math.round(+String(f.get("quantite") ?? "1")) || 1));
+      const quand = moment === "arrivee" ? "Déjà cassé à l'arrivée" : "Cassé pendant le séjour";
+      const qui = [sejour.nom, `${sejour.arrivee} → ${sejour.depart}`].filter(Boolean).join(", ");
+      const maintenant = new Date().toISOString();
+      const data = {
+        gite_id: gid, piece_id: piece?.id ?? objet?.data?.piece_id ?? null, emplacement_id: objet?.data?.emplacement_id ?? null,
+        objet_id: objet?.id ?? null, objet_nom: objet ? String(objet.data.nom) : quoi,
+        type: "Cassé", quantite: qte, quantite_attendue: objet ? (+objet.data.quantite || null) : null,
+        commentaire: [`Signalé par le voyageur dans l'appli (${qui}). ${quand}.`, objet && quoi ? quoi : "", com].filter(Boolean).join(" "),
+        photo, statut: "ouverte", source: "client", canal: "appli_voyageur", moment, sejour_ref: ref,
+        a_confirmer: true, controle_id: null, cree_le: maintenant, par: "voyageur",
+      };
+      const { error } = await db.from("inv_docs").insert({ col: "anomalies", id: idDoc(), data, maj_le: maintenant, maj_par: "voyageur" });
+      if (error) return erreur(error.message, 500);
+      return json({ ok: true });
     }
 
     // L'album s'ouvre seulement après l'annonce de l'arrivée.
@@ -251,7 +352,15 @@ Deno.serve(async (req) => {
       return json({
         photos: (ph ?? []).map((p) => ({ id: p.id, url: lien(p.chemin), date: p.cree_le, legende: p.legende ?? "" })),
         depart: sejour.depart,
+        titre: sejour.album_titre ?? "",
       });
+    }
+
+    // Titre de l'album, choisi par le groupe (couverture de l'album souvenir).
+    if (a === "album_titre" && req.method === "POST") {
+      const titre = String(corps?.titre ?? "").trim().slice(0, 80) || null;
+      await db.from("v_sejours").update({ album_titre: titre }).eq("token", sejour.token);
+      return json({ ok: true });
     }
 
     if (a === "album_legende" && req.method === "POST") {
