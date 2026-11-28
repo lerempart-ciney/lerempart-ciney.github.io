@@ -14,6 +14,8 @@ PREVIEW = '--preview' in sys.argv
 OUT = os.path.join(HERE, '..', 'site-preview' if PREVIEW else 'site')
 C = lambda f: json.load(open(os.path.join(HERE, 'contenu', f), encoding='utf-8'))
 S, G, R = C('site.json'), C('gites.json'), C('region.json')
+from urllib.parse import quote as _q
+GUIDE_MSG = _q("Bonjour, je séjourne au Rempart. Pourriez-vous m'envoyer le lien de mon guide du séjour ?\n\nNom de la réservation : \nGîte (1, 2, 3 ou domaine entier) : \nDate d'arrivée : \nDate de départ : \nLangue du guide (FR, NL, EN, DE, ES) : \nMerci !")
 IMG = json.load(open(os.path.join(HERE, 'imgmeta.json')))
 E = html.escape
 TODAY = date.today().isoformat()
@@ -117,7 +119,7 @@ def footer(p):
    <div><h4>Le domaine</h4><ul><li><a href="{p.rel('la-demeure/')}">La demeure</a></li><li><a href="{p.rel('experiences/')}">Expériences</a></li><li><a href="{p.rel('region/')}">La région</a></li><li><a href="{p.rel('reserver/')}">Réservation</a></li></ul></div>
    <div><h4>Nous écrire</h4><ul><li>{E(S['rue'])}<br>{S['cp']} {S['ville']}</li><li><a href="https://wa.me/{S['whatsapp_num']}">WhatsApp {E(S['whatsapp'])}</a></li><li><a href="mailto:{S['email']}">{S['email']}</a></li><li><a href="{p.rel('contact/')}">Formulaire de contact</a></li></ul></div>
   </div>
-  <div class="ft-bottom"><span>© <span id="year">2026</span> Le Rempart · <a href="{p.rel('mentions-legales/')}">Mentions légales</a> · <a href="{p.rel('confidentialite/')}">Confidentialité et cookies</a></span><span><a href="{S['appli_voyageurs']}">Vous séjournez chez nous ? Votre guide du séjour</a></span></div>
+  <div class="ft-bottom"><span>© <span id="year">2026</span> Le Rempart · <a href="{p.rel('mentions-legales/')}">Mentions légales</a> · <a href="{p.rel('confidentialite/')}">Confidentialité et cookies</a></span><span><a href="https://wa.me/{S['whatsapp_num']}?text={GUIDE_MSG}" target="_blank" rel="noopener">Vous séjournez chez nous ? Demandez votre guide du séjour</a></span></div>
  </div>
 </footer>'''
 

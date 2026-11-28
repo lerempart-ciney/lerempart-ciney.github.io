@@ -373,3 +373,4 @@ fieldset.field{border:0;margin:0;padding:0}
 .legal h2{font-size:1.9rem;margin:48px 0 14px}
 .legal p,.legal li{color:var(--ink);max-width:42em}
 .legal p + p{margin-top:.8em}
+.mapbox .map-fail{background:var(--bg);border:1px solid var(--line);padding:18px 22px;display:grid;gap:12px;justify-items:end;max-width:22em;text-align:right}

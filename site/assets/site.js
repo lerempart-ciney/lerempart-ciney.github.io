@@ -102,11 +102,22 @@
     mapBtn.disabled = true; mapBtn.textContent = '…';
     var css = d.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css'; d.head.appendChild(css);
     var s = d.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
+    var box = d.querySelector('.mapbox');
+    var fail = function () {
+      var old = d.getElementById('map'); if (old) old.remove();
+      var data = JSON.parse(d.getElementById('places-data').textContent);
+      var c = box.querySelector('.map-consent');
+      c.style.pointerEvents = 'auto';
+      c.innerHTML = '<div class="map-fail"><p class="small">La carte détaillée ne peut pas s\u2019afficher ici.</p><a class="btn ghost" style="background:var(--bg)" target="_blank" rel="noopener" href="https://www.openstreetmap.org/?mlat=' + data.home.lat + '&mlon=' + data.home.lon + '#map=11/' + data.home.lat + '/' + data.home.lon + '">Ouvrir dans OpenStreetMap</a></div>';
+    };
+    var timer = setTimeout(fail, 8000);
+    s.onerror = function () { clearTimeout(timer); fail(); };
     s.onload = function () {
       var data = JSON.parse(d.getElementById('places-data').textContent);
-      var box = d.querySelector('.mapbox'); box.innerHTML = '<div id="map"></div>';
+      var holder = d.createElement('div'); holder.id = 'map'; holder.style.opacity = '0'; box.appendChild(holder);
       var m = L.map('map', { scrollWheelZoom: false }).setView([data.home.lat, data.home.lon], 10);
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; contributeurs OpenStreetMap' }).addTo(m);
+      var tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; contributeurs OpenStreetMap' }).addTo(m);
+      tiles.once('tileload', function () { clearTimeout(timer); holder.style.opacity = '1'; var c = box.querySelector('.map-consent'); if (c) c.remove(); var sv = box.querySelector('svg.static'); if (sv) sv.remove(); });
       var icon = function (c) { return L.divIcon({ className: '', html: '<span style="display:block;width:12px;height:12px;border-radius:50%;background:' + c + ';border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.25)"></span>', iconSize: [12, 12], iconAnchor: [6, 6] }); };
       L.marker([data.home.lat, data.home.lon], { icon: icon('#26352D') }).addTo(m).bindPopup('<b>Le Rempart</b><br>Avenue de Namur 6, Ciney');
       L.circle([data.home.lat, data.home.lon], { radius: 50000, color: '#C6AD83', weight: 1, fill: false, dashArray: '4 6' }).addTo(m);
