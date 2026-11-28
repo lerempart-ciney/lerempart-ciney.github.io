@@ -8,7 +8,7 @@ Site mobile pour les voyageurs du Rempart (Avenue de Namur 6, 5590 Ciney), qui c
 |---|---|---|
 | Guide du séjour | Les voyageurs (téléphone) | `index.html?l=fr&a=AAAA-MM-JJ&d=AAAA-MM-JJ` |
 | Écran TV | Les TV du gîte (plein écran) | `tv.html?g=2` (5 langues à tour de rôle) ou `tv.html?g=2&l=fr` |
-| Messages du séjour | Frédéric, Sacha, Anne, Manu | `hote.html` |
+| Messages du séjour | Sam, Sacha, Anne, Manu | `hote.html` |
 | QR à imprimer | À coller près des appareils | `qr.html` |
 
 - `l` = langue, `g` = gîte (1, 2 ou 3), `a` = date d'arrivée, `d` = date de départ, `s` = jeton du lien partagé. Le lien s'arrête le lendemain du départ et la liste de courses est effacée.
@@ -41,10 +41,10 @@ Les messages du parcours sont dans `assets/messages.js`.
 
 ## Langue et accès bloqués jusqu'à l'arrivée (22/11/2026)
 
-- Frédéric crée le séjour dans `hote.html` dès la réservation (gîte, dates, codes) et envoie le message 1, en 5 langues, avec le lien.
+- Sam crée le séjour dans `hote.html` dès la réservation (gîte, dates, codes) et envoie le message 1, en 5 langues, avec le lien.
 - À la première ouverture du lien, le voyageur choisit sa langue. Ce premier choix est enregistré et visible dans « Mes séjours » (`hote.html`). Pas de notification automatique (choix de Sacha).
 - Avant l'annonce d'arrivée, le voyageur voit tout le guide, la liste de courses et les vidéos, mais pas le Wi-Fi, les codes d'accès ni l'album.
-- Le bouton « Prévenir Frédéric de mon arrivée » (possible dès la veille de l'arrivée) ouvre ces accès. Frédéric peut aussi les ouvrir lui-même (« Modifier » puis « Ouvrir les accès maintenant »).
+- Le bouton « Prévenir Sam de mon arrivée » (possible dès la veille de l'arrivée) ouvre ces accès. Sam peut aussi les ouvrir lui-même (« Modifier » puis « Ouvrir les accès maintenant »).
 - Les codes sont gardés dans la base avec le séjour (jamais dans ce dépôt) et effacés 2 jours après le départ. Le Wi-Fi est réglé dans `hote.html` (table `v_config`), pas dans `assets/data.js`.
 
 ## Mise en ligne
