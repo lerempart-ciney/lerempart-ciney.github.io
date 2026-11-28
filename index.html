@@ -134,7 +134,7 @@ async function annoncerArrivee(heure){
 function vAccueil(){
   return `${top()}
     <section class="card hello">
-      <div class="vbox"><video id="vAcc" src="${E(RP.videoAccueil[lang] || RP.videoAccueil.fr)}" poster="assets/accueil.jpg?v=20261123l" playsinline preload="auto" aria-label="Frédéric"></video><button class="son" data-act="son" type="button" aria-label="${E(L('sound'))}" hidden>🔊</button></div>
+      <div class="vbox"><video id="vAcc" src="${E(RP.videoAccueil[lang] || RP.videoAccueil.fr)}" poster="assets/accueil.jpg?v=20261123l" playsinline preload="auto" aria-label="Sam"></video><button class="son" data-act="son" type="button" aria-label="${E(L('sound'))}" hidden>🔊</button></div>
       <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><h1>${E(L('welcome'))}</h1><p>${E(L('intro'))}</p></div>
     </section>
     ${inviter()}
