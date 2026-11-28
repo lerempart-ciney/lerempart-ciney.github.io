@@ -39,8 +39,8 @@ RP.videos = {
   cuisine23: { fr: 'videos/cuisine23-fr.mp4', nl: 'videos/cuisine23-nl.mp4', en: 'videos/cuisine23-en.mp4', de: 'videos/cuisine23-de.mp4', es: 'videos/cuisine23-es.mp4' },
   homecinema: {}
 };
-/* Vidéo de Frédéric sur la page d'accueil, une par langue. */
-RP.videoAccueil = { fr: 'videos/accueil-fr.mp4', nl: 'videos/accueil-nl.mp4', en: 'videos/accueil-en.mp4', de: 'videos/accueil-de.mp4', es: 'videos/accueil-es.mp4' };
+/* Vidéo de Sam (présentateur) sur la page d'accueil, une par langue. Le ?v= force le rechargement après une nouvelle version. */
+RP.videoAccueil = { fr: 'videos/accueil-fr.mp4?v=20261128', nl: 'videos/accueil-nl.mp4?v=20261128', en: 'videos/accueil-en.mp4?v=20261128', de: 'videos/accueil-de.mp4?v=20261128', es: 'videos/accueil-es.mp4?v=20261128' };
 /* Appareils présents seulement dans certains gîtes (les autres sont dans les 3 gîtes).
    Le Wi-Fi est le même pour les 3 gîtes. */
 RP.seulementGite = { lave: ['1'], sauna: ['1'], flipper: ['1'], kicker: ['1'], homecinema: ['1'], piscine: ['1'],
@@ -144,11 +144,11 @@ RP.t = {
  choose:{fr:'Choisissez votre langue',en:'Choose your language',nl:'Kies jullie taal',de:'Wählen Sie Ihre Sprache',es:'Elegid vuestro idioma'},
  nav:{fr:['Accueil',"Aujourd'hui",'Adresses','Aide','Courses','Photos'],en:['Home','Today','Places','Help','Shopping','Photos'],nl:['Welkom','Vandaag','Adressen','Hulp','Boodschappen',"Foto's"],de:['Start','Heute','Adressen','Hilfe','Einkauf','Fotos'],es:['Inicio','Hoy','Lugares','Ayuda','Compras','Fotos']},
  welcome:{fr:'Bienvenue au Rempart',en:'Welcome to Le Rempart',nl:'Welkom bij Le Rempart',de:'Willkommen im Le Rempart',es:'Bienvenidos a Le Rempart'},
- intro:{fr:'Je suis Frédéric, et je suis très heureux de vous accueillir. Prenez le temps de vous installer tranquillement et de vous sentir chez vous.',
-  en:"I'm Frédéric, and I'm so pleased to welcome you. Take your time settling in and make yourself comfortable.",
-  nl:'Ik ben Frédéric en ik ben heel blij jullie te mogen verwelkomen. Neem rustig de tijd om aan te komen en je op je gemak te voelen.',
-  de:'Ich bin Frédéric und freue mich sehr, Sie begrüßen zu dürfen. Richten Sie sich ganz in Ruhe ein und fühlen Sie sich wie zu Hause.',
-  es:'Soy Frédéric y me alegra mucho recibiros. Instalaos con calma y poneos cómodos.'},
+ intro:{fr:'Je suis Sam, et je suis très heureux de vous accueillir. Prenez le temps de vous installer tranquillement et de vous sentir chez vous.',
+  en:"I'm Sam, and I'm so pleased to welcome you. Take your time settling in and make yourself comfortable.",
+  nl:'Ik ben Sam en ik ben heel blij jullie te mogen verwelkomen. Neem rustig de tijd om aan te komen en je op je gemak te voelen.',
+  de:'Ich bin Sam und freue mich sehr, Sie begrüßen zu dürfen. Richten Sie sich ganz in Ruhe ein und fühlen Sie sich wie zu Hause.',
+  es:'Soy Sam y me alegra mucho recibiros. Instalaos con calma y poneos cómodos.'},
  stay:{fr:'Votre séjour',en:'Your stay',nl:'Jullie verblijf',de:'Ihr Aufenthalt',es:'Vuestra estancia'},
  network:{fr:'Réseau',en:'Network',nl:'Netwerk',de:'Netzwerk',es:'Red'},
  pass:{fr:'Mot de passe',en:'Password',nl:'Wachtwoord',de:'Passwort',es:'Contraseña'},
