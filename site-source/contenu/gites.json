@@ -1,0 +1,165 @@
+[
+ {
+  "id": "1",
+  "slug": "gite-1",
+  "roman": "I",
+  "nom": "Gîte 1",
+  "signature": "La maison des grandes tablées",
+  "personnes": 12,
+  "chambres": 6,
+  "sdb": 6,
+  "surface": "",
+  "intro": "La plus grande des trois maisons. Sous les voûtes de brique et les poutres d'origine, une table dressée pour douze, une cuisine ouverte et, plus loin, la piscine intérieure et le sauna.",
+  "atmosphere": [
+   "Le gîte 1 est fait pour les familles qui se retrouvent et les amis qui reviennent. On vit autour de la longue table, sous les voûtains de brique, entre la cuisine en îlot et le coin du feu.",
+   "Le soir, l'espace bien-être prend le relais : une piscine intérieure à la lumière douce, un sauna de bois clair. Plus loin, la salle de jeux, son flipper et son kicker."
+  ],
+  "hero": "gite-1-02",
+  "galerie": [
+   "gite-1-03",
+   "gite-1-02",
+   "gite-1-01",
+   "exterieur-03",
+   "gite-1-04",
+   "gite-1-05",
+   "gite-1-06",
+   "exterieur-01"
+  ],
+  "equipements": {
+   "couchages": [
+    "6 chambres",
+    "Jusqu'à 12 personnes"
+   ],
+   "salle_de_bain": [
+    "6 salles de bain"
+   ],
+   "cuisine": [
+    "Cuisine équipée avec îlot",
+    "Four et four vapeur",
+    "Micro-ondes combiné",
+    "Machine à café à grains",
+    "Table pour 12 convives"
+   ],
+   "bien_etre": [
+    "Piscine intérieure",
+    "Sauna"
+   ],
+   "divertissement": [
+    "Flipper",
+    "Kicker",
+    "Salle de billard",
+    "Smart TV",
+    "Home cinéma|bientôt"
+   ],
+   "exterieur": [
+    "Cour pavée et jardin du domaine",
+    "Tables et salon de jardin"
+   ],
+   "confort": [
+    "Feu de bois",
+    "Wi-Fi",
+    "Lave-linge et sèche-linge",
+    "Parking et borne de recharge"
+   ]
+  }
+ },
+ {
+  "id": "2",
+  "slug": "gite-2",
+  "roman": "II",
+  "nom": "Gîte 2",
+  "signature": "Autour du feu",
+  "personnes": 8,
+  "chambres": 4,
+  "sdb": 4,
+  "surface": "",
+  "intro": "Une maison pour huit, ouverte sur la cour. Un grand séjour autour de la cheminée, une table ovale pour les longs déjeuners, une cuisine claire.",
+  "atmosphere": [
+   "Le gîte 2 réunit deux ou trois familles sans que personne ne manque de place : quatre chambres et quatre salles de bain.",
+   "Les fenêtres donnent sur la verdure du domaine. L'hiver, le feu de bois fait le reste."
+  ],
+  "hero": "gite-2-02",
+  "galerie": [
+   "gite-2-02",
+   "gite-2-03",
+   "gite-2-01",
+   "exterieur-02",
+   "cour-7455"
+  ],
+  "equipements": {
+   "couchages": [
+    "4 chambres",
+    "Jusqu'à 8 personnes"
+   ],
+   "salle_de_bain": [
+    "4 salles de bain"
+   ],
+   "cuisine": [
+    "Cuisine équipée",
+    "Four et micro-ondes combinés",
+    "Table pour 8 convives"
+   ],
+   "divertissement": [
+    "Smart TV",
+    "Bibliothèque"
+   ],
+   "exterieur": [
+    "Cour pavée et jardin du domaine",
+    "Tables de jardin"
+   ],
+   "confort": [
+    "Feu de bois",
+    "Wi-Fi",
+    "Parking et borne de recharge"
+   ]
+  }
+ },
+ {
+  "id": "3",
+  "slug": "gite-3",
+  "roman": "III",
+  "nom": "Gîte 3",
+  "signature": "La salle où l'on dînait",
+  "personnes": 8,
+  "chambres": 4,
+  "sdb": 4,
+  "surface": "",
+  "intro": "Installé dans l'ancienne salle du restaurant du domaine, le gîte 3 accueille huit personnes là où l'on servait, hier encore, douze couverts.",
+  "atmosphere": [
+   "Le gîte 3 occupe la partie de la ferme qui a accueilli un restaurant en 2025. Il garde l'esprit d'une maison où l'on aime recevoir.",
+   "Quatre chambres, quatre salles de bain, un séjour avec feu de bois : les mêmes attentions que dans le gîte 2."
+  ],
+  "hero": "",
+  "galerie": [
+   "exterieur-04",
+   "cour-7458"
+  ],
+  "equipements": {
+   "couchages": [
+    "4 chambres",
+    "Jusqu'à 8 personnes"
+   ],
+   "salle_de_bain": [
+    "4 salles de bain"
+   ],
+   "cuisine": [
+    "Cuisine équipée",
+    "Four et micro-ondes combinés",
+    "Table pour 8 convives"
+   ],
+   "divertissement": [
+    "Smart TV",
+    "Bibliothèque"
+   ],
+   "exterieur": [
+    "Cour pavée et jardin du domaine",
+    "Tables de jardin"
+   ],
+   "confort": [
+    "Feu de bois",
+    "Wi-Fi",
+    "Parking et borne de recharge"
+   ]
+  }
+ }
+]
