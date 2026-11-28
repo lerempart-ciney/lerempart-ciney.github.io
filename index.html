@@ -172,12 +172,14 @@ const datesCourtes = () => arrivee && depart ? fmt(arrivee,{day:'numeric',month:
 const ROMAIN = ['I','II','III','IV','V','VI','VII','VIII'];
 function vAccueil(){
   const g1 = !G || G === '1';
+  const g2 = G === '2', P = 'assets/img/gite/';
   const tuiles = [
-    {t:1, img:'assets/img/domaine-7455.jpg', b:L('rSejour'), s:L('rSejourS')},
-    {t:2, img:'assets/img/domaine-7454.jpg', b:L('rExp'), s:L('rExpS')},
-    {t:3, des:g1 ? 'sauna' : 'feu', b:L('rBien'), s:L(g1 ? 'rBienS1' : 'rBienS'), ancre:'bien'},
-    {t:3, des:g1 ? 'cafe' : 'cuisine23', b:L('rGuide'), s:L('rGuideS'), ancre:'equip'}
+    {t:1, img:P + (g1 ? 'g1-salle' : 'ext-table') + '.jpg', b:L('rSejour'), s:L('rSejourS')},
+    {t:2, img:P + 'ext-cour.jpg', b:L('rExp'), s:L('rExpS')},
+    {t:3, ...(g1 ? {img:P + 'g1-piscine.jpg'} : g2 ? {img:P + 'g2-salon.jpg'} : {des:'feu'}), b:L('rBien'), s:L(g1 ? 'rBienS1' : 'rBienS'), ancre:'bien'},
+    {t:3, ...(g1 ? {img:P + 'g1-cuisine.jpg'} : g2 ? {img:P + 'g2-cuisine.jpg'} : {des:'cuisine23'}), b:L('rGuide'), s:L('rGuideS'), ancre:'equip'}
   ];
+  const gal = (g1 ? [1,2,3,4,5,6].map(i => 'g1-' + i) : g2 ? [1,2,3].map(i => 'g2-' + i) : []).concat([1,2,3].map(i => 'ext-' + i));
   const lignes = [
     {t:4, b:L('rServ'), s:L('rServS')},
     {t:1, b:L('rDep'), s:L('rDepS'), ancre:'depart'}
@@ -203,6 +205,10 @@ function vAccueil(){
         <div><blockquote>${E(L('intro'))}</blockquote><div class="sign">— ${E(L('host'))}</div></div>
       </div>
       ${inviter()}
+    </section>
+    <section class="sec gal-sec">
+      <div class="sec-h"><h2>${E(L('gal'))}</h2></div>
+      <div class="gal" tabindex="0" aria-label="${E(L('gal'))}">${gal.map(k => `<figure><img src="assets/img/gite/gal-${k}.jpg" alt="" loading="lazy" decoding="async"></figure>`).join('')}</div>
     </section>
     <section class="sec">
       <div class="sec-h"><h2>${E(L('index'))}</h2></div>
@@ -333,7 +339,8 @@ function lieu(p){
 const dureeTxt = s => s ? (s < 60 ? Math.round(s) + ' s' : Math.floor(s / 60) + ' min ' + String(Math.round(s % 60)).padStart(2, '0')) : '';
 function carteEquip(k){
   const has = RP.videos[k][lang] || RP.videos[k].fr;
-  const inner = `<span class="ph ill">${RP.dessin(k)}${has ? `<span class="play">${ico('tri')}</span>` : ''}</span>
+  const ph = {sauna:'eq-sauna', piscine:'eq-piscine', flipper:'eq-flipper', feu: G === '2' ? 'eq-feu-g2' : ''}[k];
+  const inner = `<span class="ph${ph ? '' : ' ill'}">${ph ? `<img src="assets/img/gite/${ph}.jpg" alt="" loading="lazy">` : RP.dessin(k)}${has ? `<span class="play">${ico('tri')}</span>` : ''}</span>
     <b>${E(RP.t.eq[k][lang])}</b><small>${has ? E(L('watch')) : E(L('soon'))}</small>`;
   return has ? `<button class="eqc" data-video="${k}" aria-current="${k===video}">${inner}</button>`
              : `<div class="eqc soon">${inner}</div>`;
