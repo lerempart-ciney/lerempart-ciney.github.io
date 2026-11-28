@@ -37,7 +37,7 @@ label.f input,label.f select{border:1px solid var(--line);border-radius:10px;pad
 <body>
 <div class="wrap">
   <header>
-    <div class="eyebrow">Le Rempart · page de Frédéric</div>
+    <div class="eyebrow">Le Rempart · page de Sam</div>
     <h1 style="font-size:1.9rem">Mes séjours</h1>
     <p class="muted">Ici, tu crées le lien de chaque séjour et tu vois la langue choisie par le voyageur et son arrivée. Rien n'est envoyé par cette page : c'est toi qui envoies les messages.</p>
   </header>
@@ -193,7 +193,7 @@ function texte(m, s, l){
     if (m.multi) return RP.texteMulti(m, lienDe(s));
     return LANGS.map(k => k.toUpperCase() + ' · ' + remplir(m, valeurs(s, k), k)).join('\n\n');
   }
-  if (m.multi) return lienDe(s) + '\n\n' + m[l] + '\n\nFrédéric · WhatsApp ' + RP.config.whatsapp;
+  if (m.multi) return lienDe(s) + '\n\n' + m[l] + '\n\nSam · WhatsApp ' + RP.config.whatsapp;
   return remplir(m, valeurs(s, l), l);
 }
 function waLink(t){
