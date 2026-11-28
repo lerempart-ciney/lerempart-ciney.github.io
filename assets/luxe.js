@@ -63,5 +63,6 @@ RP.departListe = (lang, g) => {
     important: (lignes.find(l => /\b11\b/.test(l)) || '').trim()
   };
 };
-/* Photo de chaque vidéo d'équipement (image tirée de la vidéo). */
-RP.photoEquip = k => 'assets/img/eq-' + k + '.jpg';
+
+/* Présentation sobre : pas de coche ✓ collée aux textes. */
+['arrDone','brkPhotoOk'].forEach(k => { const t = RP.t[k]; if (t) Object.keys(t).forEach(l => { if (typeof t[l] === 'string') t[l] = t[l].replace(/\s*✓\s*/g, '').trim(); }); });

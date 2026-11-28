@@ -24,6 +24,7 @@
 <script src="assets/data.js?v=20261128a"></script>
 <script src="assets/messages.js?v=20261128a"></script>
 <script src="assets/luxe.js?v=20261128b"></script>
+<script src="assets/dessins.js?v=20261128c"></script>
 <script>
 (function(){
 const C = RP.config, Q = new URLSearchParams(location.search);
@@ -96,7 +97,10 @@ const ICONS = {
  key:'<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3M14 9l2 2"/>',
  compass:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
  bell:'<path d="M5 17h14M7 17v-5a5 5 0 0 1 10 0v5M12 4v2M4 20h16"/>',
- tri:'<path d="M7 4l13 8-13 8z" fill="currentColor" stroke="none"/>'
+ tri:'<path d="M7 4l13 8-13 8z" fill="currentColor" stroke="none"/>',
+ lock:'<rect x="5" y="11" width="14" height="10" rx="1"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+ son:'<path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5M18 7a7 7 0 0 1 0 10"/>',
+ check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>'
 };
 const ico = (k, extra='') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${ICONS[k]}</svg>`;
 const fmt = (d,o) => new Intl.DateTimeFormat(RP.langues[lang], o).format(d);
@@ -126,7 +130,7 @@ function vFin(){
 function acces(){
   if (!S) return `<p class="muted">${E(L('guideOnly'))}</p>`;
   if (!etat) return '';
-  if (!etat.debloque) return `<div class="lock"><b>🔒 ${E(L('lockTitle'))}</b><p class="muted" style="margin:0">${E(L(etat.retire?'retireTxt':'lockTxt'))}</p></div>`;
+  if (!etat.debloque) return `<div class="lock"><b class="lockt">${ico('lock')} ${E(L('lockTitle'))}</b><p class="muted" style="margin:0">${E(L(etat.retire?'retireTxt':'lockTxt'))}</p></div>`;
   const w = etat.wifi || {}, c = etat.codes || {}, qr = RP.wifiQr(w.reseau ? w : null);
   return `<div class="eyebrow" style="margin-top:6px">${E(L('accessTitle'))}</div>
     ${w.reseau?`<div class="row"><span>Wi-Fi · ${E(L('network'))}</span><span>${E(w.reseau)}</span></div>
@@ -171,8 +175,8 @@ function vAccueil(){
   const tuiles = [
     {t:1, img:'assets/img/domaine-7455.jpg', b:L('rSejour'), s:L('rSejourS')},
     {t:2, img:'assets/img/domaine-7454.jpg', b:L('rExp'), s:L('rExpS')},
-    {t:3, img:RP.photoEquip(g1 ? 'sauna' : 'feu'), b:L('rBien'), s:L(g1 ? 'rBienS1' : 'rBienS'), ancre:'bien'},
-    {t:3, img:RP.photoEquip(g1 ? 'cafe' : 'cuisine23'), b:L('rGuide'), s:L('rGuideS'), ancre:'equip'}
+    {t:3, des:g1 ? 'sauna' : 'feu', b:L('rBien'), s:L(g1 ? 'rBienS1' : 'rBienS'), ancre:'bien'},
+    {t:3, des:g1 ? 'cafe' : 'cuisine23', b:L('rGuide'), s:L('rGuideS'), ancre:'equip'}
   ];
   const lignes = [
     {t:4, b:L('rServ'), s:L('rServS')},
@@ -195,7 +199,7 @@ function vAccueil(){
     <section class="sec">
       <div class="eyebrow">${E(L('wordFrom'))}</div>
       <div class="note">
-        <div class="vbox"><video id="vAcc" src="${E(RP.videoAccueil[lang] || RP.videoAccueil.fr)}" poster="assets/accueil.jpg?v=20261128a" playsinline preload="auto" aria-label="Sam"></video><button class="son" data-act="son" type="button" aria-label="${E(L('sound'))}" hidden>🔊</button></div>
+        <div class="vbox"><video id="vAcc" src="${E(RP.videoAccueil[lang] || RP.videoAccueil.fr)}" poster="assets/accueil.jpg?v=20261128a" playsinline preload="auto" aria-label="Sam"></video><button class="son" data-act="son" type="button" aria-label="${E(L('sound'))}" hidden>${ico('son')}</button></div>
         <div><blockquote>${E(L('intro'))}</blockquote><div class="sign">— ${E(L('host'))}</div></div>
       </div>
       ${inviter()}
@@ -203,7 +207,7 @@ function vAccueil(){
     <section class="sec">
       <div class="sec-h"><h2>${E(L('index'))}</h2></div>
       <div class="tiles">${tuiles.map((x, i) => `<button class="tile" data-tab="${x.t}" ${x.ancre ? `data-ancre="${x.ancre}"` : ''}>
-        <span class="ph"><img src="${x.img}" alt="" loading="lazy"></span>
+        <span class="ph${x.des ? ' ill' : ''}">${x.des ? RP.dessin(x.des) : `<img src="${x.img}" alt="" loading="lazy">`}</span>
         <span class="num">${ROMAIN[i]}.</span><b>${E(x.b)}</b><span class="s">${E(x.s)}</span></button>`).join('')}</div>
       <div class="idx">${lignes.map((x, i) => `<button ${x.act ? `data-act="${x.act}"` : `data-tab="${x.t}"`} ${x.ancre ? `data-ancre="${x.ancre}"` : ''}>
         <span class="num">${ROMAIN[i + tuiles.length]}.</span><span><b>${E(x.b)}</b><small>${E(x.s)}</small></span><span class="arrow">→</span></button>`).join('')}</div>
@@ -296,13 +300,13 @@ function vDecouvrir(){
     <section class="sec"><div class="eyebrow">${E(L('three'))}</div>
       <div>${RP.idees(d,lang).map(([k,p])=>p?`<div class="idea"><div><div class="k">${E(k)}</div><b>${E(p.nom)}</b><span class="muted">${p.min} ${E(L('min'))} · ${E(RP.sousTitre(p,lang)||p.adr)}</span></div><a class="link" href="${RP.carte(p)}" target="_blank" rel="noopener">${E(L('route'))}</a></div>`:'').join('')}</div>
     </section>
-    ${pj?`<section class="sec"><div class="eyebrow">★ ${E(L('pepiteJour'))}</div><h2 style="font-size:1.6rem">${E(pj.nom)}</h2><p class="lead" style="font-style:italic;margin:0">${E(pj.mot[lang]||pj.mot.fr)}</p><a class="link" href="${RP.carte(pj)}" target="_blank" rel="noopener">${E(L('route'))}</a></section>`:''}
+    ${pj?`<section class="sec"><div class="eyebrow">${E(L('pepiteJour'))}</div><h2 style="font-size:1.6rem">${E(pj.nom)}</h2><p class="lead" style="font-style:italic;margin:0">${E(pj.mot[lang]||pj.mot.fr)}</p><a class="link" href="${RP.carte(pj)}" target="_blank" rel="noopener">${E(L('route'))}</a></section>`:''}
     ${r?`<section class="sec"><div class="eyebrow">${E(L('rain'))}</div><div class="idea" style="border-top:0;padding-top:0"><div><b>${E(r.nom)}</b><span class="muted">${r.min} ${E(L('min'))} · ${E(RP.sousTitre(r,lang))} · ${E(r.adr)}</span></div><a class="link" href="${RP.carte(r)}" target="_blank" rel="noopener">${E(L('route'))}</a></div></section>`:''}
     ${jeuCard(d)}
     <section class="sec" id="carnet">
       <div class="sec-h"><h2>${E(L('addrBook'))}</h2></div><p class="muted" style="margin:0">${E(L('carLong'))}</p>
-      <div class="chips" role="group">${cats.map(c=>`<button data-cat="${c}" aria-pressed="${c===cat}">${E(c==='tout'?L('all'):c==='pepites'?'★ '+L('pepites'):RP.t.cats[c][lang])}</button>`).join('')}</div>
-      ${groupes.map(g=>{const ps=RP.adresses.filter(p=>g==='pepites'?p.mot:p.cat===g);return ps.length?`<div style="padding-top:18px"><div class="eyebrow">${E(g==='pepites'?'★ '+L('pepites'):RP.t.cats[g][lang])}</div>${ps.map(lieu).join('')}</div>`:''}).join('')}
+      <div class="chips" role="group">${cats.map(c=>`<button data-cat="${c}" aria-pressed="${c===cat}">${E(c==='tout'?L('all'):c==='pepites'?L('pepites'):RP.t.cats[c][lang])}</button>`).join('')}</div>
+      ${groupes.map(g=>{const ps=RP.adresses.filter(p=>g==='pepites'?p.mot:p.cat===g);return ps.length?`<div style="padding-top:18px"><div class="eyebrow">${E(g==='pepites'?L('pepites'):RP.t.cats[g][lang])}</div>${ps.map(lieu).join('')}</div>`:''}).join('')}
       <a class="btn ghost" href="livret.html?l=${lang}">${E(L('pdf'))}</a>
     </section>
     <p class="muted" style="font-size:.74rem">${E(L('src'))}${C.livretVerifieLe?' '+E(L('checked'))+' '+E(fmt(parseDay(C.livretVerifieLe),{day:'numeric',month:'long',year:'numeric'}))+'.':''}</p>
@@ -321,7 +325,7 @@ function lieu(p){
         ${p.tel?`<span>${E(p.tel)}</span>`:''}
         ${chef?'':`<a href="${RP.carte(p)}" target="_blank" rel="noopener">${E(L('route'))}</a>`}
       </div>
-      ${mot?`<p class="pep"><b>★ ${E(L('pepite'))}</b><br>${E(mot)}</p>`:''}
+      ${mot?`<p class="pep"><b>${E(L('pepite'))}</b><br>${E(mot)}</p>`:''}
     </div></div>`;
 }
 
@@ -329,7 +333,7 @@ function lieu(p){
 const dureeTxt = s => s ? (s < 60 ? Math.round(s) + ' s' : Math.floor(s / 60) + ' min ' + String(Math.round(s % 60)).padStart(2, '0')) : '';
 function carteEquip(k){
   const has = RP.videos[k][lang] || RP.videos[k].fr;
-  const inner = `<span class="ph"><img src="${RP.photoEquip(k)}" alt="" loading="lazy" onerror="this.remove()">${has ? `<span class="play">${ico('tri')}</span>` : ''}</span>
+  const inner = `<span class="ph ill">${RP.dessin(k)}${has ? `<span class="play">${ico('tri')}</span>` : ''}</span>
     <b>${E(RP.t.eq[k][lang])}</b><small>${has ? E(L('watch')) : E(L('soon'))}</small>`;
   return has ? `<button class="eqc" data-video="${k}" aria-current="${k===video}">${inner}</button>`
              : `<div class="eqc soon">${inner}</div>`;
@@ -462,7 +466,7 @@ function vAlbum(){
   const ph = album ? album.photos : null;
   if (etat && !etat.debloque) return `${top()}${retour()}
     <div class="albhero"><div><div class="eyebrow">${E(lieuNom)}</div><h1>${E(L('album'))}</h1></div></div>
-    <section class="card"><div class="lock"><b>🔒 ${E(L('lockTitle'))}</b><p class="muted" style="margin:0">${E(L('albumLocked'))}</p></div></section>`;
+    <section class="card"><div class="lock"><b class="lockt">${ico('lock')} ${E(L('lockTitle'))}</b><p class="muted" style="margin:0">${E(L('albumLocked'))}</p></div></section>`;
   return `${top()}${retour()}
     <div class="albhero"><div><div class="eyebrow">${E(lieuNom)}</div><h1>${E(L('album'))}</h1></div></div>
     <p class="muted">${E(L('albumTxt'))}</p>
@@ -474,7 +478,7 @@ function vAlbum(){
     ${ph===null?'':ph.length?`<div class="gal">${ph.map(p=>`<figure><a href="${E(p.url||'#')}" target="_blank" rel="noopener"><img src="${E(p.url||'')}" alt="" loading="lazy"></a>
       <button class="del" data-del="${p.id}">${E(L(suppr===p.id?'delSure':'delPhoto'))}</button>
       <input class="cap" data-cap="${p.id}" maxlength="140" value="${E(p.legende||'')}" placeholder="${E(L('capPh'))}" aria-label="${E(L('capPh'))}"></figure>`).join('')}</div>`:`<p class="muted">${E(L('albumEmpty'))}</p>`}
-    ${ph&&ph.length?`<section class="card souv"><div class="eyebrow">★ ${E(L('souvenir'))}</div><p class="muted" style="margin:0">${E(L('souvenirTxt'))}</p>
+    ${ph&&ph.length?`<section class="card souv"><div class="eyebrow">${E(L('souvenir'))}</div><p class="muted" style="margin:0">${E(L('souvenirTxt'))}</p>
       <label class="f">${E(L('albTitre'))}<input id="albTitre" maxlength="80" value="${E(album.titre||'')}" placeholder="${E(L('albTitrePh'))}"></label>
       <p class="muted" style="margin:0">${E(L('albTitreTxt'))}</p>
       ${souv?`<div class="pages">${souv.pages.map((pg,i)=>`<a href="${pg.url}" target="_blank" rel="noopener"><img src="${pg.url}" alt="${E(L('souvenirTitle'))} ${i+1}/${souv.pages.length}"></a>`).join('')}</div>
@@ -667,7 +671,7 @@ function vCasse(){
   const c = casse, v = c.v, o = c.objet && shop ? shop.objets.find(x => x.id === c.objet) : null;
   const avant = S && arrivee && now() < arrivee;
   const tete = `${top()}${retour()}<div><h1 style="font-size:1.6rem">${E(L('brkTitle'))}</h1><p class="muted">${E(L('brkIntro'))}</p></div>`;
-  if (c.fait) return `${tete}<section class="card"><span class="tag t-ok" style="align-self:flex-start">✓</span>
+  if (c.fait) return `${tete}<section class="card"><span class="okmark">${ico('check')}</span>
     <h2 style="font-size:1.25rem">${E(L('brkDone'))}</h2><p class="muted" style="margin:0">${E(L('brkDoneTxt'))}</p>
     <a class="btn" href="${wa(c.wa)}" target="_blank" rel="noopener">${E(L('brkWaBtn'))}</a>
     <button class="btn ghost" data-act="casseAgain">${E(L('brkAgain'))}</button></section>`;
