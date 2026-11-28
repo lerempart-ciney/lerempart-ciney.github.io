@@ -7,6 +7,7 @@ window.RP = {};
 /* ---------- 1. Réglages ---------- */
 RP.config = {
   whatsapp: '+32 475 72 88 67',
+  email: 'lerempartciney@gmail.com', // donné par Sacha le 28/11/2026 (WhatsApp reste le contact principal)
   adresse: 'Avenue de Namur 6, 5590 Ciney',
   gps: '50.298357, 5.101378', // devant l'entrée, coordonnées données par Sacha le 22/11/2026
   // Wi-Fi : laisser vide tant que ce n'est pas connu. S'affiche dans l'appli et sur la TV.
