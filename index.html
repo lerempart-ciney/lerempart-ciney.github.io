@@ -38,7 +38,7 @@ const listKey = 'rp-liste-' + sejourId;
 const S = /^[A-Za-z0-9_-]{16,64}$/.test(Q.get('s') || '') ? Q.get('s') : null;
 let partagee = null, horsLigne = false, album = null, envoi = 0, albumErr = '', suppr = null, souv = null, souvEnCours = false, souvErr = '';
 
-/* Avec un lien de séjour, le voyageur choisit sa langue à la première ouverture ; ce choix est enregistré pour Frédéric. */
+/* Avec un lien de séjour, le voyageur choisit sa langue à la première ouverture ; ce choix est enregistré pour Sam. */
 const langKey = S ? 'rp-lang-' + S : 'rp-lang';
 let lang = RP.langues[Q.get('l')] ? Q.get('l') : (RP.langues[store.get(langKey)] ? store.get(langKey) : null);
 /* État du séjour donné par le serveur : langue, arrivée annoncée, et (après l'annonce) Wi-Fi et codes. */
@@ -162,7 +162,7 @@ function vAccueil(){
       </div>
     </section>
     <section class="card" id="frederic">
-      <div class="eyebrow">Contact · Frédéric</div>
+      <div class="eyebrow">Contact · Sam</div>
       <h2 style="font-size:1.25rem">${E(L('askTitle'))}</h2>
       <p class="muted" style="margin:0">${E(L('askTxt'))}</p>
       ${L('askTopics').map((s,i)=>`<a class="btn ${i===3?'ghost':''}" href="${wa((G?'[Gîte '+G+'] ':'') + L('askMsgs')[i])}" target="_blank" rel="noopener">${E(s)}</a>`).join('')}
@@ -556,7 +556,7 @@ document.addEventListener('click', e => {
   }
   if (b.dataset.lang){
     lang = b.dataset.lang; store.set(langKey, lang); tab = video ? 3 : 0; render();
-    /* Premier choix du groupe : enregistré pour Frédéric (page « Mes séjours »). */
+    /* Premier choix du groupe : enregistré pour Sam (page « Mes séjours »). */
     if (S && etat && !etat.langue) { etat.langue = lang; RP.api('langue', S, {langue: lang}).catch(() => {}); }
     return;
   }
@@ -622,7 +622,7 @@ RP.meteo().then(m => { if (m){ meteo = m; if (tab === 1) render(true); } });
 if (S && !termine()) {
   chargerEtat();
   chargerListe();
-  /* Frédéric peut ouvrir, fermer ou changer les codes à tout moment : on relit l'état chaque minute. */
+  /* Sam peut ouvrir, fermer ou changer les codes à tout moment : on relit l'état chaque minute. */
   setInterval(() => { if (!document.hidden && tab === 0) chargerEtat(); }, 60000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) chargerEtat(); });
   setInterval(() => { if (tab === 4 && !document.hidden) chargerListe(); }, 20000);
