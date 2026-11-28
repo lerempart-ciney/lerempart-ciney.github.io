@@ -8,6 +8,7 @@ Object.assign(RP.t, {
   heroBtn:{fr:'Découvrir votre séjour',en:'Discover your stay',nl:'Ontdek jullie verblijf',de:'Ihren Aufenthalt entdecken',es:'Descubrir vuestra estancia'},
   wordFrom:{fr:'Un mot de Sam',en:'A word from Sam',nl:'Een woordje van Sam',de:'Ein Wort von Sam',es:'Unas palabras de Sam'},
   host:{fr:'Sam, votre hôte',en:'Sam, your host',nl:'Sam, jullie gastheer',de:'Sam, Ihr Gastgeber',es:'Sam, vuestro anfitrión'},
+  gal:{fr:'Le Rempart en images',en:'Le Rempart in pictures',nl:'Le Rempart in beeld',de:'Le Rempart in Bildern',es:'Le Rempart en imágenes'},
   index:{fr:'Votre séjour en un regard',en:'Your stay at a glance',nl:'Jullie verblijf in één oogopslag',de:'Ihr Aufenthalt auf einen Blick',es:'Vuestra estancia de un vistazo'},
   rSejour:{fr:'Votre séjour',en:'Your stay',nl:'Jullie verblijf',de:'Ihr Aufenthalt',es:'Vuestra estancia'},
   rSejourS:{fr:'Dates, arrivée et accès',en:'Dates, arrival and access',nl:'Data, aankomst en toegang',de:'Daten, Ankunft und Zugang',es:'Fechas, llegada y acceso'},
